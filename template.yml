@@ -79,6 +79,17 @@ settings:
     description: Opacity of the line 0 - 1
     type: number
     width: quarter
+  - property: moe.opacityMob
+    name: Opacity (mobile)
+    description: Opacity of the shading 0 - 1
+    type: number
+    width: quarter
+    new_section: 'MoE shading'
+  - property: moe.opacityDesk
+    name: Opacity (desktop)
+    description: Opacity of the shading 0 - 1
+    type: number
+    width: quarter
 
 
 data:

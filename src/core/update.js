@@ -33,6 +33,7 @@ export default function() {
 	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
 	const lineWidth = width < breakpoint ? state.averages.smallStrokeWidth : state.averages.largeStrokeWidth
 	const lineOpacity = width < breakpoint ? state.averages.smallOpacity : state.averages.largeOpacity
+	const moeOpacity = width < breakpoint ? state.moe.opacityMob : state.moe.opacityDesk
 
 	console.log('lineWidth', lineWidth)
 	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : d3.extent(formattedPolls, d => d.date)[0];
@@ -63,6 +64,39 @@ export default function() {
 	const plot = chart_layout.data_foreground
 	const yScale = chart_layout.yScale()
 	const xScale = chart_layout.xScale()
+
+	//set up line interpolation and line drawing function
+	const areaData = d3.area()
+		.x(d => xScale(d.x))
+		.y1(d => yScale(d.y1))
+		.y0(d => yScale(d.y0));
+	
+	//Add Margin of error
+	plot.selectAll('.areas')
+		.data(filteredPlotData)
+		.join(
+		function(enter) {
+			return enter
+			.append('path')
+			.attr('d', d => areaData(d.areas))
+		},
+		function(update) {
+			return update
+			.attr('d', d => areaData(d.areas))
+		},
+		function(exit) {
+			return exit
+			.transition()
+			.duration(100)
+			.on('end', function() {
+				d3.select(this).remove()
+			});
+		},
+		)
+		.attr('class', 'areas')
+		.attr('fill', d => colors.getColor(d.party))
+		.attr('id', d => d.party)
+		.attr('opacity', moeOpacity)
 
 	//Add a group for each series of dots
 	plot.selectAll('.dotHolder')

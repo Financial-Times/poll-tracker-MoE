@@ -61,6 +61,7 @@ export function getDots(d, group,) {
     });
     return dotsData;
 }
+
 export function getlines(d, group) {
     // console.log('d and group',d,group)
     const lineData = [];
@@ -82,4 +83,28 @@ export function getlines(d, group) {
         }
     });
     return lineData;
+}
+
+export function getMoE(d, group) {
+    // console.log('d and group',d,group)
+    const areaData = [];
+    d.forEach((el) => {
+        // console.log(el,i)
+        const column = {};
+        column.name = group;
+        column.x = el.date;
+        column.y1 = +el[group + '_upper'];
+        column.y0 = +el[group + '_lower'];
+        if (el[group]) {
+            areaData.push(column);
+        }
+
+        // if(el[group] == false) {
+        //     lineData.push(null)
+        // }
+        if (el[group] === false && joinPoints === false) {
+            areaData.push(null);
+        }
+    });
+    return areaData;
 }

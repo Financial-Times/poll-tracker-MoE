@@ -9,7 +9,7 @@ import data from "./data";
 import * as d3 from 'd3';
 import { layout } from "../init";
 import createChartLayout from "@flourish/chart-layout";
-import { extentMulti, getDots, getlines} from '../parseData';
+import { extentMulti, getDots, getlines, getMoE} from '../parseData';
 
 
 let chart, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, formattedPolls, formattedAverages, valueExtent, dateExtent, plotData
@@ -69,7 +69,8 @@ plotData  = columnNames.map(party => {
 		displayNameMob: partyData.displayNameMobile,
 		displayNameDesk: partyData.displayNameDesktop,
 		dots: getDots(formattedPolls, party,),
-		lines: getlines(formattedAverages, party)
+		lines: getlines(formattedAverages, party),
+		areas: getMoE(formattedAverages, party),
 	}
 })
 console.log('plotData', plotData)

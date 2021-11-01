@@ -12,15 +12,15 @@ import createChartLayout from "@flourish/chart-layout";
 import { extentMulti} from '../parseData';
 
 
-let chart, props, chart_layout, columnNames, formattedPolls, valueExtent, dateExtent
+let chart, props, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent
 
 export default function() {
 
 //get the dimensions of the layout primary container
 let width = layout.getPrimaryWidth()
 let height = layout.getPrimaryHeight()
-const dateFormat = state.dateFormat;
-const parseDate = d3.timeParse(dateFormat);
+dateFormat = state.dateFormat;
+parseDate = d3.timeParse(dateFormat);
 
 chart = d3.select("#fl-layout-primary")
 	.append('svg')
@@ -54,5 +54,5 @@ update();
 window.onresize = function() { update() };
 }
 
-export {layout, chart, chart_layout, valueExtent, dateExtent};
+export {layout, chart, chart_layout, dateFormat, parseDate, formattedPolls, valueExtent, dateExtent};
 

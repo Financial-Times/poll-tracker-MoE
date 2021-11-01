@@ -12,7 +12,7 @@ import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
 import { getMaxTextWidth, getStacks } from '../parseData';
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
-import {layout, chart, chart_layout, valueExtent, dateExtent} from "./draw";
+import {layout, chart, chart_layout, dateFormat, parseDate, formattedPolls, valueExtent, dateExtent} from "./draw";
 import { update } from "..";
 
 export default function() {
@@ -29,18 +29,21 @@ export default function() {
 	// const rem = width > breakpoint ? state.layout.font_size_desktop
 	// 	: state.layout.font_size_mobile_big
 	// 	; 14
+	
+	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : d3.extent(formattedPolls, d => d.date)[0];
+	dateExtent[1] = state.x.datetime_max ? new Date(state.x.datetime_max) : d3.extent(formattedPolls, d => d.date)[1];
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
 	console.log('numDays', numDays)
-	//state.tickFormat  = numDays < 1095 ? '%b %y' : '%y';
 	const xTixkFormat = state.tickFormat? state.tickFormat
 	: numDays < 1095 ? '%b %y' : '%y';
 
 	chart_layout.yData([0,valueExtent[1]])
-
-	chart_layout.xData(dateExtent)
-	chart_layout.xFormat(timeFormat(xTixkFormat))
+	//pass the date formatting function to the chart_layout. User defined date min and max will not work properly without this
+	chart_layout.xDatetimeParse(parseDate);
+	chart_layout.xData(dateExtent);
+	chart_layout.xFormat(timeFormat(xTixkFormat));
 	//chart_layout.yData(groupNames)
-	chart_layout.update()
+	chart_layout.update();
 
 
 	layout.update()

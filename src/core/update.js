@@ -16,6 +16,37 @@ import { timeFormat, } from 'd3-time-format';
 import {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent, plotData,} from "./draw";
 import { update } from "..";
 
+// Helper function to position labels
+const positionLabels = (labels, spacing, alpha) => {
+	labels.each(d1 => {
+		const y1 = d1.position;
+		const a1 = d1.average;
+
+		labels.each(d2 => {
+			const y2 = d2.position;
+			const a2 = d2.average;
+
+			/* Difference between current averages for each party
+			This ensures the parties are always in the correct order */
+			const deltaA = a1 - a2;
+			/* Difference between current positions
+			When this is below the required minimum spacing the positioning
+			algorithm should stop */
+			const deltaY = y1 - y2;
+
+			if (d1 !== d2 && Math.abs(deltaY) <= spacing) {
+				const sign = deltaA > 0 ? -1 : 1;
+				const adjust = sign * alpha;
+
+				d1.position = +y1 + adjust;
+				d2.position = +y2 - adjust;
+
+				positionLabels(labels, spacing, alpha);
+			}
+		});
+	});
+}
+
 export default function() {
 	const colors = createColors(state.color)
 	colors.updateColorScale(columnNames)
@@ -212,39 +243,39 @@ export default function() {
 		.attr('class','labelHolder')
 	
 	// Calculate new label positions recursively
-	// positionLabels(
-	// 	chart.selectAll('.labelHolder'),
-	// 	rem, // Minimum spacing between labels (increase for more space)
-	// 	0.5 // Amount to change label positon by each iteration
-	// );
+	positionLabels(
+		chart.selectAll('.labelHolder'),
+		rem, // Minimum spacing between labels (increase for more space)
+		0.5 // Amount to change label positon by each iteration
+	);
 
-	// chart.selectAll('.labelHolder').selectAll('rect')
-	// 	.data(d => [d])
-	// 	.join(
-	// 	function(enter) {
-	// 		return enter
-	// 		.append('rect')
-	// 		.attr('height', rem)
-	// 		.attr('y', d => d.position - (rem *.5))
-	// 		.attr('x', d => xScale(lastDate) + (rem * .3))
-	// 	},
-	// 	function(update) {
-	// 		return update
-	// 		.attr('y', d => d.position - (rem *.5))
-	// 		.attr('x', d => xScale(lastDate) + (rem * .3))
-	// 		.attr('width', rem * .5)
-	// 	},
-	// 	function(exit) {
-	// 		return exit
-	// 		.transition()
-	// 		.attr('width', 0)
-	// 		.on('end', function() {
-	// 			d3.select(this).remove()
-	// 		});
-	// 	})
-	// .attr('fill', d => colorScale(d.party))
-	// .attr('height', rem)
-	// .attr('width', rem * .5)
+	chart.selectAll('.labelHolder').selectAll('rect')
+		.data(d => [d])
+		.join(
+		function(enter) {
+			return enter
+			.append('rect')
+			.attr('height', rem)
+			.attr('y', d => d.position - (rem *.5))
+			.attr('x', d => xScale(lastDate) + (rem * .3))
+		},
+		function(update) {
+			return update
+			.attr('y', d => d.position - (rem *.5))
+			.attr('x', d => xScale(lastDate) + (rem * .3))
+			.attr('width', rem * .5)
+		},
+		function(exit) {
+			return exit
+			.transition()
+			.attr('width', 0)
+			.on('end', function() {
+				d3.select(this).remove()
+			});
+		})
+	.attr('fill', d => colors.getColor(d.party))
+	.attr('height', rem)
+	.attr('width', rem * .5)
 	
 
 	layout.update()

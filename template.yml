@@ -1,0 +1,59 @@
+id: ftFlourishBoilerPlate
+version: 0.0.0
+name: FT Flourish boiler plate
+description: FT custom template. Stacked bar chart showing possible party coalitions
+author: 'Bob Haslett, ændra'
+sdk_version: 3
+build:
+  src:
+    script: npm run build
+    directory: src
+    files:
+      - rollup.config.js
+  sass:
+    script: npm run sass
+    directory: sass
+settings:
+  - property: layout
+    import: '@flourish/layout'
+  - Y axis
+  - property: y
+    import: "@flourish/chart-layout/y"
+  - X axis
+  - property: x
+    import: "@flourish/chart-layout/x"
+
+
+data:
+  - Binding description
+  - name: Coalition
+    description: name
+    key: name
+    dataset: data
+    type: column
+    column: 'Data::A'
+  - key: value
+    name: Values
+    dataset: data
+    type: columns
+    columns: 'Data::C-H'
+  - key: party
+    name: party
+    dataset: parties
+    type: column
+    column: 'parties::A'
+  - key: colour
+    name: colour
+    dataset: parties
+    type: column
+    column: 'parties::B'
+  - key: displaynameDesktop
+    name: Displayname desktop
+    dataset: parties
+    type: column
+    column: 'parties::C'
+  - key: displaynameMobile
+    name: Displayname mobile
+    dataset: parties
+    type: column
+    column: 'parties::D'

@@ -52,7 +52,15 @@ console.log('formattedAverages', formattedAverages)
 
 
 valueExtent = extentMulti(formattedPolls, columnNames);
-dateExtent = d3.extent(formattedPolls, d => d.date);
+//dateExtent = d3.extent(formattedPolls, d => d.date);
+const averagesExtent = d3.extent(formattedAverages, d => d.date);
+const pollsExtent = d3.extent(formattedPolls, d => d.date);
+console.log('averagesExtent', averagesExtent);
+console.log('pollsExtent', pollsExtent);
+
+dateExtent = [Math.min(averagesExtent[0],pollsExtent[0]), Math.max(averagesExtent[1], pollsExtent[1])]
+
+console.log('date',Math.max(averagesExtent[1],pollsExtent[1]));
 console.log('valueExtent', valueExtent);
 console.log('dateExtent', dateExtent);
 

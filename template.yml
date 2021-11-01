@@ -1,7 +1,7 @@
-id: ftFlourishBoilerPlate
-version: 0.0.0
-name: FT Flourish boiler plate
-description: FT custom template. Stacked bar chart showing possible party coalitions
+id: ftPollTrakerMarginOf Error
+version: 0.0.1
+name: FT Poll Tracker Margin of Error
+description: FT custom template. Pool tracker that loads pre calculated weighted averages and margin of error lines
 author: 'Bob Haslett, ændra'
 sdk_version: 3
 build:

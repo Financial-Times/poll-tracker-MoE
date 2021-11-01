@@ -17,5 +17,7 @@ export default {
 	chart_bg: {},
     fixedHeight: false,
 	height: 550,
+	dateFormat: '%d/%m/%Y',
+	tickFormat: null,
   
 };

@@ -22,21 +22,37 @@ settings:
   - X axis
   - property: x
     import: "@flourish/chart-layout/x"
+  - Date and tick formatting
+  - property: dateFormat # property for storing the setting's value in the template's state
+    name: Date format in dataset # Name appears above setting
+    description: The date/time format in the data sheet. Leave as “Auto” for Flourish to make a best guess. If it isn’t in the list, you can enter a custom format using d3-time-format syntax. See npmjs.com/package/d3-time-format for details.
+    type: string # Setting type
+    width: half
+  - property: tickFormat # property for storing the setting's value in the template's state
+    name: Date format of tick labels # Name appears above setting
+    description: The date/time format of the tick labels. Leave as “Auto” for Flourish to make a best guess. If it isn’t in the list, you can enter a custom format using d3-time-format syntax. See npmjs.com/package/d3-time-format for details.
+    type: string # Setting type
+    width: half
 
 
 data:
   - Binding description
-  - name: Coalition
+  - name: Date
     description: name
-    key: name
-    dataset: data
+    key: date
+    dataset: polls
     type: column
-    column: 'Data::A'
+    column: 'Polls::G'
+  - key: house # Property name in the dataset
+    name: pollstar # Name to be displayed in the editor
+    dataset: polls # Name of dataset
+    type: column # Are we selecting a single or multiple columns
+    column: "Polls::H" # Which column should be selected
   - key: value
     name: Values
-    dataset: data
+    dataset: polls
     type: columns
-    columns: 'Data::C-H'
+    columns: "Polls::J-P"
   - key: party
     name: party
     dataset: parties

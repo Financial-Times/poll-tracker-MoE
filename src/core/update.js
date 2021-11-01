@@ -11,8 +11,8 @@ import data from "./data";
 import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
 import { getMaxTextWidth, getStacks } from '../parseData';
 import * as d3 from 'd3';
-import { scaleLinear, scaleBand } from "d3-scale";
-import {layout, chart, chart_layout} from "./draw";
+import { timeFormat, } from 'd3-time-format';
+import {layout, chart, chart_layout, valueExtent, dateExtent} from "./draw";
 import { update } from "..";
 
 export default function() {
@@ -29,22 +29,17 @@ export default function() {
 	// const rem = width > breakpoint ? state.layout.font_size_desktop
 	// 	: state.layout.font_size_mobile_big
 	// 	; 14
-	console.log('data', data.data)
-	const columnNames = data.data.column_names.value
-	const formattedData = data.data.map((d) => {
-		var row = {name: d.name}
-		columnNames.map((el, i) => {
-			row[columnNames[i]] = Number(d.value[i])
-			})
-			return row
-	})
-	const groupNames = formattedData.map( d => d.name)
-            .filter((item, pos, groupNames) => groupNames.indexOf(item) === pos);
-	
-			console.log ('chart_layout', chart_layout)
-	const yDomain = data.data.column_names.value
+	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
+	console.log('numDays', numDays)
+	//state.tickFormat  = numDays < 1095 ? '%b %y' : '%y';
+	const xTixkFormat = state.tickFormat? state.tickFormat
+	: numDays < 1095 ? '%b %y' : '%y';
+
+	chart_layout.yData([0,valueExtent[1]])
+
+	chart_layout.xData(dateExtent)
+	chart_layout.xFormat(timeFormat(xTixkFormat))
 	//chart_layout.yData(groupNames)
-	console.log(chart_layout.yTitle())
 	chart_layout.update()
 
 

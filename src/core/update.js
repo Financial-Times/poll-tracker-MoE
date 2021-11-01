@@ -69,6 +69,7 @@ export default function() {
 	const fontSize = state.layout['font_size_' + breaks]
 	//use the body size text as rem expressed in px not em
 	const rem = layout.remToPx(fontSize)/100
+	const format = d3.format(".1f");
 
 	console.log('breakpoint', breakpoint)
 	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
@@ -276,6 +277,40 @@ export default function() {
 	.attr('fill', d => colors.getColor(d.party))
 	.attr('height', rem)
 	.attr('width', rem * .5)
+
+	chart.selectAll('.labelHolder').selectAll('text')
+		.data(d => [d])
+		.join(
+		function(enter) {
+			return enter
+			.append('text')
+			.attr('y', d => d.position + (rem *.3))
+			.attr('x', d => xScale(lastDate) + (rem ))
+		},
+		function(update) {
+			return update
+			.attr('y', d => d.position + (rem *.3))
+			.attr('x', d => xScale(lastDate) + (rem))
+		},
+		function(exit) {
+			return exit
+			.transition()
+			.attr('opacity', 0)
+			.on('end', function() {
+				d3.select(this).remove()
+			});
+		}
+		)
+	.attr('font-weight', 600)
+	.style('fill',  d => colors.getColor(d.party))
+	.text((d) =>  {
+		if( breaks === 'mobile_small' || breaks === 'mobile_big') {
+			return  d.displayNameMob + ' ' + format(d.average)
+		}
+		return d.displayNameDesk + ' ' + format(d.average)
+	})
+		
+		const updateFormat = timeFormat('%b %d');
 	
 
 	layout.update()

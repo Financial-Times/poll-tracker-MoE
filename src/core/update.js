@@ -31,8 +31,10 @@ export default function() {
 	console.log('breakpoint', breakpoint)
 	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
 	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
+	const lineWidth = width < breakpoint ? state.averages.smallStrokeWidth : state.averages.largeStrokeWidth
+	const lineOpacity = width < breakpoint ? state.averages.smallOpacity : state.averages.largeOpacity
 
-	console.log('dotSize', dotSize)
+	console.log('lineWidth', lineWidth)
 	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : d3.extent(formattedPolls, d => d.date)[0];
 	dateExtent[1] = state.x.datetime_max ? new Date(state.x.datetime_max) : d3.extent(formattedPolls, d => d.date)[1];
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
@@ -128,10 +130,10 @@ export default function() {
 		)
 		.attr('class', 'lines')
 		.attr('fill', 'none')
-		.attr('stroke-width', 3)
+		.attr('stroke-width', lineWidth)
 		.attr('stroke', d => colors.getColor(d.party))
 		.attr('id', d => d.party)
-		.attr('opacity', 1)
+		.attr('opacity', lineOpacity)
 		.attr('d', d => lineData(d.lines))
 	
 

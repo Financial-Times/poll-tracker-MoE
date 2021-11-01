@@ -1,6 +1,6 @@
-id: ftPollTrakerMarginOf Error
+id: ftPollTrakerMarginOfError
 version: 0.0.1
-name: FT Poll Tracker Margin of Error
+name: FT Poll Tracker (Margin of Error)
 description: FT custom template. Pool tracker that loads pre calculated weighted averages and margin of error lines
 author: 'Bob Haslett, ændra'
 sdk_version: 3
@@ -58,6 +58,27 @@ settings:
     description: Opacity of the dots 0 - 1
     type: number
     width: quarter
+  - property: averages.smallStrokeWidth
+    name: Stroke width (small)
+    description: Width of the line stroke in px
+    type: number
+    width: quarter
+    new_section: 'Average lines'
+  - property: averages.smallOpacity
+    name: Line opacity (small)
+    description: Opacity of the line 0 - 1
+    type: number
+    width: quarter
+  - property: averages.largeStrokeWidth
+    name: Stroke width (large)
+    description: Width of the large line in px
+    type: number
+    width: quarter
+  - property: averages.largeOpacity
+    name: Line opacity (large)
+    description: Opacity of the line 0 - 1
+    type: number
+    width: quarter
 
 
 data:
@@ -98,3 +119,29 @@ data:
     dataset: parties
     type: column
     column: 'parties::D'
+  - name: Date
+    description: date
+    key: date
+    dataset: averages
+    type: column
+    column: 'Averages::A'
+  - key: code # Property name in the dataset
+    name: code # Name to be displayed in the editor
+    dataset: averages # Name of dataset
+    type: column # Are we selecting a single or multiple columns
+    column: 'Averages::B'
+  - key: geo # Property name in the dataset
+    name: Geo # Name to be displayed in the editor
+    dataset: averages # Name of dataset
+    type: column # Are we selecting a single or multiple columns
+    column: 'Averages::C'
+  - key: race # Property name in the dataset
+    name: Race # Name to be displayed in the editor
+    dataset: averages # Name of dataset
+    type: column # Are we selecting a single or multiple columns
+    column: 'Averages::C'
+  - key: value
+    name: Values
+    dataset: averages
+    type: columns
+    columns: "Averages::E-V"

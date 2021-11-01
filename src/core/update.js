@@ -40,8 +40,9 @@ export default function() {
 
 	const filteredPlotData = plotData.map(({ dots, lines,...d }) => {
 		return {
-          ...d,
-          dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
+			...d,
+			dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
+			lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
         };
 	})
 	console.log('filteredPlotData', filteredPlotData)
@@ -95,6 +96,44 @@ export default function() {
 	.attr('r', dotSize)
 	.attr('fill', d => colors.getColor(d.name))
 	.attr('opacity', dotOpacity)
+
+	//set up line interpolation and line drawing function
+	let interpolation = d3.curveLinear;
+	const lineData = d3.line()
+		.defined(d => d)
+		.curve(interpolation)
+		.x(d => xScale(d.date))
+		.y(d => yScale(d.value));
+	
+	plot.selectAll('.lines')
+		.data(filteredPlotData)
+		.join(
+		function(enter) {
+			return enter
+			.append('path')
+		},
+		function(update) {
+			return update
+			.attr('d', d => lineData(d.lines))
+		},
+		function(exit) {
+			return exit
+			.transition()
+			.duration(100)
+			.attr('d', d => lineData(d.lines))
+			.on('end', function() {
+				d3.select(this).remove()
+			});
+		},
+		)
+		.attr('class', 'lines')
+		.attr('fill', 'none')
+		.attr('stroke-width', 3)
+		.attr('stroke', d => colors.getColor(d.party))
+		.attr('id', d => d.party)
+		.attr('opacity', 1)
+		.attr('d', d => lineData(d.lines))
+	
 
 	layout.update()
 	//console.log(state.layout)

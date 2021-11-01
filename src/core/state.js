@@ -30,5 +30,7 @@ export default {
 	tickFormat: null,
 	dotSize: 2.5,
 	dotOpacity: 0.2,
-	polls:{smallSize: 1.5, largeSize: 2.0, smallOpacity: 0.1, largeOpacity: 0.2}
+	polls:{smallSize: 1.5, largeSize: 2.0, smallOpacity: 0.1, largeOpacity: 0.2},
+	averages:{smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
+
 };

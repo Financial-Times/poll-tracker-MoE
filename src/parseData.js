@@ -61,3 +61,25 @@ export function getDots(d, group,) {
     });
     return dotsData;
 }
+export function getlines(d, group) {
+    // console.log('d and group',d,group)
+    const lineData = [];
+    d.forEach((el) => {
+        // console.log(el,i)
+        const column = {};
+        column.name = group;
+        column.date = el.date;
+        column.value = +el[group];
+        if (el[group]) {
+            lineData.push(column);
+        }
+
+        // if(el[group] == false) {
+        //     lineData.push(null)
+        // }
+        if (el[group] === false && joinPoints === false) {
+            lineData.push(null);
+        }
+    });
+    return lineData;
+}

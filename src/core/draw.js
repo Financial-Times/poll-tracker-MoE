@@ -9,10 +9,10 @@ import data from "./data";
 import * as d3 from 'd3';
 import { layout } from "../init";
 import createChartLayout from "@flourish/chart-layout";
-import { extentMulti, getDots,} from '../parseData';
+import { extentMulti, getDots, getlines} from '../parseData';
 
 
-let chart, props, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent, plotData
+let chart, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, formattedPolls, formattedAverages, valueExtent, dateExtent, plotData
 
 export default function() {
 
@@ -29,8 +29,10 @@ chart = d3.select("#fl-layout-primary")
 
 console.log('data', data)
 columnNames = data.polls.column_names.value
+averageNames = data.averages.column_names.value
 const parties =  data.parties
 console.log('columnNames', columnNames)
+console.log('averageNames', averageNames)
 formattedPolls = data.polls.map((d) => {
 	var row = {date: parseDate(d.date), pollster: d.house,}
 	columnNames.map((el, i) => {
@@ -39,6 +41,15 @@ formattedPolls = data.polls.map((d) => {
 		return row
 }).sort((a, b) => a.date - b.date)
 console.log('formattedPolls', formattedPolls)
+formattedAverages = data.averages.map((d) => {
+	var row = {date: parseDate(d.date), code: d.code, geo: d.geo, race: d.race,}
+	averageNames.map((el, i) => {
+		row[averageNames[i]] = Number(d.value[i])
+		})
+		return row
+}).sort((a, b) => a.date - b.date)
+console.log('formattedAverages', formattedAverages)
+
 
 valueExtent = extentMulti(formattedPolls, columnNames);
 dateExtent = d3.extent(formattedPolls, d => d.date);
@@ -52,6 +63,7 @@ plotData  = columnNames.map(party => {
 		displayNameMob: partyData.displayNameMobile,
 		displayNameDesk: partyData.displayNameDesktop,
 		dots: getDots(formattedPolls, party,),
+		lines: getlines(formattedAverages, party)
 	}
 })
 console.log('plotData', plotData)

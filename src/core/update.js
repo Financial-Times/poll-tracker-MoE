@@ -10,12 +10,15 @@ import state from "./state";
 import data from "./data";
 import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
 import { getMaxTextWidth, getStacks } from '../parseData';
+import createColors from "@flourish/colors"
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
-import {layout, chart, chart_layout, dateFormat, parseDate, formattedPolls, valueExtent, dateExtent, plotData} from "./draw";
+import {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent, plotData,} from "./draw";
 import { update } from "..";
 
 export default function() {
+	const colors = createColors(state.color)
+	colors.updateColorScale(columnNames)
 	var width = layout.getPrimaryWidth()
 	var height = layout.getPrimaryHeight()
 	chart
@@ -44,7 +47,7 @@ export default function() {
 	console.log('filteredPlotData', filteredPlotData)
 
 	const xTixkFormat = state.tickFormat? state.tickFormat
-	: numDays < 1095 ? '%b %y' : '%y';
+	: numDays < 1095 ? '%b %y' : '%Y';
 
 	chart_layout.yData([0,valueExtent[1]])
 	//pass the date formatting function to the chart_layout. User defined date min and max will not work properly without this
@@ -65,7 +68,7 @@ export default function() {
 		.append('g')
 		.attr('class','dotHolder')
 	
-		//Add the polling circles
+	//Add the polling circles
 	plot.selectAll('.dotHolder').selectAll('circle')
 	.data((d) => {return d.dots})
 	.join(
@@ -90,10 +93,8 @@ export default function() {
 		}
 		)
 	.attr('r', 4)
-	.attr('fill', '#ffffff')
+	.attr('fill', d => colors.getColor(d.name))
 	.attr('opacity', 0.5)
-
-
 
 	layout.update()
 	//console.log(state.layout)

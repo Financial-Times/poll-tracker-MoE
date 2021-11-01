@@ -14,6 +14,7 @@ export default {
 	x: {title_mode: 'custom', tick_label_angle: 0},
 	y: {title_mode: 'custom'},
 	y2: {},
+	color: {domain: ['US', 'UK'], range: ['#f3d4c2','e3c1a5'],},
 	chart_bg: {},
     fixedHeight: false,
 	height: 550,

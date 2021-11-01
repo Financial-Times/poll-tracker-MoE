@@ -59,7 +59,7 @@ console.log('plotData', plotData)
 
 props = { x: state.x, y: state.y, y2: state.y2, background: state.chart_bg };
 chart_layout = createChartLayout(chart, props);
-
+layout.update()
 
 //call the update function
 update();
@@ -67,5 +67,5 @@ update();
 window.onresize = function() { update() };
 }
 
-export {layout, chart, chart_layout, dateFormat, parseDate, formattedPolls, valueExtent, dateExtent, plotData};
+export {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent, plotData,};
 

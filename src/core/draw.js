@@ -59,8 +59,6 @@ console.log('averagesExtent', averagesExtent);
 console.log('pollsExtent', pollsExtent);
 
 dateExtent = [Math.min(averagesExtent[0],pollsExtent[0]), Math.max(averagesExtent[1], pollsExtent[1])]
-
-console.log('date',Math.max(averagesExtent[1],pollsExtent[1]));
 console.log('valueExtent', valueExtent);
 console.log('dateExtent', dateExtent);
 

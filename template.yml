@@ -109,7 +109,7 @@ data:
     name: Values
     dataset: polls
     type: columns
-    columns: "Polls::J-P"
+    columns: "Polls::J-O"
   - key: party
     name: party
     dataset: parties

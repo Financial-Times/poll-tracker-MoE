@@ -9,7 +9,7 @@
 import state from "./state";
 import data from "./data";
 import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
-import { getMaxTextWidth, getStacks } from '../parseData';
+import { getMaxTextWidth } from '../parseData';
 import createColors from "@flourish/colors"
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
@@ -24,16 +24,31 @@ export default function() {
 	chart
 		.attr('width', width)
 		.attr('height', height)
+	//get the current frame break name
+	const breaks = width > state.layout.breakpoint_mobile_small && width <= state.layout.breakpoint_mobile_big ? 'mobile_small'
+		: width > state.layout.breakpoint_mobile_big && width <= state.layout.breakpoint_tablet ? 'mobile_big'
+		: width > state.layout.breakpoint_tablet && width <= state.layout.breakpoint_desktop ? 'tablet'
+		: width > state.layout.breakpoint_desktop && width <= state.layout.breakpoint_big_screen ? 'desktop'
+		: 'big_screen'
 	
 	chart_layout.width(width)
 	chart_layout.height(height)
 	const breakpoint = state.layout.breakpoint_tablet
+	//returns the current body text size. (Strangely this expressed as a % of footer size when returned)
+	const fontSize = state.layout['font_size_' + breaks]
+	//use the body size text as rem expressed in px not em
+	const rem = layout.remToPx(fontSize)/100
+
 	console.log('breakpoint', breakpoint)
 	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
 	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
 	const lineWidth = width < breakpoint ? state.averages.smallStrokeWidth : state.averages.largeStrokeWidth
 	const lineOpacity = width < breakpoint ? state.averages.smallOpacity : state.averages.largeOpacity
 	const moeOpacity = width < breakpoint ? state.moe.opacityMob : state.moe.opacityDesk
+	//Calculate the width need for the righ chart_layput margin
+	//This needs to be passed to the chrt-layout EVERY time it is updated
+	const rightLabelWidth =  getMaxTextWidth(columnNames, rem + 'px Metric') + (rem * 3.5)
+	const xAlign = state.x.axis_position
 
 	console.log('lineWidth', lineWidth)
 	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : d3.extent(formattedPolls, d => d.date)[0];
@@ -59,7 +74,11 @@ export default function() {
 	chart_layout.xData(dateExtent);
 	chart_layout.xFormat(timeFormat(xTixkFormat));
 
-	chart_layout.update();
+	//chart_layout.xFormat(getDateFormat('years', chart_layout.xTicks()))
+	if(xAlign == 'bottom') {
+		chart_layout.update({margins: {top: 50, right: rightLabelWidth}})
+	}
+	else {chart_layout.update({margins: {bottom: 50, right: rightLabelWidth}})}
 
 	const plot = chart_layout.data_foreground
 	const yScale = chart_layout.yScale()
@@ -147,6 +166,7 @@ export default function() {
 		function(enter) {
 			return enter
 			.append('path')
+			.attr('d', d => lineData(d.lines))
 		},
 		function(update) {
 			return update
@@ -168,7 +188,63 @@ export default function() {
 		.attr('stroke', d => colors.getColor(d.party))
 		.attr('id', d => d.party)
 		.attr('opacity', lineOpacity)
-		.attr('d', d => lineData(d.lines))
+
+	const lastDate = new Date(state.x.datetime_max) < dateExtent[1] ? new Date(state.x.datetime_max) :  dateExtent[1];
+	// Set up label data
+	const labelData = filteredPlotData
+		.map(({ lines, party, displayNameDesk, displayNameMob, }) => {
+			const average = lines[lines.length - 1].value;
+			return {
+				party,
+				displayNameDesk,
+				displayNameMob,
+				average,
+				// Set initial positions for each label
+				position: yScale(average),
+			};
+		})
+		.sort((a, b) => b.average - a.average);
+	
+	chart.selectAll('.labelHolder')
+		.data(labelData)
+		.enter()
+		.append('g')
+		.attr('class','labelHolder')
+	
+	// Calculate new label positions recursively
+	// positionLabels(
+	// 	chart.selectAll('.labelHolder'),
+	// 	rem, // Minimum spacing between labels (increase for more space)
+	// 	0.5 // Amount to change label positon by each iteration
+	// );
+
+	// chart.selectAll('.labelHolder').selectAll('rect')
+	// 	.data(d => [d])
+	// 	.join(
+	// 	function(enter) {
+	// 		return enter
+	// 		.append('rect')
+	// 		.attr('height', rem)
+	// 		.attr('y', d => d.position - (rem *.5))
+	// 		.attr('x', d => xScale(lastDate) + (rem * .3))
+	// 	},
+	// 	function(update) {
+	// 		return update
+	// 		.attr('y', d => d.position - (rem *.5))
+	// 		.attr('x', d => xScale(lastDate) + (rem * .3))
+	// 		.attr('width', rem * .5)
+	// 	},
+	// 	function(exit) {
+	// 		return exit
+	// 		.transition()
+	// 		.attr('width', 0)
+	// 		.on('end', function() {
+	// 			d3.select(this).remove()
+	// 		});
+	// 	})
+	// .attr('fill', d => colorScale(d.party))
+	// .attr('height', rem)
+	// .attr('width', rem * .5)
 	
 
 	layout.update()

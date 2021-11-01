@@ -11,8 +11,16 @@ export default {
 		footer_note: "Source: Not yet added",
 		background_color: '#fff1e5',
 	},
-	x: {title_mode: 'custom', tick_label_angle: 0},
-	y: {title_mode: 'custom'},
+	x: {title_mode: 'custom',
+		tick_label_angle: 0,
+		line_and_tick_color : '#ccc1b7',
+		show_scale_settings: true,
+		nice: false,
+		axis_position: 'bottom',
+	},
+	y: {title_mode: 'custom',
+		gridlines_visible: true,
+		gridline_color: '#ccc1b7'},
 	y2: {},
 	color: {domain: ['US', 'UK'], range: ['#f3d4c2','e3c1a5'],},
 	chart_bg: {},
@@ -22,5 +30,5 @@ export default {
 	tickFormat: null,
 	dotSize: 2.5,
 	dotOpacity: 0.2,
-	polls:{smallSize: 2.0, largeSize: 2.5, smallOpacity: 0.2, largeOpacity: 0.3}
+	polls:{smallSize: 1.5, largeSize: 2.0, smallOpacity: 0.1, largeOpacity: 0.2}
 };

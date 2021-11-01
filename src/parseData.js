@@ -46,76 +46,18 @@ export function extentMulti(data, columns) {
     }, {});
     return [ext.min, ext.max];
 }
-export function formatNumber(d, domain , divisor) {
-    if (d / divisor === 0) {
-        return d3.format(',')
-    }
-    if (Number.isInteger(d / divisor) === true) {
-        return decimalFormat(domain[1] - domain[0]);
-    }
-    return d3.format(',')
-    
-  function decimalFormat(range) {
-    let format = d3.format(',');
-    if (range >= 0.5) {
-        format = d3.format('.1f');
-    }
-    if (range < 0.5) {
-        format = d3.format('.2f');
-    }
-    if (range <= 0.011) {
-        format = d3.format('.3f');
-    }
-    if (range < 0.0011) {
-        format = d3.format('.4f');
-    }
-    if (range < 0.00011) {
-        format = d3.format('.5f');
-    }
-    if (range < 0.000011) {
-        format = d3.format('.6f');
-    }
-    return format
-  }
+// A function that returns an array of poll data for a given party
+export function getDots(d, group,) {
+    const dotsData = [];
+    d.map((el) => {
+        const column = {};
+        column.name = group;
+        column.date = el.date;
+        column.value = Number(el[group]);
+        column.pollster = el.pollster
+        if (el[group]) {
+            dotsData.push(column);
+        }
+    });
+    return dotsData;
 }
-
-// function that calculates the position of each rectangle in the stack
-export function getStacks(el, seriesNames) {
-  let posCumulative = 0;
-  let negCumulative = 0;
-  let baseX = 0;
-  let baseX1 = 0;
-  const series = seriesNames.map((name, i) => {
-    return {
-        name,
-        value: +el[name],
-    };
-  })
-    // Sorts biggest rects to the left
-    .filter(d =>d.value > 0 )
-    .sort((a, b) => b.value - a.value)
-  const newSeriesNames = series.map(d => d.name)
-  let stacks = newSeriesNames.map((name, i) => {
-    if (el[name] > 0) {
-        baseX1 = posCumulative;
-        posCumulative += (+el[name]);
-        baseX = posCumulative;
-    }
-    if (el[name] < 0) {
-        baseX1 = negCumulative;
-        negCumulative += (+el[name]);
-        baseX = negCumulative;
-        if (i < 1) { baseX = 0; baseX1 = negCumulative; }
-    }
-    return {
-        name,
-        group: el.name,
-        x: +baseX,
-        x1: +baseX1,
-        value: +el[name],
-        total: d3.sum(el)
-    };
-  });
-  stacks = stacks.filter(d => d.value != 0)
-  return stacks;
-};

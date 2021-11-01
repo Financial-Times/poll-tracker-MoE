@@ -9,10 +9,10 @@ import data from "./data";
 import * as d3 from 'd3';
 import { layout } from "../init";
 import createChartLayout from "@flourish/chart-layout";
-import { extentMulti} from '../parseData';
+import { extentMulti, getDots,} from '../parseData';
 
 
-let chart, props, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent
+let chart, props, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent, plotData
 
 export default function() {
 
@@ -29,6 +29,7 @@ chart = d3.select("#fl-layout-primary")
 
 console.log('data', data)
 columnNames = data.polls.column_names.value
+const parties =  data.parties
 console.log('columnNames', columnNames)
 formattedPolls = data.polls.map((d) => {
 	var row = {date: parseDate(d.date), pollster: d.house,}
@@ -41,8 +42,20 @@ console.log('formattedPolls', formattedPolls)
 
 valueExtent = extentMulti(formattedPolls, columnNames);
 dateExtent = d3.extent(formattedPolls, d => d.date);
-console.log('valueExtent', valueExtent)
-console.log('dateExtent', dateExtent)
+console.log('valueExtent', valueExtent);
+console.log('dateExtent', dateExtent);
+
+plotData  = columnNames.map(party => {
+	const partyData = parties.find(({ party: p }) => party === p);
+	return {
+		party,
+		displayNameMob: partyData.displayNameMobile,
+		displayNameDesk: partyData.displayNameDesktop,
+		dots: getDots(formattedPolls, party,),
+	}
+})
+console.log('plotData', plotData)
+
 
 props = { x: state.x, y: state.y, y2: state.y2, background: state.chart_bg };
 chart_layout = createChartLayout(chart, props);
@@ -54,5 +67,5 @@ update();
 window.onresize = function() { update() };
 }
 
-export {layout, chart, chart_layout, dateFormat, parseDate, formattedPolls, valueExtent, dateExtent};
+export {layout, chart, chart_layout, dateFormat, parseDate, formattedPolls, valueExtent, dateExtent, plotData};
 

@@ -20,5 +20,7 @@ export default {
 	height: 550,
 	dateFormat: '%d/%m/%Y',
 	tickFormat: null,
-  
+	dotSize: 2.5,
+	dotOpacity: 0.2,
+	polls:{smallSize: 2.0, largeSize: 2.5, smallOpacity: 0.2, largeOpacity: 0.3}
 };

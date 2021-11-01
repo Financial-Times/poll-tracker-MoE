@@ -28,11 +28,11 @@ export default function() {
 	chart_layout.width(width)
 	chart_layout.height(height)
 	const breakpoint = state.layout.breakpoint_tablet
-	// console.log('breakpoint', breakpoint)
-	// const rem = width > breakpoint ? state.layout.font_size_desktop
-	// 	: state.layout.font_size_mobile_big
-	// 	; 14
-	
+	console.log('breakpoint', breakpoint)
+	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
+	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
+
+	console.log('dotSize', dotSize)
 	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : d3.extent(formattedPolls, d => d.date)[0];
 	dateExtent[1] = state.x.datetime_max ? new Date(state.x.datetime_max) : d3.extent(formattedPolls, d => d.date)[1];
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
@@ -92,9 +92,9 @@ export default function() {
 			});
 		}
 		)
-	.attr('r', 4)
+	.attr('r', dotSize)
 	.attr('fill', d => colors.getColor(d.name))
-	.attr('opacity', 0.5)
+	.attr('opacity', dotOpacity)
 
 	layout.update()
 	//console.log(state.layout)

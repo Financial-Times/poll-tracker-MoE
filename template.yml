@@ -36,6 +36,28 @@ settings:
     description: The date/time format of the tick labels. Leave as “Auto” for Flourish to make a best guess. If it isn’t in the list, you can enter a custom format using d3-time-format syntax. See npmjs.com/package/d3-time-format for details.
     type: string # Setting type
     width: half
+  - Chart render options
+  - property: polls.smallSize
+    name: Dot size (small)
+    description: Size of the small dots in px
+    type: number
+    width: quarter
+    new_section: 'Polls'
+  - property: polls.smallOpacity
+    name: Dot opacity (small)
+    description: Opacity of the dots 0 - 1
+    type: number
+    width: quarter
+  - property: polls.largeSize
+    name: Dot size (large)
+    description: Size of the large dots in px
+    type: number
+    width: quarter
+  - property: polls.largeOpacity
+    name: Dot opacity (large)
+    description: Opacity of the dots 0 - 1
+    type: number
+    width: quarter
 
 
 data:

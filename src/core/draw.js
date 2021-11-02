@@ -31,7 +31,7 @@ console.log('data', data)
 columnNames = data.polls.column_names.value
 averageNames = data.averages.column_names.value
 const parties =  data.parties
-console.log('columnNames', columnNames)
+console.log('parties', parties)
 console.log('averageNames', averageNames)
 formattedPolls = data.polls.map((d) => {
 	var row = {date: parseDate(d.date), pollster: d.house,}
@@ -64,6 +64,7 @@ console.log('dateExtent', dateExtent);
 
 plotData  = columnNames.map(party => {
 	const partyData = parties.find(({ party: p }) => party === p);
+	console.log('partyData', partyData)
 	return {
 		party,
 		displayNameMob: partyData.displayNameMobile,

@@ -83,8 +83,8 @@ export default function() {
 	const xAlign = state.x.axis_position
 
 	console.log('lineWidth', lineWidth)
-	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : d3.extent(formattedPolls, d => d.date)[0];
-	dateExtent[1] = state.x.datetime_max ? new Date(state.x.datetime_max) : d3.extent(formattedPolls, d => d.date)[1];
+	dateExtent[0] = state.x.datetime_min ? new Date(state.x.datetime_min) : dateExtent[0];
+	dateExtent[1] = state.x.datetime_max ? new Date(state.x.datetime_max) : dateExtent[1];
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
 	console.log('numDays', numDays)
 

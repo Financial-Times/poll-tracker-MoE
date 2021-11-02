@@ -58,8 +58,8 @@ const pollsExtent = d3.extent(formattedPolls, d => d.date);
 console.log('averagesExtent', averagesExtent);
 console.log('pollsExtent', pollsExtent);
 
-dateExtent = d3.extent((averagesExtent.concat(pollsExtent)), d => d);
-//dateExtent = [Math.min(averagesExtent[0],pollsExtent[0]), Math.max(averagesExtent[1], pollsExtent[1])]
+//dateExtent = d3.extent((averagesExtent.concat(pollsExtent)), d => d);
+dateExtent = [Math.min(averagesExtent[0],pollsExtent[0]), Math.max(averagesExtent[1], pollsExtent[1])]
 console.log('valueExtent', valueExtent);
 console.log('dateExtent',dateExtent[0], dateExtent[1]);
 

@@ -13,7 +13,7 @@ import { getMaxTextWidth } from '../parseData';
 import createColors from "@flourish/colors"
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
-import {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, valueExtent, dateExtent, plotData,} from "./draw";
+import {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls,formattedAverages, valueExtent, plotData,} from "./draw";
 import { update } from "..";
 
 // Helper function to position labels
@@ -72,6 +72,11 @@ export default function() {
 	const format = d3.format(".1f");
 
 	console.log('breakpoint', breakpoint)
+	const averagesExtent = d3.extent(formattedAverages, d => d.date);
+	const pollsExtent = d3.extent(formattedPolls, d => d.date);
+	console.log('averagesExtent', averagesExtent);
+	console.log('pollsExtent', pollsExtent);
+	const dateExtent = d3.extent((averagesExtent.concat(pollsExtent)), d => d);
 	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
 	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
 	const lineWidth = width < breakpoint ? state.averages.smallStrokeWidth : state.averages.largeStrokeWidth

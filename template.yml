@@ -120,12 +120,12 @@ data:
     dataset: parties
     type: column
     column: 'parties::B'
-  - key: displaynameDesktop
+  - key: displayNameDesktop
     name: Displayname desktop
     dataset: parties
     type: column
     column: 'parties::C'
-  - key: displaynameMobile
+  - key: displayNameMobile
     name: Displayname mobile
     dataset: parties
     type: column

@@ -12,7 +12,7 @@ import createChartLayout from "@flourish/chart-layout";
 import { extentMulti, getDots, getlines, getMoE} from '../parseData';
 
 
-let chart, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, formattedPolls, formattedAverages, valueExtent, plotData
+let chart, annoLabel, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, formattedPolls, formattedAverages, valueExtent, plotData, annoData
 
 export default function() {
 
@@ -27,12 +27,13 @@ chart = d3.select("#fl-layout-primary")
 	.attr('width', width)
 	.attr('height', height)
 
-console.log('data', data)
+annoLabel =  chart.append('g')
+	.attr('class', 'label')
+
 columnNames = data.polls.column_names.value
 averageNames = data.averages.column_names.value
 const parties =  data.parties
-console.log('parties', parties)
-console.log('averageNames', averageNames)
+
 formattedPolls = data.polls.map((d) => {
 	var row = {date: parseDate(d.date), pollster: d.house,}
 	columnNames.map((el, i) => {
@@ -40,7 +41,7 @@ formattedPolls = data.polls.map((d) => {
 		})
 		return row
 }).sort((a, b) => a.date - b.date)
-console.log('formattedPolls', formattedPolls)
+
 formattedAverages = data.averages.map((d) => {
 	var row = {date: parseDate(d.date), code: d.code, geo: d.geo, race: d.race,}
 	averageNames.map((el, i) => {
@@ -48,16 +49,11 @@ formattedAverages = data.averages.map((d) => {
 		})
 		return row
 }).sort((a, b) => a.date - b.date)
-console.log('formattedAverages', formattedAverages)
-
 
 valueExtent = extentMulti(formattedPolls, columnNames);
 
-console.log('valueExtent', valueExtent);
-
 plotData  = columnNames.map(party => {
 	const partyData = parties.find(({ party: p }) => party === p);
-	console.log('partyData', partyData)
 	return {
 		party,
 		displayNameMob: partyData.displayNameMobile,
@@ -67,8 +63,13 @@ plotData  = columnNames.map(party => {
 		areas: getMoE(formattedAverages, party),
 	}
 })
-console.log('plotData', plotData)
 
+annoData = data.annotations.map((d) => {
+	return {
+		date: parseDate(d.date),
+		annotation: d.annotation,
+	}
+})
 
 props = { x: state.x, y: state.y, y2: state.y2, background: state.chart_bg };
 chart_layout = createChartLayout(chart, props);
@@ -80,5 +81,5 @@ update();
 window.onresize = function() { update() };
 }
 
-export {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, formattedAverages, valueExtent, plotData,};
+export {layout, chart, annoLabel ,chart_layout, dateFormat, parseDate, columnNames, formattedPolls, formattedAverages, valueExtent, plotData, annoData};
 

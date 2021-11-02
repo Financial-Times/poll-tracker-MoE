@@ -30,7 +30,7 @@ export default {
 	tickFormat: null,
 	dotSize: 2.5,
 	dotOpacity: 0.2,
-	polls:{smallSize: 1.5, largeSize: 2.0, smallOpacity: 0.3, largeOpacity: 0.3},
+	polls:{smallSize: 1.1, largeSize: 1.25, smallOpacity: 1, largeOpacity: 1},
 	averages:{smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
-	moe:{opacityMob: 0.2, opacityDesk: 0.2},
+	moe:{opacityMob: 0.3, opacityDesk: 0.3},
 };

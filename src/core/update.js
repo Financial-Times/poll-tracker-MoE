@@ -13,7 +13,7 @@ import { getMaxTextWidth } from '../parseData';
 import createColors from "@flourish/colors"
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
-import {layout, chart, chart_layout, dateFormat, parseDate, columnNames, formattedPolls,formattedAverages, valueExtent, plotData,} from "./draw";
+import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls,formattedAverages, valueExtent, plotData, annoData} from "./draw";
 import { update } from "..";
 
 // Helper function to position labels
@@ -127,6 +127,73 @@ export default function() {
 		.y1(d => yScale(d.y1))
 		.y0(d => yScale(d.y0));
 	
+	//Add a group for each annotation line
+	plot.selectAll('.annoHolder')
+		.data(annoData)
+		.enter()
+		.append('g')
+		.attr('class','annoHolder')
+	
+	plot.selectAll('.annoHolder').selectAll('line')
+		.data(annoData)
+		.join(
+		function(enter) {
+			return enter
+			.append('line')
+			.attr('x1', d => xScale(d.date))
+			.attr('x2', d => xScale(d.date))
+			.attr('y1', 0)
+			.attr('y2', height)
+		},
+		function(update) {
+			return update
+			.attr('x1', d => xScale(d.date))
+			.attr('x2', d => xScale(d.date))
+			.attr('y1', 0)
+			.attr('y2', height)
+		},
+		function(exit) {
+		return exit
+			.transition()
+			.on('end', function() {
+			d3.select(this).remove()
+			});
+		})
+	.style('stroke', '#66605C')
+	.style('stroke-width',1)
+
+	//The label added to its own g element in the primary chart svg so as to avoid being cropped off
+	annoLabel.selectAll('text')
+		.data(annoData)
+		.join(
+		function(enter) {
+			return enter
+			.append('text')
+			.attr('x', d => xScale(d.date))
+			.attr('y', xAlign == 'bottom' ? chart_layout.margins.top - (rem * .5):
+				chart_layout.height() - chart_layout.margins.bottom + (rem *.8))
+		},
+		function(update) {
+			return update
+			.attr('x', d => xScale(d.date))
+			.attr('y', xAlign == 'bottom' ? chart_layout.margins.top - (rem * .5):
+				chart_layout.height() - chart_layout.margins.bottom + (rem *.8))
+		},
+		function(exit) {
+			return exit
+			.transition()
+			.text('')
+			.attr('opacity', 0)
+			.on('end', function() {
+				d3.select(this).remove()
+			});
+		})
+	.text(d => d.annotation)
+	.style('text-anchor', 'middle')
+	.style('fill', '#66605C')
+	.attr('font-weight', 400)
+
+	
 	//Add Margin of error
 	plot.selectAll('.areas')
 		.data(filteredPlotData)
@@ -226,7 +293,7 @@ export default function() {
 		.attr('id', d => d.party)
 		.attr('opacity', lineOpacity)
 
-	const lastDate = new Date(state.x.datetime_max) < dateExtent[1] ? new Date(state.x.datetime_max) :  dateExtent[1];
+	const lastDate = new Date(state.x.datetime_max) > averagesExtent[1] ? averagesExtent[1] :  dateExtent[1];
 	// Set up label data
 	const labelData = filteredPlotData
 		.map(({ lines, party, displayNameDesk, displayNameMob, }) => {

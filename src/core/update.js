@@ -53,8 +53,7 @@ function removeItemOnce(arr, value) {
 	}
 	return arr;
 }
-let displayData, filteredData;
-
+let displayData;
 
 export default function() {
 	colors.updateColorScale(columnNames)
@@ -114,24 +113,15 @@ export default function() {
 	dateExtent[1] = state.x.datetime_max ? parseDate(state.x.datetime_max) : dateExtent[1];
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
 	console.log('displayData', displayData)
-	if(displayData) {
-		filteredData = displayData.map(({ dots, lines,...d }) => {
+	displayData = displayData ? displayData: plotData
+
+	const filteredData = displayData.map(({ dots, lines,...d }) => {
 			return {
 				...d,
 				dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
 				lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
 			};
 		})
-	}
-	else {
-		filteredData = plotData.map(({ dots, lines,...d }) => {
-			return {
-				...d,
-				dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
-				lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
-			};
-		})
-	}
 	console.log('filteredData', filteredData)
 
 	const xTixkFormat = state.tickFormat? state.tickFormat
@@ -225,7 +215,6 @@ export default function() {
 	.style('fill', '#66605C')
 	.attr('font-weight', 400)
 
-	
 	//Add Margin of error
 	plot.selectAll('.areas')
 		.data(filteredData)
@@ -248,10 +237,10 @@ export default function() {
 			});
 		},
 		)
-		.attr('class', 'areas')
-		.attr('fill', d => colors.getColor(d.party))
-		.attr('id', d => d.party)
-		.attr('opacity', moeOpacity)
+	.attr('class', 'areas')
+	.attr('fill', d => colors.getColor(d.party))
+	.attr('id', d => d.party)
+	.attr('opacity', moeOpacity)
 
 	//Add a group for each series of dots
 	plot.selectAll('.dotHolder')
@@ -262,31 +251,30 @@ export default function() {
 	
 	//Add the polling circles
 	plot.selectAll('.dotHolder').selectAll('circle')
-	.data((d) => {return d.dots})
-	.join(
-		function(enter) {
-		return enter
-			.append('circle')
-			.attr('cx', d => xScale(d.date))
-			.attr('cy', d => yScale(d.value))
-		},
-		function(update) {
-		return update
-			.attr('cx', d => xScale(d.date))
-			.attr('cy', d => yScale(d.value))
-		},
-		function(exit) {
-		return exit
-			.transition()
-			.attr('r', 0)
-			.on('end', function() {
-			d3.select(this).remove()
-			});
-		}
-		)
-	.attr('r', dotSize)
-	.attr('fill', d => colors.getColor(d.name))
-	.attr('opacity', dotOpacity)
+		.data(d => d.dots)
+		.join(
+			function(enter) {
+			return enter
+				.append('circle')
+				.attr('cx', d => xScale(d.date))
+				.attr('cy', d => yScale(d.value))
+			},
+			function(update) {
+			return update
+				.attr('cx', d => xScale(d.date))
+				.attr('cy', d => yScale(d.value))
+			},
+			function(exit) {
+			return exit
+				.transition()
+				.on('end', function() {
+				d3.select(this).remove()
+				});
+			}
+			)
+		.attr('r', dotSize)
+		.attr('fill', d => colors.getColor(d.name))
+		.attr('opacity', dotOpacity)
 
 	//set up line interpolation and line drawing function
 	let interpolation = d3.curveLinear;
@@ -414,7 +402,7 @@ export default function() {
 		return d.displayNameDesk + ' ' + format(d.average)
 	})
 		
-		const updateFormat = timeFormat('%b %d');
+
 	
 
 	layout.update()

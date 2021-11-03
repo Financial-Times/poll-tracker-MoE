@@ -90,6 +90,9 @@ settings:
     description: Opacity of the shading 0 - 1
     type: number
     width: quarter
+  - Popups & panels
+  - property: popup
+    import: "@flourish/info-popup"
   # - Legend
   # - property: legend_container
   #   import: "@flourish/legend/container"

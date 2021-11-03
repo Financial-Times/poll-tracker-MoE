@@ -8,12 +8,14 @@
  */
 import state from "./state";
 import update from "./update";
+import data from "./data";
 import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
 import { getMaxTextWidth } from '../parseData';
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
 import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, colors, formattedAverages, valueExtent, plotData, legendData, annoData} from "./draw";
 import { legend_container, legend_categorical } from "../init";
+import initialisePopup from "@flourish/info-popup";
 
 // Helper function to position labels
 const positionLabels = (labels, spacing, alpha) => {
@@ -95,6 +97,15 @@ export default function() {
 	//use the body size text as rem expressed in px not em
 	const rem = layout.remToPx(fontSize)/100
 	const format = d3.format(".1f");
+
+	const popup = initialisePopup(state.popup);
+	popup
+		.setColumnNames({
+			date: 'date',
+			value: 'value',
+		})
+		.update()
+
 
 	const averagesExtent = d3.extent(formattedAverages, d => d.date);
 	const pollsExtent = d3.extent(formattedPolls, d => d.date);
@@ -275,6 +286,7 @@ export default function() {
 		.attr('r', dotSize)
 		.attr('fill', d => colors.getColor(d.name))
 		.attr('opacity', dotOpacity)
+	
 
 	//set up line interpolation and line drawing function
 	let interpolation = d3.curveLinear;
@@ -312,6 +324,46 @@ export default function() {
 		.attr('stroke', d => colors.getColor(d.party))
 		.attr('id', d => d.party)
 		.attr('opacity', lineOpacity)
+	
+	//Add a group for each series of popup circles
+	plot.selectAll('.popHolder')
+		.data(filteredData)
+		.enter()
+		.append('g')
+		.attr('class','popHolder')
+	console.log(filteredData)
+	
+	//Add the popup circles
+	plot.selectAll('.popHolder').selectAll('circle')
+		.data(d => d.lines)
+		.join(
+			function(enter) {
+			return enter
+				.append('circle')
+				.attr('cx', d => xScale(d.date))
+				.attr('cy', d => yScale(d.value))
+				.on("mouseover", function(data,) {
+					const el = this;
+					console.log(el)
+					popup.mouseover(el, data)
+				})
+			},
+			function(update) {
+			return update
+				.attr('cx', d => xScale(d.date))
+				.attr('cy', d => yScale(d.value))
+			},
+			function(exit) {
+			return exit
+				.transition()
+				.on('end', function() {
+				d3.select(this).remove()
+				});
+			}
+			)
+		.attr('r', lineWidth/2)
+		.attr('fill', d => colors.getColor(d.name))
+		.attr('opacity', dotOpacity)
 
 	const lastDate = new Date(state.x.datetime_max) > averagesExtent[1] ? averagesExtent[1] :  dateExtent[1];
 	// Set up label data

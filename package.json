@@ -23,6 +23,7 @@
     "@emotion/react": "^11.4.0",
     "@flourish/chart-layout": "^9.3.1",
     "@flourish/colors": "^5.1.1",
+    "@flourish/info-popup": "^4.0.4",
     "@flourish/layout": "^4.1.2",
     "@flourish/legend": "^6.1.0",
     "@flourish/pocket-knife": "^0.8.0",

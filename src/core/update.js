@@ -14,7 +14,7 @@ import createColors from "@flourish/colors"
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
 import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls,formattedAverages, valueExtent, plotData, annoData} from "./draw";
-import { update } from "..";
+import { legend_container, legend_categorical } from "../init";
 
 // Helper function to position labels
 const positionLabels = (labels, spacing, alpha) => {
@@ -50,6 +50,14 @@ const positionLabels = (labels, spacing, alpha) => {
 export default function() {
 	const colors = createColors(state.color)
 	colors.updateColorScale(columnNames)
+	const legendColor = colors.getColor // Using Flourish custom colors module
+	legend_categorical
+		.data(columnNames, legendColor) // See explanation below
+		//.filtered(["Brazil"]) // Array, items that should have low opacity
+		.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
+				console.log(this, d, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
+			});
+	legend_container.update()
 	var width = layout.getPrimaryWidth()
 	var height = layout.getPrimaryHeight()
 	chart

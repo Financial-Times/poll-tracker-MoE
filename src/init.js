@@ -15,4 +15,4 @@ legend_container.update()
 
 
 
-export { layout,};
+export { layout, legend_container, legend_categorical};

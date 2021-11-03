@@ -62,7 +62,7 @@ plotData  = columnNames.map(party => {
 		displayNameMob: partyData.displayNameMobile,
 		displayNameDesk: partyData.displayNameDesktop,
 		dots: getDots(formattedPolls, party,),
-		lines: getlines(formattedAverages, party),
+		lines: getlines(formattedAverages, party, partyData.displayNameDesktop),
 		areas: getMoE(formattedAverages, party),
 	}
 })

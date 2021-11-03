@@ -62,12 +62,13 @@ export function getDots(d, group,) {
     return dotsData;
 }
 
-export function getlines(d, group) {
+export function getlines(d, group, displayNameDesk) {
     // console.log('d and group',d,group)
     const lineData = [];
     d.forEach((el) => {
         // console.log(el,i)
         const column = {};
+        column.displayName = displayNameDesk;
         column.name = group;
         column.date = el.date;
         column.value = +el[group];

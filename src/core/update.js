@@ -99,13 +99,6 @@ export default function() {
 	const format = d3.format(".1f");
 
 	const popup = initialisePopup(state.popup);
-	popup
-		.setColumnNames({
-			date: 'date',
-			value: 'value',
-		})
-		.update()
-
 
 	const averagesExtent = d3.extent(formattedAverages, d => d.date);
 	const pollsExtent = d3.extent(formattedPolls, d => d.date);
@@ -332,20 +325,37 @@ export default function() {
 		.append('g')
 		.attr('class','popHolder')
 	console.log(filteredData)
+
+	popup
+		.setColumnNames({
+			Date: 'Date',
+			Value: 'Value',
+		})
+		.update()
+	const popFormat = '%b %d %Y'
+	const popDate = timeFormat(popFormat)
 	
 	//Add the popup circles
 	plot.selectAll('.popHolder').selectAll('circle')
 		.data(d => d.lines)
 		.join(
 			function(enter) {
+				//let popData = {Name: 'not yet added', Date: "01/01/2017", Value: 54,}
 			return enter
 				.append('circle')
 				.attr('cx', d => xScale(d.date))
 				.attr('cy', d => yScale(d.value))
-				.on("mouseover", function(data,) {
+				.on("mouseover",  function(data, popData) {
 					const el = this;
-					console.log(el)
-					popup.mouseover(el, data)
+					console.log(popData)
+					popup.mouseover(el, {
+						name: popData.displayName,
+						Value: format(popData.value) + '%',
+						Date: popDate(popData.date),
+					})
+				})
+				.on("mouseout", function() {
+					popup.mouseout();
 				})
 			},
 			function(update) {

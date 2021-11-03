@@ -1,4 +1,5 @@
 import "./init";
+
 // init is being called before the template is being rendered. Use the init function
 // to import Flourish modules that add properties to the state object
 

@@ -33,4 +33,6 @@ export default {
 	polls:{smallSize: 1.1, largeSize: 1.25, smallOpacity: 1, largeOpacity: 1},
 	averages:{smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
 	moe:{opacityMob: 0.3, opacityDesk: 0.3},
+	legend_container: {},
+	legend_categorical: {},
 };

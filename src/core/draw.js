@@ -9,10 +9,11 @@ import data from "./data";
 import * as d3 from 'd3';
 import { layout } from "../init";
 import createChartLayout from "@flourish/chart-layout";
+import createColors from "@flourish/colors"
 import { extentMulti, getDots, getlines, getMoE} from '../parseData';
 
 
-let chart, annoLabel, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, formattedPolls, formattedAverages, valueExtent, plotData, annoData
+let chart, annoLabel, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, colors, formattedPolls, formattedAverages, valueExtent, plotData, legendData, annoData
 
 export default function() {
 
@@ -33,6 +34,8 @@ annoLabel =  chart.append('g')
 columnNames = data.polls.column_names.value
 averageNames = data.averages.column_names.value
 const parties =  data.parties
+colors = createColors(state.color)
+colors.updateColorScale(columnNames)
 
 formattedPolls = data.polls.map((d) => {
 	var row = {date: parseDate(d.date), pollster: d.house,}
@@ -64,6 +67,14 @@ plotData  = columnNames.map(party => {
 	}
 })
 
+legendData = plotData.map((d) => {
+	return {
+		label: d.displayNameDesk,
+		color: colors.getColor(d.party)
+	}
+})
+state.displayValues = legendData.map(d => d.label)
+
 annoData = data.annotations.map((d) => {
 	return {
 		date: parseDate(d.date),
@@ -81,5 +92,5 @@ update();
 window.onresize = function() { update() };
 }
 
-export {layout, chart, annoLabel ,chart_layout, dateFormat, parseDate, columnNames, formattedPolls, formattedAverages, valueExtent, plotData, annoData};
+export {layout, chart, annoLabel ,chart_layout, dateFormat, parseDate, columnNames, colors, formattedPolls, formattedAverages, valueExtent, plotData, legendData, annoData};
 

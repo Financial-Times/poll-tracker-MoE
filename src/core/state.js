@@ -34,5 +34,6 @@ export default {
 	averages:{smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
 	moe:{opacityMob: 0.3, opacityDesk: 0.3},
 	legend_container: {},
-	legend_categorical: {},
+	legend_categorical: {swatch_width: 1.2, swatch_height: .3},
+	displayValues: {},
 };

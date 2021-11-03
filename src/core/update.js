@@ -7,13 +7,12 @@
  * interface controls such as buttons and sliders update the state and then call update.
  */
 import state from "./state";
-import data from "./data";
+import update from "./update";
 import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
 import { getMaxTextWidth } from '../parseData';
-import createColors from "@flourish/colors"
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
-import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls,formattedAverages, valueExtent, plotData, annoData} from "./draw";
+import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, colors, formattedAverages, valueExtent, plotData, legendData, annoData} from "./draw";
 import { legend_container, legend_categorical } from "../init";
 
 // Helper function to position labels
@@ -46,18 +45,36 @@ const positionLabels = (labels, spacing, alpha) => {
 		});
 	});
 }
+//function to remove item from array
+function removeItemOnce(arr, value) {
+	var index = arr.indexOf(value);
+	if (index > -1) {
+		arr.splice(index, 1);
+	}
+	return arr;
+}
+let displayData, filteredData;
+
 
 export default function() {
-	const colors = createColors(state.color)
 	colors.updateColorScale(columnNames)
-	const legendColor = colors.getColor // Using Flourish custom colors module
+	
 	legend_categorical
-		.data(columnNames, legendColor) // See explanation below
-		//.filtered(["Brazil"]) // Array, items that should have low opacity
+		.data(legendData) // See explanation below
 		.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
-				console.log(this, d, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
-			});
+			console.log(this, d.label, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
+			if(state.displayValues.includes(d.label)) {
+				removeItemOnce(state.displayValues, d.label)
+			}
+			else state.displayValues.push(d.label)
+			d3.select(this).style('opacity',0.5)
+			console.log('displayValues', state.displayValues)
+			displayData = plotData.filter(d => state.displayValues.includes(d.displayNameDesk))
+			update()
+		});
 	legend_container.update()
+	layout.update()
+
 	var width = layout.getPrimaryWidth()
 	var height = layout.getPrimaryHeight()
 	chart
@@ -72,6 +89,7 @@ export default function() {
 	
 	chart_layout.width(width)
 	chart_layout.height(height)
+	
 	const breakpoint = state.layout.breakpoint_tablet
 	//returns the current body text size. (Strangely this expressed as a % of footer size when returned)
 	const fontSize = state.layout['font_size_' + breaks]
@@ -79,11 +97,8 @@ export default function() {
 	const rem = layout.remToPx(fontSize)/100
 	const format = d3.format(".1f");
 
-	console.log('breakpoint', breakpoint)
 	const averagesExtent = d3.extent(formattedAverages, d => d.date);
 	const pollsExtent = d3.extent(formattedPolls, d => d.date);
-	console.log('averagesExtent', averagesExtent);
-	console.log('pollsExtent', pollsExtent);
 	const dateExtent = d3.extent((averagesExtent.concat(pollsExtent)), d => d);
 	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
 	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
@@ -95,20 +110,29 @@ export default function() {
 	const rightLabelWidth =  getMaxTextWidth(columnNames, rem + 'px Metric') + (rem * 3.5)
 	const xAlign = state.x.axis_position
 
-	console.log('lineWidth', lineWidth)
 	dateExtent[0] = state.x.datetime_min ? parseDate(state.x.datetime_min) : dateExtent[0];
 	dateExtent[1] = state.x.datetime_max ? parseDate(state.x.datetime_max) : dateExtent[1];
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
-	console.log('numDays', numDays)
-
-	const filteredPlotData = plotData.map(({ dots, lines,...d }) => {
-		return {
-			...d,
-			dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
-			lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
-        };
-	})
-	console.log('filteredPlotData', filteredPlotData)
+	console.log('displayData', displayData)
+	if(displayData) {
+		filteredData = displayData.map(({ dots, lines,...d }) => {
+			return {
+				...d,
+				dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
+				lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
+			};
+		})
+	}
+	else {
+		filteredData = plotData.map(({ dots, lines,...d }) => {
+			return {
+				...d,
+				dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
+				lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
+			};
+		})
+	}
+	console.log('filteredData', filteredData)
 
 	const xTixkFormat = state.tickFormat? state.tickFormat
 	: numDays < 1095 ? '%b %y' : '%Y';
@@ -204,7 +228,7 @@ export default function() {
 	
 	//Add Margin of error
 	plot.selectAll('.areas')
-		.data(filteredPlotData)
+		.data(filteredData)
 		.join(
 		function(enter) {
 			return enter
@@ -231,7 +255,7 @@ export default function() {
 
 	//Add a group for each series of dots
 	plot.selectAll('.dotHolder')
-		.data(filteredPlotData)
+		.data(filteredData)
 		.enter()
 		.append('g')
 		.attr('class','dotHolder')
@@ -273,7 +297,7 @@ export default function() {
 		.y(d => yScale(d.value));
 	
 	plot.selectAll('.lines')
-		.data(filteredPlotData)
+		.data(filteredData)
 		.join(
 		function(enter) {
 			return enter
@@ -303,7 +327,7 @@ export default function() {
 
 	const lastDate = new Date(state.x.datetime_max) > averagesExtent[1] ? averagesExtent[1] :  dateExtent[1];
 	// Set up label data
-	const labelData = filteredPlotData
+	const labelData = filteredData
 		.map(({ lines, party, displayNameDesk, displayNameMob, }) => {
 			const average = lines[lines.length - 1].value;
 			return {

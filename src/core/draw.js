@@ -67,13 +67,13 @@ plotData  = columnNames.map(party => {
 	}
 })
 
-legendData = plotData.map((d) => {
-	return {
-		label: d.displayNameDesk,
-		color: colors.getColor(d.party)
-	}
-})
-state.displayValues = legendData.map(d => d.label)
+// legendData = plotData.map((d) => {
+// 	return {
+// 		label: d.displayNameDesk,
+// 		color: colors.getColor(d.party)
+// 	}
+// })
+// state.displayValues = legendData.map(d => d.label)
 
 annoData = data.annotations.map((d) => {
 	return {

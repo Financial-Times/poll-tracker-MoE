@@ -58,20 +58,20 @@ let displayData;
 export default function() {
 	colors.updateColorScale(columnNames)
 	
-	legend_categorical
-		.data(legendData) // See explanation below
-		.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
-			console.log(this, d.label, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
-			if(state.displayValues.includes(d.label)) {
-				removeItemOnce(state.displayValues, d.label)
-			}
-			else state.displayValues.push(d.label)
-			d3.select(this).style('opacity',0.5)
-			console.log('displayValues', state.displayValues)
-			displayData = plotData.filter(d => state.displayValues.includes(d.displayNameDesk))
-			update()
-		});
-	legend_container.update()
+	// legend_categorical
+	// 	.data(legendData) // See explanation below
+	// 	.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
+	// 		console.log(this, d.label, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
+	// 		if(state.displayValues.includes(d.label)) {
+	// 			removeItemOnce(state.displayValues, d.label)
+	// 		}
+	// 		else state.displayValues.push(d.label)
+	// 		d3.select(this).style('opacity',0.5)
+	// 		console.log('displayValues', state.displayValues)
+	// 		displayData = plotData.filter(d => state.displayValues.includes(d.displayNameDesk))
+	// 		update()
+	// 	});
+	// legend_container.update()
 	layout.update()
 
 	var width = layout.getPrimaryWidth()

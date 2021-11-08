@@ -355,19 +355,26 @@ export default function() {
 			.attr('y1', 0)
 			.attr('y2', height)
 			.on("mouseover",  function(ev, d) {
+				let popUps = columnNames.map((el, i) => {
+					return{
+						name: el,
+						value: d[el]
+					}
+				}).sort((a, b) => b.value - a.value)
+				console.log('popUps', popUps)
 				let popColumns = {name: 'name'}
-				columnNames.map((el, i) => {
-					popColumns[columnNames[i]] = columnNames[i]
+				popUps.map((el, i) => {
+					popColumns[el.name] = el.name
 				})
-					popup
+
 				popup.setColumnNames(popColumns)
 					.update()
 				console.log('popColumns', popColumns)
 				let popData = {name: popDate(d.date)}
 				columnNames.map((el, i) => {
-					popData[columnNames[i]] = format(d[el]) +'%'
+					popData[columnNames[i]] = format(d[el])
 				})
-				console.log('popData', popData)
+				// console.log('popData', popData)
 				
 				const el = this
 				const popLine = d3.select(this);

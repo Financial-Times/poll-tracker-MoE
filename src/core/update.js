@@ -13,7 +13,7 @@ import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
 import { getMaxTextWidth } from '../parseData';
 import * as d3 from 'd3';
 import { timeFormat, } from 'd3-time-format';
-import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, colors, formattedAverages, valueExtent, plotData, legendData, annoData} from "./draw";
+import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, parties, colors, formattedAverages, valueExtent, plotData, legendData, annoData} from "./draw";
 import { legend_container, legend_categorical } from "../init";
 import initialisePopup from "@flourish/info-popup";
 import { createContinuousColorLegend } from "@flourish/legend";
@@ -56,6 +56,7 @@ function removeItemOnce(arr, value) {
 	}
 	return arr;
 }
+
 let displayData;
 
 export default function() {
@@ -356,25 +357,28 @@ export default function() {
 			.attr('y2', height)
 			.on("mouseover",  function(ev, d) {
 				let popUps = columnNames.map((el, i) => {
+					const partyData = parties.filter(d => d.party === el);
 					return{
 						name: el,
-						value: d[el]
+						displayName: partyData[0].displayNameDesktop,
+						value: d[el],
 					}
-				}).sort((a, b) => b.value - a.value)
+				})
+					.filter(d  => d.value !== '' )
+					.sort((a, b) => b.value - a.value)
 				console.log('popUps', popUps)
+
 				let popColumns = {name: 'name'}
 				popUps.map((el, i) => {
-					popColumns[el.name] = el.name
+					popColumns[el.displayName] = el.displayName
 				})
-
 				popup.setColumnNames(popColumns)
 					.update()
-				console.log('popColumns', popColumns)
 				let popData = {name: popDate(d.date)}
-				columnNames.map((el, i) => {
-					popData[columnNames[i]] = format(d[el])
+				popUps.map((el, i) => {
+					popData[el.displayName] = format(el.value)
 				})
-				// console.log('popData', popData)
+				console.log('popData', popData)
 				
 				const el = this
 				const popLine = d3.select(this);

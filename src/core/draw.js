@@ -13,7 +13,7 @@ import createColors from "@flourish/colors"
 import { extentMulti, getDots, getlines, getMoE} from '../parseData';
 
 
-let chart, annoLabel, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, colors, formattedPolls, formattedAverages, valueExtent, plotData, legendData, annoData
+let chart, annoLabel, props, chart_layout, dateFormat, parseDate, columnNames, averageNames, parties, colors, formattedPolls, formattedAverages, valueExtent, plotData, legendData, annoData
 
 export default function() {
 
@@ -33,7 +33,7 @@ annoLabel =  chart.append('g')
 
 columnNames = data.polls.column_names.value
 averageNames = data.averages.column_names.value
-const parties =  data.parties
+parties =  data.parties
 colors = createColors(state.color)
 colors.updateColorScale(columnNames)
 
@@ -92,5 +92,5 @@ update();
 window.onresize = function() { update() };
 }
 
-export {layout, chart, annoLabel ,chart_layout, dateFormat, parseDate, columnNames, colors, formattedPolls, formattedAverages, valueExtent, plotData, legendData, annoData};
+export {layout, chart, annoLabel ,chart_layout, dateFormat, parseDate, columnNames, parties, colors, formattedPolls, formattedAverages, valueExtent, plotData, legendData, annoData};
 

@@ -336,10 +336,12 @@ export default function() {
 		.update()
 	const popFormat = '%b %d %Y'
 	const popDate = timeFormat(popFormat)
-	console.log('formattedPolls', formattedPolls)
+	
 	const filteredAverages = formattedAverages.filter((d) => {
 		return d.date >= dateExtent[0] && d.date <= dateExtent[1]
 	})
+	console.log(columnNames)
+	const popColumns = 
 	
 	//Add lines to trigger popup
 	plot.selectAll('.popHolder').selectAll('line')
@@ -352,19 +354,29 @@ export default function() {
 			.attr('x2', d => xScale(d.date))
 			.attr('y1', 0)
 			.attr('y2', height)
-			.on("mouseover",  function(ev, popData) {
-				const el = d3.select(this);
-				el.attr('opacity', 1)
-				console.log(popData)
-				// popup.mouseover(el, {
-				// 	name: popData.displayName,
-				// 	Value: format(popData.value) + '%',
-				// 	Date: popDate(popData.date),
-				// })
+			.on("mouseover",  function(ev, d) {
+				let popColumns = {name: 'name'}
+				columnNames.map((el, i) => {
+					popColumns[columnNames[i]] = columnNames[i]
+				})
+					popup
+				popup.setColumnNames(popColumns)
+					.update()
+				console.log('popColumns', popColumns)
+				let popData = {name: popDate(d.date)}
+				columnNames.map((el, i) => {
+					popData[columnNames[i]] = format(d[el]) +'%'
+				})
+				console.log('popData', popData)
+				
+				const el = this
+				const popLine = d3.select(this);
+				popLine.attr('opacity', 1)
+				popup.mouseover(el, popData)
 			})
 			.on("mouseout", function() {
-				const el = d3.select(this);
-				el.attr('opacity', 0)
+				const popLine = d3.select(this);
+				popLine.attr('opacity', 0)
 				popup.mouseout();
 			})
 		},

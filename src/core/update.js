@@ -48,7 +48,7 @@ const positionLabels = (labels, spacing, alpha) => {
 		});
 	});
 }
-//function to remove item from array
+//Helper function to remove item from array
 function removeItemOnce(arr, value) {
 	var index = arr.indexOf(value);
 	if (index > -1) {
@@ -56,10 +56,11 @@ function removeItemOnce(arr, value) {
 	}
 	return arr;
 }
-
+//Array to filter what party data should be displayed according to legend-NOT USE
 let displayData;
 
 export default function() {
+	//Update the Flourish colorScake domain to those of thepolling data column names
 	colors.updateColorScale(columnNames)
 	
 	// legend_categorical
@@ -83,70 +84,73 @@ export default function() {
 	chart
 		.attr('width', width)
 		.attr('height', height)
-	//get the current frame break name
+	//get the current frame breakpoint name
 	const breaks = width > state.layout.breakpoint_mobile_small && width <= state.layout.breakpoint_mobile_big ? 'mobile_small'
 		: width > state.layout.breakpoint_mobile_big && width <= state.layout.breakpoint_tablet ? 'mobile_big'
 		: width > state.layout.breakpoint_tablet && width <= state.layout.breakpoint_desktop ? 'tablet'
 		: width > state.layout.breakpoint_desktop && width <= state.layout.breakpoint_big_screen ? 'desktop'
 		: 'big_screen'
-	
+	//Update the chart_layout module so its measurements match the layout
 	chart_layout.width(width)
 	chart_layout.height(height)
-	
+	//Set the permanent mobile/desktop breakpoint
 	const breakpoint = state.layout.breakpoint_tablet
 	//returns the current body text size. (Strangely this expressed as a % of footer size when returned)
 	const fontSize = state.layout['font_size_' + breaks]
 	//use the body size text as rem expressed in px not em
 	const rem = layout.remToPx(fontSize)/100
+	//Number formatting for the line lables and popups
 	const format = d3.format(".1f");
-
+	//initialise the Flourish popup module
 	const popup = initialisePopup(state.popup);
-
+	//Derive date ranges from both polls and averages datasets todefine overall date range
 	const averagesExtent = d3.extent(formattedAverages, d => d.date);
 	const pollsExtent = d3.extent(formattedPolls, d => d.date);
 	const dateExtent = d3.extent((averagesExtent.concat(pollsExtent)), d => d);
+	//set various userdefined chart visual parameters depending on chart width as defined by the breakpoint const
 	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
 	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
 	const lineWidth = width < breakpoint ? state.averages.smallStrokeWidth : state.averages.largeStrokeWidth
 	const lineOpacity = width < breakpoint ? state.averages.smallOpacity : state.averages.largeOpacity
 	const moeOpacity = width < breakpoint ? state.moe.opacityMob : state.moe.opacityDesk
 	//Calculate the width need for the righ chart_layput margin
-	//This needs to be passed to the chrt-layout EVERY time it is updated
+	//This needs to be passed to the chrat_layout module EVERY time it is updated
 	const rightLabelWidth =  getMaxTextWidth(columnNames, rem + 'px Metric') + (rem * 3.5)
 	const xAlign = state.x.axis_position
-
+	//Allow users to overide the y axis date extent
 	dateExtent[0] = state.x.datetime_min ? parseDate(state.x.datetime_min) : dateExtent[0];
 	dateExtent[1] = state.x.datetime_max ? parseDate(state.x.datetime_max) : dateExtent[1];
+	//Work out how many days are in the date range, used conditionally format y axis tick labels
 	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
-	console.log('displayData', displayData)
-	displayData = displayData ? displayData: plotData
-
-	const filteredData = displayData.map(({ dots, lines,...d }) => {
+	//Filter the plotData to the user defined yaxis range
+	const filteredData = plotData.map(({ dots, lines,...d }) => {
 			return {
 				...d,
 				dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
 				lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
 			};
 		})
-	console.log('filteredData', filteredData)
-
+	//If no user defined tick format than format as full years unless date dange is less than three years, then months and years
+	//The number of axis ticks is defineded by the Flourish chart_layout module
 	const xTixkFormat = state.tickFormat? state.tickFormat
 	: numDays < 1095 ? '%b %y' : '%Y';
-
+	//define the y axis
 	chart_layout.yData([0,valueExtent[1]])
-	//pass the date formatting function to the chart_layout. User defined date min and max will not work properly without this
+	//pass the date formatting function (not format) to the chart_layout. User defined date min and max will not work properly without this
 	chart_layout.xDatetimeParse(parseDate);
+	//define the x axis and tick format
 	chart_layout.xData(dateExtent);
 	chart_layout.xFormat(timeFormat(xTixkFormat));
-
-	//chart_layout.xFormat(getDateFormat('years', chart_layout.xTicks()))
+	//Define a margin for the annotations label to sit in depending x axis orientation
 	if(xAlign == 'bottom') {
 		chart_layout.update({margins: {top: 50, right: rightLabelWidth}})
 	}
 	else {chart_layout.update({margins: {bottom: 50, right: rightLabelWidth}})}
-
+	//const that is the g element where the chart content is rendered to
 	const plot = chart_layout.data_foreground
+	//Add a g element specifically for holding the annotations in the front
 	const popHolder = plot.append('g')
+	//Const for holding the chart_layout scales
 	const yScale = chart_layout.yScale()
 	const xScale = chart_layout.xScale()
 
@@ -222,7 +226,7 @@ export default function() {
 	.style('fill', '#66605C')
 	.attr('font-weight', 400)
 
-	//Add Margin of error
+	//Add Margin of error shaded areas
 	plot.selectAll('.areas')
 		.data(filteredData)
 		.join(
@@ -327,23 +331,13 @@ export default function() {
 		.enter()
 		.append('g')
 		.attr('class','popHolder')
-	console.log(filteredData)
-
-	popup
-		.setColumnNames({
-			Date: 'Date',
-			Value: 'Value',
-		})
-		.update()
+	//date format for the popus 
 	const popFormat = '%b %d %Y'
 	const popDate = timeFormat(popFormat)
-	
+	//Build a dataset for each day to be used to create invisible line for popups
 	const filteredAverages = formattedAverages.filter((d) => {
 		return d.date >= dateExtent[0] && d.date <= dateExtent[1]
-	})
-	console.log(columnNames)
-	const popColumns = 
-	
+	})	
 	//Add lines to trigger popup
 	plot.selectAll('.popHolder').selectAll('line')
 		.data(filteredAverages)
@@ -356,6 +350,7 @@ export default function() {
 			.attr('y1', 0)
 			.attr('y2', height)
 			.on("mouseover",  function(ev, d) {
+				//build a dataset of party values that can be sorted before defining the popup column names
 				let popUps = columnNames.map((el, i) => {
 					const partyData = parties.filter(d => d.party === el);
 					return{
@@ -367,21 +362,26 @@ export default function() {
 					.filter(d  => d.value !== '' )
 					.sort((a, b) => b.value - a.value)
 				let popColumns = {name: 'name'}
+				//Define other popup column heading. Note that the element name (code) and not displayName defines the category this is so that
+				//the party name can be coloured using the Flourish getColour. But the displayName appears in the rendered popup
 				popUps.map((el, i) => {
-					popColumns[el.displayName] = el.displayName
+					popColumns[el.name] = el.displayName
 				})
 				popup.setColumnNames(popColumns)
 					.update()
+				//Define the sorted data to pe passed to the popup as defined by the current date the mouse is over
 				let popData = {name: popDate(d.date)}
 				popUps.map((el, i) => {
-					popData[el.displayName] = format(el.value)
-				})				
+					popData[el.name] = format(el.value)
+				})
+				//select the invisible line and make it visible			
 				const el = this
 				const popLine = d3.select(this);
 				popLine.attr('opacity', 1)
 				popup.mouseover(el, popData)
 			})
 			.on("mouseout", function() {
+				//Make the line invisible when mousing out
 				const popLine = d3.select(this);
 				popLine.attr('opacity', 0)
 				popup.mouseout();
@@ -404,53 +404,15 @@ export default function() {
 	.attr('opacity', 0)
 	.style('stroke', '#66605C')
 	.style('stroke-width',1)
-	
-	
-	// //Add the popup circles
-	// plot.selectAll('.popHolder').selectAll('circle')
-	// 	.data(d => d.lines)
-	// 	.join(
-	// 		function(enter) {
-	// 			//let popData = {Name: 'not yet added', Date: "01/01/2017", Value: 54,}
-	// 		return enter
-	// 			.append('circle')
-	// 			.attr('cx', d => xScale(d.date))
-	// 			.attr('cy', d => yScale(d.value))
-	// 			.on("mouseover",  function(data, popData) {
-	// 				const el = this;
-	// 				console.log(popData)
-	// 				popup.mouseover(el, {
-	// 					name: popData.displayName,
-	// 					Value: format(popData.value) + '%',
-	// 					Date: popDate(popData.date),
-	// 				})
-	// 			})
-	// 			.on("mouseout", function() {
-	// 				popup.mouseout();
-	// 			})
-	// 		},
-	// 		function(update) {
-	// 		return update
-	// 			.attr('cx', d => xScale(d.date))
-	// 			.attr('cy', d => yScale(d.value))
-	// 		},
-	// 		function(exit) {
-	// 		return exit
-	// 			.transition()
-	// 			.on('end', function() {
-	// 			d3.select(this).remove()
-	// 			});
-	// 		}
-	// 		)
-	// 	.attr('r', lineWidth/2)
-	// 	.attr('fill', d => colors.getColor(d.name))
-	// 	.attr('opacity', dotOpacity)
-
-	const lastDate = new Date(state.x.datetime_max) > averagesExtent[1] ? averagesExtent[1] :  dateExtent[1];
+	//Calculate the last date to be rendered. allows for a data greater or lesser than the range in the dataset
+	const lastDate = parseDate(state.x.datetime_max) > averagesExtent[1] ? averagesExtent[1]
+	: state.x.datetime_max ? parseDate(state.x.datetime_max)
+	: averagesExtent[1];
 	// Set up label data
 	const labelData = filteredData
 		.map(({ lines, party, displayNameDesk, displayNameMob, }) => {
-			const average = lines[lines.length - 1].value;
+				const line = lines.filter((d) => { return d.date <= lastDate})
+				const average = line[line.length - 1].value;
 			return {
 				party,
 				displayNameDesk,
@@ -534,12 +496,8 @@ export default function() {
 		}
 		return d.displayNameDesk + ' ' + format(d.average)
 	})
-		
-
-	
 
 	layout.update()
-	//console.log(state.layout)
 
 
 

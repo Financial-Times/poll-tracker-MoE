@@ -37,9 +37,8 @@ columnNames = data.polls.column_names.value
 averageNames = data.averages.column_names.value
 //Define the partieslooup array, used in getting the correct display depending on the chart width
 parties =  data.parties
-//Create the default Flourish colour pallettes and define the colour domain using columnNames
+//Create the default Flourish colour pallettes
 colors = createColors(state.color)
-colors.updateColorScale(columnNames)
 //Create formatted data object of the polling data and format the dates
 formattedPolls = data.polls.map((d) => {
 	var row = {date: parseDate(d.date), pollster: d.house,}

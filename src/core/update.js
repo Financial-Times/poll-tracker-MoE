@@ -366,8 +366,6 @@ export default function() {
 				})
 					.filter(d  => d.value !== '' )
 					.sort((a, b) => b.value - a.value)
-				console.log('popUps', popUps)
-
 				let popColumns = {name: 'name'}
 				popUps.map((el, i) => {
 					popColumns[el.displayName] = el.displayName
@@ -377,9 +375,7 @@ export default function() {
 				let popData = {name: popDate(d.date)}
 				popUps.map((el, i) => {
 					popData[el.displayName] = format(el.value)
-				})
-				console.log('popData', popData)
-				
+				})				
 				const el = this
 				const popLine = d3.select(this);
 				popLine.attr('opacity', 1)

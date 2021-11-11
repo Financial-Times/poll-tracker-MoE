@@ -337,7 +337,29 @@ export default function() {
 	//Build a dataset for each day to be used to create invisible line for popups
 	const filteredAverages = formattedAverages.filter((d) => {
 		return d.date >= dateExtent[0] && d.date <= dateExtent[1]
-	})	
+	})
+
+	function popupCallback(node, data) {
+		console.log(node, data)
+		if (!node) return;
+
+		
+		let items = d3.select(".main-content").selectAll(".data-heading").nodes()
+		console.log('items', items)
+		console.log('data', data.name)
+		
+		for (let i = 0; i < items.length; i++) {
+			let mobileName = d3.select(items[i]).text()
+			console.log('mobileName',mobileName)
+			const partyData = parties.filter(d => d.displayNameMobile === mobileName);
+			console.log('partyData',partyData.party)
+			d3.select(items[i]).style('color', colors.getColor(partyData[0].party))
+		}
+
+			// var header = node.querySelector("header");
+			// header.style.color = getColor(data);
+	}	
+
 	//Add lines to trigger popup
 	plot.selectAll('.popHolder').selectAll('line')
 		.data(filteredAverages)
@@ -353,9 +375,10 @@ export default function() {
 				//build a dataset of party values that can be sorted before defining the popup column names
 				let popUps = columnNames.map((el, i) => {
 					const partyData = parties.filter(d => d.party === el);
+					console.log('partyData', partyData)
 					return{
 						name: el,
-						displayName: partyData[0].displayNameDesktop,
+						displayName: partyData[0].displayNameMobile,
 						value: d[el],
 					}
 				})
@@ -369,7 +392,7 @@ export default function() {
 				})
 				popup.setColumnNames(popColumns)
 					.update()
-				//Define the sorted data to pe passed to the popup as defined by the current date the mouse is over
+				//Pass the sorted data to the popup as defined by the current date the mouse is over
 				let popData = {name: popDate(d.date)}
 				popUps.map((el, i) => {
 					popData[el.name] = format(el.value)
@@ -378,7 +401,8 @@ export default function() {
 				const el = this
 				const popLine = d3.select(this);
 				popLine.attr('opacity', 1)
-				popup.mouseover(el, popData)
+				popup.mouseover(el, popData, popupCallback)
+				
 			})
 			.on("mouseout", function() {
 				//Make the line invisible when mousing out

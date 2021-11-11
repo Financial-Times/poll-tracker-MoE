@@ -338,26 +338,16 @@ export default function() {
 	const filteredAverages = formattedAverages.filter((d) => {
 		return d.date >= dateExtent[0] && d.date <= dateExtent[1]
 	})
-
+	//function for adding colour to the popup iyems category names
 	function popupCallback(node, data) {
 		console.log(node, data)
 		if (!node) return;
-
-		
 		let items = d3.select(".main-content").selectAll(".data-heading").nodes()
-		console.log('items', items)
-		console.log('data', data.name)
-		
 		for (let i = 0; i < items.length; i++) {
 			let mobileName = d3.select(items[i]).text()
-			console.log('mobileName',mobileName)
 			const partyData = parties.filter(d => d.displayNameMobile === mobileName);
-			console.log('partyData',partyData.party)
 			d3.select(items[i]).style('color', colors.getColor(partyData[0].party))
 		}
-
-			// var header = node.querySelector("header");
-			// header.style.color = getColor(data);
 	}	
 
 	//Add lines to trigger popup

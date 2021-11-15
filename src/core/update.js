@@ -77,6 +77,8 @@ export default function() {
 	// 		update()
 	// 	});
 	// legend_container.update()
+	const updateFormat = timeFormat('%b %d');
+	state.layout.footer_note = 'Latest poll ' + updateFormat(formattedPolls[formattedPolls.length - 1].date)
 	layout.update()
 
 	var width = layout.getPrimaryWidth()
@@ -510,6 +512,7 @@ export default function() {
 		}
 		return d.displayNameDesk + ' ' + format(d.average)
 	})
+
 
 	layout.update()
 

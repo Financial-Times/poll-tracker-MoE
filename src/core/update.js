@@ -342,7 +342,6 @@ export default function() {
 	})
 	//function for adding colour to the popup iyems category names
 	function popupCallback(node, data) {
-		console.log(node, data)
 		if (!node) return;
 		let items = d3.select(".main-content").selectAll(".data-heading").nodes()
 		for (let i = 0; i < items.length; i++) {
@@ -367,7 +366,6 @@ export default function() {
 				//build a dataset of party values that can be sorted before defining the popup column names
 				let popUps = columnNames.map((el, i) => {
 					const partyData = parties.filter(d => d.party === el);
-					console.log('partyData', partyData)
 					return{
 						name: el,
 						displayName: partyData[0].displayNameMobile,

@@ -10,10 +10,10 @@ import state from "./state";
 import update from "./update";
 import data from "./data";
 import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
-import { getMaxTextWidth } from '../parseData';
+import { extentMulti,  getDots, getlines, getMoE, getMaxTextWidth } from '../parseData';
 import * as d3 from 'd3';
-import { timeFormat, } from 'd3-time-format';
-import {layout, chart, annoLabel, chart_layout, dateFormat, parseDate, columnNames, formattedPolls, parties, colors, formattedAverages, valueExtent, plotData, legendData, annoData} from "./draw";
+import { timeParse, timeFormat, } from 'd3-time-format';
+import {layout, chart, annoLabel, chart_layout, colors,} from "./draw";
 import { legend_container, legend_categorical } from "../init";
 import initialisePopup from "@flourish/info-popup";
 import { createContinuousColorLegend } from "@flourish/legend";
@@ -60,7 +60,13 @@ function removeItemOnce(arr, value) {
 let displayData;
 
 export default function() {
+	//Define the column names that are used as they key to build the formatted polls data object and define update Flourish colour domain
+	const columnNames = data.polls.column_names.value
 	//Update the Flourish colorScake domain to those of thepolling data column names
+	//Define the column names that are used as they key to build the formatted averages data object and define update Flourish colour domain
+	const averageNames = data.averages.column_names.value
+	//Define the partieslooup array, used in getting the correct display depending on the chart width
+	const parties =  data.parties
 	colors.updateColorScale(columnNames)
 	
 	// legend_categorical
@@ -78,6 +84,45 @@ export default function() {
 	// 	});
 	// legend_container.update()
 	const updateFormat = timeFormat('%b %d');
+	const dateFormat = state.dateFormat;
+	const parseDate = d3.timeParse(dateFormat);
+	//Create formatted data object of the polling data and format the dates
+	let formattedPolls = data.polls.map((d) => {
+		var row = {date: parseDate(d.date), pollster: d.house,}
+		columnNames.map((el, i) => {
+			row[columnNames[i]] = Number(d.value[i])
+			})
+			return row
+	}).sort((a, b) => a.date - b.date)
+	//Create formatted data object of the averages data and format the dates
+	let	formattedAverages = data.averages.map((d) => {
+		var row = {date: parseDate(d.date), code: d.code, geo: d.geo, race: d.race,}
+		averageNames.map((el, i) => {
+			row[averageNames[i]] = Number(d.value[i])
+			})
+			return row
+	}).sort((a, b) => a.date - b.date)
+	//Calculate the initual value extent used to define the y axis in the update function
+	const valueExtent = extentMulti(formattedPolls, columnNames);
+	//create the data object passed to the update function that can be filtered by date to create the chart
+	const plotData  = columnNames.map(party => {
+		const partyData = parties.find(({ party: p }) => party === p);
+		return {
+			party,
+			displayNameMob: partyData.displayNameMobile,
+			displayNameDesk: partyData.displayNameDesktop,
+			dots: getDots(formattedPolls, party,),
+			lines: getlines(formattedAverages, party, partyData.displayNameDesktop),
+			areas: getMoE(formattedAverages, party),
+		}
+	})
+	//create the data object passed to the update function that can be filtered by date to create the chart annotations
+	const annoData = data.annotations.map((d) => {
+		return {
+			date: parseDate(d.date),
+			annotation: d.annotation,
+		}
+	})
 	state.layout.footer_note = 'Latest poll ' + updateFormat(formattedPolls[formattedPolls.length - 1].date)
 	layout.update()
 
@@ -103,6 +148,7 @@ export default function() {
 	const rem = layout.remToPx(fontSize)/100
 	//Number formatting for the line lables and popups
 	const format = d3.format(".1f");
+
 	//initialise the Flourish popup module
 	const popup = initialisePopup(state.popup);
 	//Derive date ranges from both polls and averages datasets todefine overall date range

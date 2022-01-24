@@ -1,5 +1,5 @@
 id: ftPollTrakerMarginOfError
-version: 0.1.3
+version: 0.1.4
 name: FT Poll Tracker (Margin of Error)
 description: FT custom template. Pool tracker that loads pre calculated weighted averages and margin of error lines
 author: 'Bob Haslett, ændra'

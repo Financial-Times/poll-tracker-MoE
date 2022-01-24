@@ -26,7 +26,7 @@ export default {
 	chart_bg: {},
     fixedHeight: false,
 	height: 550,
-	dateFormat: '%d/%m/%Y',
+	dateFormat: '%Y-%m-%d',
 	tickFormat: null,
 	dotSize: 2.5,
 	dotOpacity: 0.2,

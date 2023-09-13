@@ -3,14 +3,27 @@
  * The current state of template. You can make some or all of the properties
  * of the state object available to the user as settings in settings.js.
  */
+import { themes } from "../themes";
 
 export default {
-	layout: {
-		title: 'Title not yet added',
-		subtitle: 'Suntitle not yet added',
-		footer_note: "Source: Not yet added",
-		background_color: '#fff1e5',
-	},
+  ...themes["FT Newsroom: default"].settings,
+  theme: themes["FT Newsroom: default"], // this can be overridden by the chooser on the main website
+  layout: {
+    ...themes["FT Newsroom: default"].settings.layout,
+    title: "Title not yet added",
+    subtitle: "Suntitle not yet added",
+    footer_note: "Source: Not yet added",
+    background_color: "#fff1e5",
+  },
+  lineStyle: "solid",
+  lineWidth: 0.6,
+  lineColor: "#66605C",
+  lineOpacity: 1.0,
+  lineDashWidth: 2,
+  labelFontSize: 1.0,
+  labelFontWeight: "400",
+  labelFontColor: "#66605C",
+  labelTextAnchor: "middle",
 	x: {title_mode: 'custom',
 		tick_label_angle: 0,
 		line_and_tick_color : '#ccc1b7',

@@ -9,8 +9,6 @@
 import * as d3 from "d3";
 import initialisePopup from "@flourish/info-popup";
 import { timeFormat } from "d3-time-format";
-import state from "./state";
-import data from "./data";
 import {
   extentMulti,
   getDots,
@@ -18,7 +16,6 @@ import {
   getMoE,
   getMaxTextWidth,
 } from "../parseData";
-import { layout, chart, colors, chartLayout } from "./draw";
 
 // Helper function to position labels
 const positionLabels = (labels, spacing, alpha) => {
@@ -54,6 +51,8 @@ const positionLabels = (labels, spacing, alpha) => {
 };
 
 export default function update() {
+  const { colors, layout, chart, chartLayout, data, state } = this;
+
   // Define the column names that are used as they key to build the formatted polls data object and define update Flourish colour domain
   const columnNames = data.polls.column_names.value;
   // Update the Flourish colorScake domain to those of thepolling data column names

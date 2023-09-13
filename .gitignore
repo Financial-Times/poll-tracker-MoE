@@ -1,5 +1,7 @@
 .vscode
 .DS_Store
+template.js
+template.js.map
 
 # Logs
 logs

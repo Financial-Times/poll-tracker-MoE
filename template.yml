@@ -162,14 +162,28 @@ data:
     dataset: averages
     type: columns
     columns: "Averages::E-V"
-  - name: Date
-    description: date
-    key: date
-    dataset: annotations
+  - key: date
+    name: Date
+    dataset: Lines
     type: column
-    column: 'Annotations::A'
-  - key: annotation # Property name in the dataset
-    name: Annotation # Name to be displayed in the editor
-    dataset: annotations # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Annotations::B'
+    column: 'Lines::A'
+  - key: party
+    name: party
+    dataset: Lines
+    type: column
+    column: 'Lines::B'
+  - key: value
+    name: Values
+    dataset: Lines
+    type: column
+    column: "Lines::C"
+  - key: lower
+    name: Lower
+    dataset: Lines
+    type: column
+    column: "Lines::D"
+  - key: uppeer
+    name: Upper
+    dataset: Lines
+    type: column
+    column: "Lines::E"

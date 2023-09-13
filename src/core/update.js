@@ -53,6 +53,10 @@ const positionLabels = (labels, spacing, alpha) => {
 export default function update() {
   const { colors, layout, chart, chartLayout, data, state } = this;
 
+///////////// DATA
+
+console.log('data', data)
+
   // Define the column names that are used as they key to build the formatted polls data object and define update Flourish colour domain
   const columnNames = data.polls.column_names.value;
   // Update the Flourish colorScake domain to those of thepolling data column names
@@ -62,20 +66,6 @@ export default function update() {
   const { parties } = data;
   colors.updateColorScale(columnNames);
 
-  // legend_categorical
-  // 	.data(legendData) // See explanation below
-  // 	.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
-  // 		console.log(this, d.label, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
-  // 		if(state.displayValues.includes(d.label)) {
-  // 			removeItemOnce(state.displayValues, d.label)
-  // 		}
-  // 		else state.displayValues.push(d.label)
-  // 		d3.select(this).style('opacity',0.5)
-  // 		console.log('displayValues', state.displayValues)
-  // 		displayData = plotData.filter(d => state.displayValues.includes(d.displayNameDesk))
-  // 		update()
-  // 	});
-  // legend_container.update()
   const updateFormat = timeFormat("%b %d");
   const { dateFormat } = state;
   const parseDate = d3.timeParse(dateFormat);
@@ -118,11 +108,6 @@ export default function update() {
       areas: getMoE(formattedAverages, party),
     };
   });
-  // create the data object passed to the update function that can be filtered by date to create the chart annotations
-  const annoData = data.annotations.map((d) => ({
-    date: parseDate(d.date),
-    annotation: d.annotation,
-  }));
 
   state.layout.footer_note = `Latest poll ${updateFormat(
     formattedPolls[formattedPolls.length - 1].date
@@ -251,40 +236,7 @@ export default function update() {
     .y1((d) => yScale(d.y1))
     .y0((d) => yScale(d.y0));
 
-  // Add a group for each annotation line
-  plot
-    .selectAll(".annoHolder")
-    .data(annoData)
-    .enter()
-    .append("g")
-    .attr("class", "annoHolder");
 
-  plot
-    .selectAll(".annoHolder")
-    .selectAll("line")
-    .data(annoData)
-    .join(
-      (enter) =>
-        enter
-          .append("line")
-          .attr("x1", (d) => xScale(d.date))
-          .attr("x2", (d) => xScale(d.date))
-          .attr("y1", 0)
-          .attr("y2", height),
-      (updateSelection) =>
-        updateSelection
-          .attr("x1", (d) => xScale(d.date))
-          .attr("x2", (d) => xScale(d.date))
-          .attr("y1", 0)
-          .attr("y2", height),
-
-      (exit) =>
-        exit.transition().on("end", function annoHolderOnEnd() {
-          d3.select(this).remove();
-        })
-    )
-    .style("stroke", "#66605C")
-    .style("stroke-width", 1);
 
   // Add Margin of error shaded areas
   plot

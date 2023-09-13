@@ -6,561 +6,559 @@
  * Tip: to make your template work nicely in the story editor, ensure that all user
  * interface controls such as buttons and sliders update the state and then call update.
  */
-import state from "./state";
-import update from "./update";
-import data from "./data";
-import { isPale, wrapStringToLines } from "@flourish/pocket-knife"
-import { extentMulti,  getDots, getlines, getMoE, getMaxTextWidth } from '../parseData';
-import * as d3 from 'd3';
-import { timeParse, timeFormat, } from 'd3-time-format';
-import {layout, chart, annoLabel, chart_layout, colors,} from "./draw";
-import { legend_container, legend_categorical } from "../init";
+import * as d3 from "d3";
 import initialisePopup from "@flourish/info-popup";
-import { createContinuousColorLegend } from "@flourish/legend";
+import { timeFormat } from "d3-time-format";
+import state from "./state";
+import data from "./data";
+import {
+  extentMulti,
+  getDots,
+  getlines,
+  getMoE,
+  getMaxTextWidth,
+} from "../parseData";
+import { layout, chart, colors, chartLayout } from "./draw";
 
 // Helper function to position labels
 const positionLabels = (labels, spacing, alpha) => {
-	labels.each(d1 => {
-		const y1 = d1.position;
-		const a1 = d1.average;
+  labels.each((d1) => {
+    const y1 = d1.position;
+    const a1 = d1.average;
 
-		labels.each(d2 => {
-			const y2 = d2.position;
-			const a2 = d2.average;
+    labels.each((d2) => {
+      const y2 = d2.position;
+      const a2 = d2.average;
 
-			/* Difference between current averages for each party
+      /* Difference between current averages for each party
 			This ensures the parties are always in the correct order */
-			const deltaA = a1 - a2;
-			/* Difference between current positions
+      const deltaA = a1 - a2;
+      /* Difference between current positions
 			When this is below the required minimum spacing the positioning
 			algorithm should stop */
-			const deltaY = y1 - y2;
+      const deltaY = y1 - y2;
 
-			if (d1 !== d2 && Math.abs(deltaY) <= spacing) {
-				const sign = deltaA > 0 ? -1 : 1;
-				const adjust = sign * alpha;
+      if (d1 !== d2 && Math.abs(deltaY) <= spacing) {
+        const sign = deltaA > 0 ? -1 : 1;
+        const adjust = sign * alpha;
 
-				d1.position = +y1 + adjust;
-				d2.position = +y2 - adjust;
+        /* eslint-disable no-param-reassign */
+        d1.position = +y1 + adjust;
+        d2.position = +y2 - adjust;
+        /* eslint-enable */
 
-				positionLabels(labels, spacing, alpha);
-			}
-		});
-	});
-}
-//Helper function to remove item from array
-function removeItemOnce(arr, value) {
-	var index = arr.indexOf(value);
-	if (index > -1) {
-		arr.splice(index, 1);
-	}
-	return arr;
-}
-//Array to filter what party data should be displayed according to legend-NOT USE
-let displayData;
+        positionLabels(labels, spacing, alpha);
+      }
+    });
+  });
+};
 
-export default function() {
-	//Define the column names that are used as they key to build the formatted polls data object and define update Flourish colour domain
-	const columnNames = data.polls.column_names.value
-	//Update the Flourish colorScake domain to those of thepolling data column names
-	//Define the column names that are used as they key to build the formatted averages data object and define update Flourish colour domain
-	const averageNames = data.averages.column_names.value
-	//Define the partieslooup array, used in getting the correct display depending on the chart width
-	const parties =  data.parties
-	colors.updateColorScale(columnNames)
-	
-	// legend_categorical
-	// 	.data(legendData) // See explanation below
-	// 	.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
-	// 		console.log(this, d.label, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
-	// 		if(state.displayValues.includes(d.label)) {
-	// 			removeItemOnce(state.displayValues, d.label)
-	// 		}
-	// 		else state.displayValues.push(d.label)
-	// 		d3.select(this).style('opacity',0.5)
-	// 		console.log('displayValues', state.displayValues)
-	// 		displayData = plotData.filter(d => state.displayValues.includes(d.displayNameDesk))
-	// 		update()
-	// 	});
-	// legend_container.update()
-	const updateFormat = timeFormat('%b %d');
-	const dateFormat = state.dateFormat;
-	const parseDate = d3.timeParse(dateFormat);
-	//Create formatted data object of the polling data and format the dates
-	let formattedPolls = data.polls.map((d) => {
-		var row = {date: parseDate(d.date), pollster: d.house,}
-		columnNames.map((el, i) => {
-			row[columnNames[i]] = Number(d.value[i])
-			})
-			return row
-	}).sort((a, b) => a.date - b.date)
-	//Create formatted data object of the averages data and format the dates
-	let	formattedAverages = data.averages.map((d) => {
-		var row = {date: parseDate(d.date), code: d.code, geo: d.geo, race: d.race,}
-		averageNames.map((el, i) => {
-			row[averageNames[i]] = Number(d.value[i])
-			})
-			return row
-	}).sort((a, b) => a.date - b.date)
-	//Calculate the initual value extent used to define the y axis in the update function
-	const valueExtent = extentMulti(formattedPolls, columnNames);
-	//create the data object passed to the update function that can be filtered by date to create the chart
-	const plotData  = columnNames.map(party => {
-		const partyData = parties.find(({ party: p }) => party === p);
-		return {
-			party,
-			displayNameMob: partyData.displayNameMobile,
-			displayNameDesk: partyData.displayNameDesktop,
-			dots: getDots(formattedPolls, party,),
-			lines: getlines(formattedAverages, party, partyData.displayNameDesktop),
-			areas: getMoE(formattedAverages, party),
-		}
-	})
-	//create the data object passed to the update function that can be filtered by date to create the chart annotations
-	const annoData = data.annotations.map((d) => {
-		return {
-			date: parseDate(d.date),
-			annotation: d.annotation,
-		}
-	})
-	state.layout.footer_note = 'Latest poll ' + updateFormat(formattedPolls[formattedPolls.length - 1].date)
-	layout.update()
+export default function update() {
+  // Define the column names that are used as they key to build the formatted polls data object and define update Flourish colour domain
+  const columnNames = data.polls.column_names.value;
+  // Update the Flourish colorScake domain to those of thepolling data column names
+  // Define the column names that are used as they key to build the formatted averages data object and define update Flourish colour domain
+  const averageNames = data.averages.column_names.value;
+  // Define the partieslooup array, used in getting the correct display depending on the chart width
+  const { parties } = data;
+  colors.updateColorScale(columnNames);
 
-	var width = layout.getPrimaryWidth()
-	var height = layout.getPrimaryHeight()
-	chart
-		.attr('width', width)
-		.attr('height', height)
-	//get the current frame breakpoint name
-	const breaks = width > state.layout.breakpoint_mobile_small && width <= state.layout.breakpoint_mobile_big ? 'mobile_small'
-		: width > state.layout.breakpoint_mobile_big && width <= state.layout.breakpoint_tablet ? 'mobile_big'
-		: width > state.layout.breakpoint_tablet && width <= state.layout.breakpoint_desktop ? 'tablet'
-		: width > state.layout.breakpoint_desktop && width <= state.layout.breakpoint_big_screen ? 'desktop'
-		: 'big_screen'
-	//Update the chart_layout module so its measurements match the layout
-	chart_layout.width(width)
-	chart_layout.height(height)
-	//Set the permanent mobile/desktop breakpoint
-	const breakpoint = state.layout.breakpoint_tablet
-	//returns the current body text size. (Strangely this expressed as a % of footer size when returned)
-	const fontSize = state.layout['font_size_' + breaks]
-	//use the body size text as rem expressed in px not em
-	const rem = layout.remToPx(fontSize)/100
-	//Number formatting for the line lables and popups
-	const format = d3.format(".1f");
+  // legend_categorical
+  // 	.data(legendData) // See explanation below
+  // 	.on("click", function(d, i) { // Add event listener to legend items (eg. "click", "mouseover", etc.)
+  // 		console.log(this, d.label, i); // (Legend item node element, {label: "Brazil", color: "#333333", index: "0"}, index)
+  // 		if(state.displayValues.includes(d.label)) {
+  // 			removeItemOnce(state.displayValues, d.label)
+  // 		}
+  // 		else state.displayValues.push(d.label)
+  // 		d3.select(this).style('opacity',0.5)
+  // 		console.log('displayValues', state.displayValues)
+  // 		displayData = plotData.filter(d => state.displayValues.includes(d.displayNameDesk))
+  // 		update()
+  // 	});
+  // legend_container.update()
+  const updateFormat = timeFormat("%b %d");
+  const { dateFormat } = state;
+  const parseDate = d3.timeParse(dateFormat);
+  // Create formatted data object of the polling data and format the dates
+  const formattedPolls = data.polls
+    .map((d) => {
+      const row = { date: parseDate(d.date), pollster: d.house };
+      columnNames.forEach((el, i) => {
+        row[columnNames[i]] = Number(d.value[i]);
+      });
+      return row;
+    })
+    .sort((a, b) => a.date - b.date);
+  // Create formatted data object of the averages data and format the dates
+  const formattedAverages = data.averages
+    .map((d) => {
+      const row = {
+        date: parseDate(d.date),
+        code: d.code,
+        geo: d.geo,
+        race: d.race,
+      };
+      averageNames.forEach((el, i) => {
+        row[averageNames[i]] = Number(d.value[i]);
+      });
+      return row;
+    })
+    .sort((a, b) => a.date - b.date);
+  // Calculate the initual value extent used to define the y axis in the update function
+  const valueExtent = extentMulti(formattedPolls, columnNames);
+  // create the data object passed to the update function that can be filtered by date to create the chart
+  const plotData = columnNames.map((party) => {
+    const partyData = parties.find(({ party: p }) => party === p);
+    return {
+      party,
+      displayNameMob: partyData.displayNameMobile,
+      displayNameDesk: partyData.displayNameDesktop,
+      dots: getDots(formattedPolls, party),
+      lines: getlines(formattedAverages, party, partyData.displayNameDesktop),
+      areas: getMoE(formattedAverages, party),
+    };
+  });
+  // create the data object passed to the update function that can be filtered by date to create the chart annotations
+  const annoData = data.annotations.map((d) => ({
+    date: parseDate(d.date),
+    annotation: d.annotation,
+  }));
 
-	//initialise the Flourish popup module
-	const popup = initialisePopup(state.popup);
-	//Derive date ranges from both polls and averages datasets todefine overall date range
-	const averagesExtent = d3.extent(formattedAverages, d => d.date);
-	const pollsExtent = d3.extent(formattedPolls, d => d.date);
-	const dateExtent = d3.extent((averagesExtent.concat(pollsExtent)), d => d);
-	//set various userdefined chart visual parameters depending on chart width as defined by the breakpoint const
-	const dotSize = width < breakpoint ? state.polls.smallSize : state.polls.largeSize
-	const dotOpacity = width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity
-	const lineWidth = width < breakpoint ? state.averages.smallStrokeWidth : state.averages.largeStrokeWidth
-	const lineOpacity = width < breakpoint ? state.averages.smallOpacity : state.averages.largeOpacity
-	const moeOpacity = width < breakpoint ? state.moe.opacityMob : state.moe.opacityDesk
-	//Calculate the width need for the righ chart_layput margin
-	//This needs to be passed to the chrat_layout module EVERY time it is updated
-	const rightLabelWidth =  getMaxTextWidth(columnNames, rem + 'px Metric') + (rem * 3.5)
-	const xAlign = state.x.axis_position
-	//Allow users to overide the y axis date extent
-	dateExtent[0] = state.x.datetime_min ? parseDate(state.x.datetime_min) : dateExtent[0];
-	dateExtent[1] = state.x.datetime_max ? parseDate(state.x.datetime_max) : dateExtent[1];
-	//Work out how many days are in the date range, used conditionally format y axis tick labels
-	const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
-	//Filter the plotData to the user defined yaxis range
-	const filteredData = plotData.map(({ dots, lines,...d }) => {
-			return {
-				...d,
-				dots: dots.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
-				lines: lines.filter(el => el.date > dateExtent[0] && el.date , dateExtent[1]),
-			};
-		})
-	//If no user defined tick format than format as full years unless date dange is less than three years, then months and years
-	//The number of axis ticks is defineded by the Flourish chart_layout module
-	const xTixkFormat = state.tickFormat? state.tickFormat
-	: numDays < 1095 ? '%b %y' : '%Y';
-	//define the y axis
-	chart_layout.yData([0,valueExtent[1]])
-	//pass the date formatting function (not format) to the chart_layout. User defined date min and max will not work properly without this
-	chart_layout.xDatetimeParse(parseDate);
-	//define the x axis and tick format
-	chart_layout.xData(dateExtent);
-	chart_layout.xFormat(timeFormat(xTixkFormat));
-	//Define a margin for the annotations label to sit in depending x axis orientation
-	if(xAlign == 'bottom') {
-		chart_layout.update({margins: {top: 50, right: rightLabelWidth}})
-	}
-	else {chart_layout.update({margins: {bottom: 50, right: rightLabelWidth}})}
-	//const that is the g element where the chart content is rendered to
-	const plot = chart_layout.data_foreground
-	//Add a g element specifically for holding the annotations in the front
-	const popHolder = plot.append('g')
-	//Const for holding the chart_layout scales
-	const yScale = chart_layout.yScale()
-	const xScale = chart_layout.xScale()
+  state.layout.footer_note = `Latest poll ${updateFormat(
+    formattedPolls[formattedPolls.length - 1].date
+  )}`;
+  layout.update();
 
-	//set up line interpolation and line drawing function
-	const areaData = d3.area()
-		.x(d => xScale(d.x))
-		.y1(d => yScale(d.y1))
-		.y0(d => yScale(d.y0));
-	
-	//Add a group for each annotation line
-	plot.selectAll('.annoHolder')
-		.data(annoData)
-		.enter()
-		.append('g')
-		.attr('class','annoHolder')
-	
-	plot.selectAll('.annoHolder').selectAll('line')
-		.data(annoData)
-		.join(
-		function(enter) {
-			return enter
-			.append('line')
-			.attr('x1', d => xScale(d.date))
-			.attr('x2', d => xScale(d.date))
-			.attr('y1', 0)
-			.attr('y2', height)
-		},
-		function(update) {
-			return update
-			.attr('x1', d => xScale(d.date))
-			.attr('x2', d => xScale(d.date))
-			.attr('y1', 0)
-			.attr('y2', height)
-		},
-		function(exit) {
-		return exit
-			.transition()
-			.on('end', function() {
-			d3.select(this).remove()
-			});
-		})
-	.style('stroke', '#66605C')
-	.style('stroke-width',1)
+  const width = layout.getPrimaryWidth();
+  const height = layout.getPrimaryHeight();
+  chart.attr("width", width).attr("height", height);
 
-	//The label added to its own g element in the primary chart svg so as to avoid being cropped off
-	annoLabel.selectAll('text')
-		.data(annoData)
-		.join(
-		function(enter) {
-			return enter
-			.append('text')
-			.attr('x', d => xScale(d.date))
-			.attr('y', xAlign == 'bottom' ? chart_layout.margins.top - (rem * .5):
-				chart_layout.height() - chart_layout.margins.bottom + (rem *.8))
-		},
-		function(update) {
-			return update
-			.attr('x', d => xScale(d.date))
-			.attr('y', xAlign == 'bottom' ? chart_layout.margins.top - (rem * .5):
-				chart_layout.height() - chart_layout.margins.bottom + (rem *.8))
-		},
-		function(exit) {
-			return exit
-			.transition()
-			.text('')
-			.attr('opacity', 0)
-			.on('end', function() {
-				d3.select(this).remove()
-			});
-		})
-	.text(d => d.annotation)
-	.style('text-anchor', 'middle')
-	.style('fill', '#66605C')
-	.attr('font-weight', 400)
+  /* eslint-disable no-nested-ternary */
+  // get the current frame breakpoint name
+  const breaks =
+    width > state.layout.breakpoint_mobile_small &&
+    width <= state.layout.breakpoint_mobile_big
+      ? "mobile_small"
+      : width > state.layout.breakpoint_mobile_big &&
+        width <= state.layout.breakpoint_tablet
+      ? "mobile_big"
+      : width > state.layout.breakpoint_tablet &&
+        width <= state.layout.breakpoint_desktop
+      ? "tablet"
+      : width > state.layout.breakpoint_desktop &&
+        width <= state.layout.breakpoint_big_screen
+      ? "desktop"
+      : "big_screen";
+  /* eslint-enable no-nested-ternary */
 
-	//Add Margin of error shaded areas
-	plot.selectAll('.areas')
-		.data(filteredData)
-		.join(
-		function(enter) {
-			return enter
-			.append('path')
-			.attr('d', d => areaData(d.areas))
-		},
-		function(update) {
-			return update
-			.attr('d', d => areaData(d.areas))
-		},
-		function(exit) {
-			return exit
-			.transition()
-			.duration(100)
-			.on('end', function() {
-				d3.select(this).remove()
-			});
-		},
-		)
-	.attr('class', 'areas')
-	.attr('fill', d => colors.getColor(d.party))
-	.attr('id', d => d.party)
-	.attr('opacity', moeOpacity)
+  // Update the chartLayout module so its measurements match the layout
+  chartLayout.width(width);
+  chartLayout.height(height);
+  // Set the permanent mobile/desktop breakpoint
+  const breakpoint = state.layout.breakpoint_tablet;
+  // returns the current body text size. (Strangely this expressed as a % of footer size when returned)
+  const fontSize = state.layout[`font_size_${breaks}`];
+  // use the body size text as rem expressed in px not em
+  const rem = layout.remToPx(fontSize) / 100;
+  // Number formatting for the line lables and popups
+  const format = d3.format(".1f");
 
-	//Add a group for each series of dots
-	plot.selectAll('.dotHolder')
-		.data(filteredData)
-		.enter()
-		.append('g')
-		.attr('class','dotHolder')
-	
-	//Add the polling circles
-	plot.selectAll('.dotHolder').selectAll('circle')
-		.data(d => d.dots)
-		.join(
-			function(enter) {
-			return enter
-				.append('circle')
-				.attr('cx', d => xScale(d.date))
-				.attr('cy', d => yScale(d.value))
-			},
-			function(update) {
-			return update
-				.attr('cx', d => xScale(d.date))
-				.attr('cy', d => yScale(d.value))
-			},
-			function(exit) {
-			return exit
-				.transition()
-				.on('end', function() {
-				d3.select(this).remove()
-				});
-			}
-			)
-		.attr('r', dotSize)
-		.attr('fill', d => colors.getColor(d.name))
-		.attr('opacity', dotOpacity)
-	
+  // initialise the Flourish popup module
+  const popup = initialisePopup(state.popup);
+  // Derive date ranges from both polls and averages datasets todefine overall date range
+  const averagesExtent = d3.extent(formattedAverages, (d) => d.date);
+  const pollsExtent = d3.extent(formattedPolls, (d) => d.date);
+  const dateExtent = d3.extent(averagesExtent.concat(pollsExtent), (d) => d);
+  // set various userdefined chart visual parameters depending on chart width as defined by the breakpoint const
+  const dotSize =
+    width < breakpoint ? state.polls.smallSize : state.polls.largeSize;
+  const dotOpacity =
+    width < breakpoint ? state.polls.smallOpacity : state.polls.largeOpacity;
+  const lineWidth =
+    width < breakpoint
+      ? state.averages.smallStrokeWidth
+      : state.averages.largeStrokeWidth;
+  const lineOpacity =
+    width < breakpoint
+      ? state.averages.smallOpacity
+      : state.averages.largeOpacity;
+  const moeOpacity =
+    width < breakpoint ? state.moe.opacityMob : state.moe.opacityDesk;
+  // Calculate the width need for the righ chart_layput margin
+  // This needs to be passed to the chrat_layout module EVERY time it is updated
+  const rightLabelWidth =
+    getMaxTextWidth(columnNames, `${rem}px Metric`) + rem * 3.5;
+  const xAlign = state.x.axis_position;
+  // Allow users to overide the y axis date extent
+  dateExtent[0] = state.x.datetime_min
+    ? parseDate(state.x.datetime_min)
+    : dateExtent[0];
+  dateExtent[1] = state.x.datetime_max
+    ? parseDate(state.x.datetime_max)
+    : dateExtent[1];
+  // Work out how many days are in the date range, used conditionally format y axis tick labels
+  const numDays = Math.floor((dateExtent[1] - dateExtent[0]) / 86400000);
+  // Filter the plotData to the user defined yaxis range
+  const filteredData = plotData.map(({ dots, lines, ...d }) => ({
+    ...d,
+    dots: dots.filter(
+      (el) => el.date > dateExtent[0] && el.date,
+      dateExtent[1]
+    ),
+    lines: lines.filter(
+      (el) => el.date > dateExtent[0] && el.date,
+      dateExtent[1]
+    ),
+  }));
 
-	//set up line interpolation and line drawing function
-	let interpolation = d3.curveLinear;
-	const lineData = d3.line()
-		.defined(d => d)
-		.curve(interpolation)
-		.x(d => xScale(d.date))
-		.y(d => yScale(d.value));
-	
-	plot.selectAll('.lines')
-		.data(filteredData)
-		.join(
-		function(enter) {
-			return enter
-			.append('path')
-			.attr('d', d => lineData(d.lines))
-		},
-		function(update) {
-			return update
-			.attr('d', d => lineData(d.lines))
-		},
-		function(exit) {
-			return exit
-			.transition()
-			.duration(100)
-			.attr('d', d => lineData(d.lines))
-			.on('end', function() {
-				d3.select(this).remove()
-			});
-		},
-		)
-		.attr('class', 'lines')
-		.attr('fill', 'none')
-		.attr('stroke-width', lineWidth)
-		.attr('stroke', d => colors.getColor(d.party))
-		.attr('id', d => d.party)
-		.attr('opacity', lineOpacity)
-	
-	//Add a group for each series of popup circles
-	plot.selectAll('.popHolder')
-		.data(filteredData)
-		.enter()
-		.append('g')
-		.attr('class','popHolder')
-	//date format for the popus 
-	const popFormat = '%b %d %Y'
-	const popDate = timeFormat(popFormat)
-	//Build a dataset for each day to be used to create invisible line for popups
-	const filteredAverages = formattedAverages.filter((d) => {
-		return d.date >= dateExtent[0] && d.date <= dateExtent[1]
-	})
-	//function for adding colour to the popup iyems category names
-	function popupCallback(node, data) {
-		if (!node) return;
-		let items = d3.select(".main-content").selectAll(".data-heading").nodes()
-		for (let i = 0; i < items.length; i++) {
-			let mobileName = d3.select(items[i]).text()
-			const partyData = parties.filter(d => d.displayNameMobile === mobileName);
-			d3.select(items[i]).style('color', colors.getColor(partyData[0].party))
-		}
-	}	
+  // If no user defined tick format than format as full years unless date dange is less than three years, then months and years
+  // The number of axis ticks is defineded by the Flourish chartLayout module
+  const xTixkFormat = state.tickFormat
+    ? state.tickFormat
+    : numDays < 1095
+    ? "%b %y"
+    : "%Y";
+  // define the y axis
+  chartLayout.yData([0, valueExtent[1]]);
 
-	//Add lines to trigger popup
-	plot.selectAll('.popHolder').selectAll('line')
-		.data(filteredAverages)
-		.join(
-		function(enter) {
-			return enter
-			.append('line')
-			.attr('x1', d => xScale(d.date))
-			.attr('x2', d => xScale(d.date))
-			.attr('y1', 0)
-			.attr('y2', height)
-			.on("mouseover",  function(ev, d) {
-				//build a dataset of party values that can be sorted before defining the popup column names
-				let popUps = columnNames.map((el, i) => {
-					const partyData = parties.filter(d => d.party === el);
-					return{
-						name: el,
-						displayName: partyData[0].displayNameMobile,
-						value: d[el],
-					}
-				})
-					.filter(d  => d.value !== '' )
-					.sort((a, b) => b.value - a.value)
-				let popColumns = {name: 'name'}
-				//Define other popup column heading. Note that the element name (code) and not displayName defines the category this is so that
-				//the party name can be coloured using the Flourish getColour. But the displayName appears in the rendered popup
-				popUps.map((el, i) => {
-					popColumns[el.name] = el.displayName
-				})
-				popup.setColumnNames(popColumns)
-					.update()
-				//Pass the sorted data to the popup as defined by the current date the mouse is over
-				let popData = {name: popDate(d.date)}
-				popUps.map((el, i) => {
-					popData[el.name] = format(el.value)
-				})
-				//select the invisible line and make it visible			
-				const el = this
-				const popLine = d3.select(this);
-				popLine.attr('opacity', 1)
-				popup.mouseover(el, popData, popupCallback)
-				
-			})
-			.on("mouseout", function() {
-				//Make the line invisible when mousing out
-				const popLine = d3.select(this);
-				popLine.attr('opacity', 0)
-				popup.mouseout();
-			})
-		},
-		function(update) {
-			return update
-			.attr('x1', d => xScale(d.date))
-			.attr('x2', d => xScale(d.date))
-			.attr('y1', 0)
-			.attr('y2', height)
-		},
-		function(exit) {
-		return exit
-			.transition()
-			.on('end', function() {
-			d3.select(this).remove()
-			});
-		})
-	.attr('opacity', 0)
-	.style('stroke', '#66605C')
-	.style('stroke-width',1)
-	//Calculate the last date to be rendered. allows for a data greater or lesser than the range in the dataset
-	const lastDate = parseDate(state.x.datetime_max) > averagesExtent[1] ? averagesExtent[1]
-	: state.x.datetime_max ? parseDate(state.x.datetime_max)
-	: averagesExtent[1];
-	// Set up label data
-	const labelData = filteredData
-		.map(({ lines, party, displayNameDesk, displayNameMob, }) => {
-				const line = lines.filter((d) => { return d.date <= lastDate})
-				const average = line[line.length - 1].value;
-			return {
-				party,
-				displayNameDesk,
-				displayNameMob,
-				average,
-				// Set initial positions for each label
-				position: yScale(average),
-			};
-		})
-		.sort((a, b) => b.average - a.average);
-	
-	chart.selectAll('.labelHolder')
-		.data(labelData)
-		.enter()
-		.append('g')
-		.attr('class','labelHolder')
-	
-	// Calculate new label positions recursively
-	positionLabels(
-		chart.selectAll('.labelHolder'),
-		rem, // Minimum spacing between labels (increase for more space)
-		0.5 // Amount to change label positon by each iteration
-	);
+  // pass the date formatting function (not format) to the chartLayout. User defined date min and max will not work properly without this
+  chartLayout.xDatetimeParse(parseDate);
 
-	chart.selectAll('.labelHolder').selectAll('rect')
-		.data(d => [d])
-		.join(
-		function(enter) {
-			return enter
-			.append('rect')
-			.attr('height', rem)
-			.attr('y', d => d.position - (rem *.5))
-			.attr('x', d => xScale(lastDate) + (rem * .3))
-		},
-		function(update) {
-			return update
-			.attr('y', d => d.position - (rem *.5))
-			.attr('x', d => xScale(lastDate) + (rem * .3))
-			.attr('width', rem * .5)
-		},
-		function(exit) {
-			return exit
-			.transition()
-			.attr('width', 0)
-			.on('end', function() {
-				d3.select(this).remove()
-			});
-		})
-	.attr('fill', d => colors.getColor(d.party))
-	.attr('height', rem)
-	.attr('width', rem * .5)
+  // define the x axis and tick format
+  chartLayout.xData(dateExtent);
+  chartLayout.xFormat(timeFormat(xTixkFormat));
 
-	chart.selectAll('.labelHolder').selectAll('text')
-		.data(d => [d])
-		.join(
-		function(enter) {
-			return enter
-			.append('text')
-			.attr('y', d => d.position + (rem *.3))
-			.attr('x', d => xScale(lastDate) + (rem ))
-		},
-		function(update) {
-			return update
-			.attr('y', d => d.position + (rem *.3))
-			.attr('x', d => xScale(lastDate) + (rem))
-		},
-		function(exit) {
-			return exit
-			.transition()
-			.attr('opacity', 0)
-			.on('end', function() {
-				d3.select(this).remove()
-			});
-		}
-		)
-	.attr('font-weight', 600)
-	.style('fill',  d => colors.getColor(d.party))
-	.text((d) =>  {
-		if( breaks === 'mobile_small' || breaks === 'mobile_big') {
-			return  d.displayNameMob + ' ' + format(d.average)
-		}
-		return d.displayNameDesk + ' ' + format(d.average)
-	})
+  // Define a margin for the annotations label to sit in depending x axis orientation
+  if (xAlign === "bottom") {
+    chartLayout.update({ margins: { top: 50, right: rightLabelWidth } });
+  } else {
+    chartLayout.update({ margins: { bottom: 50, right: rightLabelWidth } });
+  }
+  // const that is the g element where the chart content is rendered to
+  const plot = chartLayout.data_foreground;
 
+  // Add a g element specifically for holding the annotations in the front
+  plot.append("g");
 
-	layout.update()
+  // Const for holding the chartLayout scales
+  const yScale = chartLayout.yScale();
+  const xScale = chartLayout.xScale();
 
+  // set up line interpolation and line drawing function
+  const areaData = d3
+    .area()
+    .x((d) => xScale(d.x))
+    .y1((d) => yScale(d.y1))
+    .y0((d) => yScale(d.y0));
 
+  // Add a group for each annotation line
+  plot
+    .selectAll(".annoHolder")
+    .data(annoData)
+    .enter()
+    .append("g")
+    .attr("class", "annoHolder");
 
+  plot
+    .selectAll(".annoHolder")
+    .selectAll("line")
+    .data(annoData)
+    .join(
+      (enter) =>
+        enter
+          .append("line")
+          .attr("x1", (d) => xScale(d.date))
+          .attr("x2", (d) => xScale(d.date))
+          .attr("y1", 0)
+          .attr("y2", height),
+      (updateSelection) =>
+        updateSelection
+          .attr("x1", (d) => xScale(d.date))
+          .attr("x2", (d) => xScale(d.date))
+          .attr("y1", 0)
+          .attr("y2", height),
 
+      (exit) =>
+        exit.transition().on("end", function annoHolderOnEnd() {
+          d3.select(this).remove();
+        })
+    )
+    .style("stroke", "#66605C")
+    .style("stroke-width", 1);
+
+  // Add Margin of error shaded areas
+  plot
+    .selectAll(".areas")
+    .data(filteredData)
+    .join(
+      (enter) => enter.append("path").attr("d", (d) => areaData(d.areas)),
+      (updateSel) => updateSel.attr("d", (d) => areaData(d.areas)),
+      (exit) =>
+        exit
+          .transition()
+          .duration(100)
+          .on("end", function areasOnExit() {
+            d3.select(this).remove();
+          })
+    )
+    .attr("class", "areas")
+    .attr("fill", (d) => colors.getColor(d.party))
+    .attr("id", (d) => d.party)
+    .attr("opacity", moeOpacity);
+
+  // Add a group for each series of dots
+  plot
+    .selectAll(".dotHolder")
+    .data(filteredData)
+    .enter()
+    .append("g")
+    .attr("class", "dotHolder");
+
+  // Add the polling circles
+  plot
+    .selectAll(".dotHolder")
+    .selectAll("circle")
+    .data((d) => d.dots)
+    .join(
+      (enter) =>
+        enter
+          .append("circle")
+          .attr("cx", (d) => xScale(d.date))
+          .attr("cy", (d) => yScale(d.value)),
+      (updateSel) =>
+        updateSel
+          .attr("cx", (d) => xScale(d.date))
+          .attr("cy", (d) => yScale(d.value)),
+      (exit) =>
+        exit.transition().on("end", function dotHolderCircleOnExit() {
+          d3.select(this).remove();
+        })
+    )
+    .attr("r", dotSize)
+    .attr("fill", (d) => colors.getColor(d.name))
+    .attr("opacity", dotOpacity);
+
+  // set up line interpolation and line drawing function
+  const interpolation = d3.curveLinear;
+  const lineData = d3
+    .line()
+    .defined((d) => d)
+    .curve(interpolation)
+    .x((d) => xScale(d.date))
+    .y((d) => yScale(d.value));
+
+  plot
+    .selectAll(".lines")
+    .data(filteredData)
+    .join(
+      (enter) => enter.append("path").attr("d", (d) => lineData(d.lines)),
+      (updateSel) => updateSel.attr("d", (d) => lineData(d.lines)),
+      (exit) =>
+        exit
+          .transition()
+          .duration(100)
+          .attr("d", (d) => lineData(d.lines))
+          .on("end", function linesOnEnd() {
+            d3.select(this).remove();
+          })
+    )
+    .attr("class", "lines")
+    .attr("fill", "none")
+    .attr("stroke-width", lineWidth)
+    .attr("stroke", (d) => colors.getColor(d.party))
+    .attr("id", (d) => d.party)
+    .attr("opacity", lineOpacity);
+
+  // Add a group for each series of popup circles
+  plot
+    .selectAll(".popHolder")
+    .data(filteredData)
+    .enter()
+    .append("g")
+    .attr("class", "popHolder");
+  // date format for the popus
+  const popFormat = "%b %d %Y";
+  const popDate = timeFormat(popFormat);
+  // Build a dataset for each day to be used to create invisible line for popups
+  const filteredAverages = formattedAverages.filter(
+    (d) => d.date >= dateExtent[0] && d.date <= dateExtent[1]
+  );
+  // function for adding colour to the popup iyems category names
+  function popupCallback(node) {
+    if (!node) return;
+    const items = d3.select(".main-content").selectAll(".data-heading").nodes();
+    for (let i = 0; i < items.length; i += 1) {
+      const mobileName = d3.select(items[i]).text();
+      const partyData = parties.filter(
+        (d) => d.displayNameMobile === mobileName
+      );
+      d3.select(items[i]).style("color", colors.getColor(partyData[0].party));
+    }
+  }
+
+  // Add lines to trigger popup
+  plot
+    .selectAll(".popHolder")
+    .selectAll("line")
+    .data(filteredAverages)
+    .join(
+      (enter) =>
+        enter
+          .append("line")
+          .attr("x1", (d) => xScale(d.date))
+          .attr("x2", (d) => xScale(d.date))
+          .attr("y1", 0)
+          .attr("y2", height)
+          .on("mouseover", function lineMouseOver(ev, d) {
+            // build a dataset of party values that can be sorted before defining the popup column names
+            const popUps = columnNames
+              .map((el) => {
+                const partyData = parties.filter((dd) => dd.party === el);
+                return {
+                  name: el,
+                  displayName: partyData[0].displayNameMobile,
+                  value: d[el],
+                };
+              })
+              .filter((dd) => dd.value !== "")
+              .sort((a, b) => b.value - a.value);
+            const popColumns = { name: "name" };
+            // Define other popup column heading. Note that the element name (code) and not displayName defines the category this is so that
+            // the party name can be coloured using the Flourish getColour. But the displayName appears in the rendered popup
+            popUps.forEach((el) => {
+              popColumns[el.name] = el.displayName;
+            });
+            popup.setColumnNames(popColumns).update();
+            // Pass the sorted data to the popup as defined by the current date the mouse is over
+            const popData = { name: popDate(d.date) };
+            popUps.forEach((el) => {
+              popData[el.name] = format(el.value);
+            });
+            // select the invisible line and make it visible
+            const el = this;
+            const popLine = d3.select(this);
+            popLine.attr("opacity", 1);
+            popup.mouseover(el, popData, popupCallback);
+          })
+          .on("mouseout", function lineOnMouseOut() {
+            // Make the line invisible when mousing out
+            const popLine = d3.select(this);
+            popLine.attr("opacity", 0);
+            popup.mouseout();
+          }),
+
+      (updateSel) =>
+        updateSel
+          .attr("x1", (d) => xScale(d.date))
+          .attr("x2", (d) => xScale(d.date))
+          .attr("y1", 0)
+          .attr("y2", height),
+
+      (exit) =>
+        exit.transition().on("end", function lineOnExit() {
+          d3.select(this).remove();
+        })
+    )
+    .attr("opacity", 0)
+    .style("stroke", "#66605C")
+    .style("stroke-width", 1);
+  // Calculate the last date to be rendered. allows for a data greater or lesser than the range in the dataset
+  const lastDate =
+    parseDate(state.x.datetime_max) > averagesExtent[1]
+      ? averagesExtent[1]
+      : state.x.datetime_max
+      ? parseDate(state.x.datetime_max)
+      : averagesExtent[1];
+  // Set up label data
+  const labelData = filteredData
+    .map(({ lines, party, displayNameDesk, displayNameMob }) => {
+      const line = lines.filter((d) => d.date <= lastDate);
+      const average = line[line.length - 1].value;
+      return {
+        party,
+        displayNameDesk,
+        displayNameMob,
+        average,
+        // Set initial positions for each label
+        position: yScale(average),
+      };
+    })
+    .sort((a, b) => b.average - a.average);
+
+  chart
+    .selectAll(".labelHolder")
+    .data(labelData)
+    .enter()
+    .append("g")
+    .attr("class", "labelHolder");
+
+  // Calculate new label positions recursively
+  positionLabels(
+    chart.selectAll(".labelHolder"),
+    rem, // Minimum spacing between labels (increase for more space)
+    0.5 // Amount to change label positon by each iteration
+  );
+
+  chart
+    .selectAll(".labelHolder")
+    .selectAll("rect")
+    .data((d) => [d])
+    .join(
+      (enter) =>
+        enter
+          .append("rect")
+          .attr("height", rem)
+          .attr("y", (d) => d.position - rem * 0.5)
+          .attr("x", () => xScale(lastDate) + rem * 0.3),
+      (updateSel) =>
+        updateSel
+          .attr("y", (d) => d.position - rem * 0.5)
+          .attr("x", () => xScale(lastDate) + rem * 0.3)
+          .attr("width", rem * 0.5),
+      (exit) =>
+        exit
+          .transition()
+          .attr("width", 0)
+          .on("end", function labelHoldRectOnEnd() {
+            d3.select(this).remove();
+          })
+    )
+    .attr("fill", (d) => colors.getColor(d.party))
+    .attr("height", rem)
+    .attr("width", rem * 0.5);
+
+  chart
+    .selectAll(".labelHolder")
+    .selectAll("text")
+    .data((d) => [d])
+    .join(
+      (enter) =>
+        enter
+          .append("text")
+          .attr("y", (d) => d.position + rem * 0.3)
+          .attr("x", () => xScale(lastDate) + rem),
+      (updateSel) =>
+        updateSel
+          .attr("y", (d) => d.position + rem * 0.3)
+          .attr("x", () => xScale(lastDate) + rem),
+
+      (exit) =>
+        exit
+          .transition()
+          .attr("opacity", 0)
+          .on("end", function labelHoldOnEnd() {
+            d3.select(this).remove();
+          })
+    )
+    .attr("font-weight", 600)
+    .style("fill", (d) => colors.getColor(d.party))
+    .text((d) => {
+      if (breaks === "mobile_small" || breaks === "mobile_big") {
+        return `${d.displayNameMob} ${format(d.average)}`;
+      }
+      return `${d.displayNameDesk} ${format(d.average)}`;
+    });
+
+  layout.update();
 }

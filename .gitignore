@@ -2,6 +2,8 @@
 .DS_Store
 template.js
 template.js.map
+static/style.css
+static/style.css.map
 
 # Logs
 logs

@@ -1,8 +1,4 @@
-
 const data = {};
-//console.log(data);
-
+// console.log(data);
 
 export default data;
-
-

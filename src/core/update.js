@@ -57,24 +57,26 @@ export default function update() {
 
 console.log('data', data)
 
-const facetNames = data.Lines.map( d => d.facet)
-.filter((item, pos, facetNames) => facetNames.indexOf(item) === pos);
+console.log('state.gridKey', state.gridKey)
+
+// Conditionally maps the facet names depending on if a grod of charts or a single plot is requires
+const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
+.filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
+: [""]
 
 console.log('facetNames', facetNames)
 
-const parties = data.Lines.map( d => d.party)
-.filter((item, pos, parties) => parties.indexOf(item) === pos);
-
-console.log('parties', parties)
-
+ //const facetData = state.gridKey ? getFacetData() : state.layout.subtitle
 const facetData = facetNames.map((facetName) => {
-  // Create a list of parties that are only plotted in this particular
+
+  // Create a list of parties that are only plotted in this particular facet
   const parties = data.Lines
   .filter((row) =>  row.facet === facetName)
   .map( d => d.party)
   .filter((item, pos, parties) => parties.indexOf(item) === pos);
 
 console.log('parties', parties)
+
   return {
     name: facetName,
     lines: 'not yet aded',
@@ -83,14 +85,17 @@ console.log('parties', parties)
 
 console.log('facetData', facetData)
 
-
 facets
 		.width(layout.getPrimaryWidth())
 		.height(layout.getPrimaryHeight())
 		.data(facetData, d => d.name)
 		.update(function(facet) {
+      console.log('facet.data', facet.data)
 			// Here we update each facet
 		});
+// Hides the facet title on single charts
+facets.hideTitle(facetNames[0])
+
 
 
 

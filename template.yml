@@ -15,6 +15,13 @@ build:
     directory: sass
 settings:
   - Grid of charts
+  - property: gridKey
+    name: Grid key
+    type: boolean
+    style: buttons
+    choices:
+      - [ Single, false]
+      - [ Grid of charts, true] # The first item is the display value of dropdown, second argument is the value that will be stored
   - property: facets
     import: "@flourish/facets"
   - Colours

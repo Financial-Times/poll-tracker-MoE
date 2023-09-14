@@ -14,6 +14,9 @@ build:
     script: npm run sass
     directory: sass
 settings:
+  - Grid of charts
+  - property: facets
+    import: "@flourish/facets"
   - Colours
   - property: color
     import: "@flourish/colors"
@@ -167,11 +170,16 @@ data:
     dataset: Lines
     type: column
     column: 'Lines::A'
+  - key: facet
+    name: Facet
+    dataset: Lines
+    type: column
+    column: 'Lines::B'
   - key: party
     name: party
     dataset: Lines
     type: column
-    column: 'Lines::B'
+    column: 'Lines::C'
   - key: value
     name: Values
     dataset: Lines

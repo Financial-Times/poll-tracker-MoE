@@ -6,6 +6,7 @@
 import * as d3 from "d3";
 import createChartLayout from "@flourish/chart-layout";
 import createColors from "@flourish/colors";
+import initFacets from "@flourish/facets";
 
 export default function draw() {
   const { layout, state } = this;
@@ -20,9 +21,13 @@ export default function draw() {
     .append("svg")
     .attr("width", width)
     .attr("height", height);
+  const grid = this.chart.append('g')
 
   // Create the default Flourish colour pallettes
   this.colors = createColors(state.color);
+
+  this.facets = initFacets(state.facets);
+  this.facets.appendTo(grid.node()).debug(true);
 
   // update the main layout (not chart_layout) with holding svg etc
   this.props = {

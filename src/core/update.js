@@ -124,25 +124,26 @@ const facetData = facetNames.map((facetName) => {
   .filter((item, pos, parties) => parties.indexOf(item) === pos);
 
   console.log('parties', parties)
-  // Filter the lines data so tha just those with the parties for this facet are plotted
-  const plotLines = linesData
-  .filter(function (x) {
-    return parties.indexOf(x.party) < 0;
-  })
-
-console.log('plotLines', plotLines)
 
 // Build the plot object containing data to be rendered
 const plotData = parties.map((party) => {
   const viewData = displayData.find(({ party: p }) => party === p);
-  console.log('viewData', viewData)
+  console.log('viewData', viewData);
+  // Filter the lines data so tha just those with the parties for this facet are plotted
+  const plotLines = linesData
+  .filter(function (lineRow) {
+    return lineRow.party === party;
+  })
+  console.log('plotLines', plotLines)
+
 
   return {
     party,
+    displayNameMob: viewData.displayNameMobile,
+    displayNameDesk: viewData.displayNameDesktop,
+    textColor: viewData.altTextColor,
     dots: getDots(pollData, party),
-    //displayNameMob: partyData.displayNameMobile,
-    //displayNameDesk: partyData.displayNameDesktop,
-    //textColor: partyData.altTextColor,
+    lines: getlines(plotLines, viewData.displayNameDesktop),
   };
 
 })

@@ -71,24 +71,24 @@ export function getDots(d, group) {
   return dotsData;
 }
 
-export function getlines(d, group, displayNameDesk, joinPoints) {
+export function getlines(d, displayNameDesk) {
   // console.log('d and group',d,group)
   const lineData = [];
   d.forEach((el) => {
-    // console.log(el,i)
+    console.log(el)
     const column = {};
     column.displayName = displayNameDesk;
-    column.name = group;
+    column.name = el.party;
     column.date = el.date;
-    column.value = +el[group];
-    if (el[group]) {
+    column.value = el.value;
+    if (el.value) {
       lineData.push(column);
     }
 
     // if(el[group] == false) {
     //     lineData.push(null)
     // }
-    if (el[group] === false && joinPoints === false) {
+    if (el.value === false) {
       lineData.push(null);
     }
   });
@@ -103,8 +103,9 @@ export function getMoE(d, group, joinPoints) {
     const column = {};
     column.name = group;
     column.x = el.date;
-    column.y1 = +el[`${group}_upper`];
-    column.y0 = +el[`${group}_lower`];
+    column.y1 = el.upper;
+    column.y0 = el.lower;
+    column.value = el.value
     if (el[group]) {
       areaData.push(column);
     }

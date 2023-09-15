@@ -53,13 +53,15 @@ export function extentMulti(data, columns) {
   }, {});
   return [ext.min, ext.max];
 }
+
 // A function that returns an array of poll data for a given party
 export function getDots(d, group) {
   const dotsData = [];
-  d.forEach((el) => {
+  d.map((el) => {
     const column = {};
-    column.name = group;
+    column.party = group;
     column.date = el.date;
+    column.rowID = el.rowID
     column.value = Number(el[group]);
     column.pollster = el.pollster;
     if (el[group]) {

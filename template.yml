@@ -110,22 +110,22 @@ settings:
 
 data:
   - Binding description
+  - key: pollster # Property name in the dataset
+    name: Pollster # Name to be displayed in the editor
+    dataset: polls # Name of dataset
+    type: column # Are we selecting a single or multiple columns
+    column: "Polls::A" # Which column should be selected
   - name: Date
     description: name
     key: date
     dataset: polls
     type: column
-    column: 'Polls::G'
-  - key: house # Property name in the dataset
-    name: pollstar # Name to be displayed in the editor
-    dataset: polls # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: "Polls::H" # Which column should be selected
+    column: 'Polls::B'
   - key: value
     name: Values
     dataset: polls
     type: columns
-    columns: "Polls::J-O"
+    columns: "Polls::D-H"
   - key: party
     name: party
     dataset: displayData

@@ -57,13 +57,14 @@ export default function update() {
 
 console.log('data', data)
 
-console.log('state.gridKey', state.gridKey)
-
 // Conditionally maps the facet names depending on if a grod of charts or a single plot is requires
 const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
 .filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
 : [""]
 console.log('facetNames', facetNames)
+const columnNames = data.polls.column_names.value;
+console.log('columnNames', columnNames)
+
 const { displayData } = this.data;
 console.log('displayData', displayData)
 
@@ -71,7 +72,20 @@ const { dateFormat } = state;
 console.log('dateFormat', dateFormat)
 const parseDate = d3.timeParse(dateFormat);
 
-const formattedLnes = data.Lines
+// Format the polling data so that it can be used to create global values and plot points
+const pollData = data.polls
+  .map((d, i) => {
+    const row = { date: parseDate(d.date), pollster: d.pollster, rowID: i, };
+    columnNames.forEach((el, i) => {
+       row[columnNames[i]] = Number.isNaN(d.value[i]) ? "" : Number(d.value[i]);
+    });
+    return row;
+  })
+  .sort((a, b) => a.date - b.date);
+  console.log('pollData', pollData)
+
+
+const linesData = data.Lines
     .map((d) => {
       return {
         date: parseDate(d.date),
@@ -83,22 +97,59 @@ const formattedLnes = data.Lines
     })
     .sort((a, b) => a.date - b.date);
 
-console.log('formattedLnes', formattedLnes)
+console.log('linesData', linesData)
+
+// Used to define the range of the y axis when the axis values are the same accross all facets
+const valueExtent = extentMulti(pollData, columnNames);
+console.log('valueExtent', valueExtent)
+
+const dateExtent = d3.extent(linesData, (d) => d.date);
+  // Check for user overideas to the dateextent array
+  dateExtent[0] = state.x.datetime_min
+    ? new Date(state.x.datetime_min)
+    : d3.extent(linesData, (d) => d.date)[0];
+  dateExtent[1] = state.x.datetime_max
+    ? new Date(state.x.datetime_max)
+    : d3.extent(linesData, (d) => d.date)[1];
+
+console.log('dateExtent', dateExtent)
 
  //const facetData = state.gridKey ? getFacetData() : state.layout.subtitle
 const facetData = facetNames.map((facetName) => {
 
-  // Create a list of parties that are only plotted in this particular facet
+  // Create a unique list of parties that are only plotted in this particular facet
   const parties = data.Lines
   .filter((row) =>  row.facet === facetName)
   .map( d => d.party)
   .filter((item, pos, parties) => parties.indexOf(item) === pos);
 
-console.log('parties', parties)
+  console.log('parties', parties)
+  // Filter the lines data so tha just those with the parties for this facet are plotted
+  const plotLines = linesData
+  .filter(function (x) {
+    return parties.indexOf(x.party) < 0;
+  })
+
+console.log('plotLines', plotLines)
+
+// Build the plot object containing data to be rendered
+const plotData = parties.map((party) => {
+  const viewData = displayData.find(({ party: p }) => party === p);
+  console.log('viewData', viewData)
+
+  return {
+    party,
+    dots: getDots(pollData, party),
+    //displayNameMob: partyData.displayNameMobile,
+    //displayNameDesk: partyData.displayNameDesktop,
+    //textColor: partyData.altTextColor,
+  };
+
+})
 
   return {
     name: facetName,
-    lines: 'not yet aded',
+    plotData: plotData,
   }
 })
 

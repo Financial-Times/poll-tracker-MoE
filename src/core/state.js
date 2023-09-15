@@ -15,7 +15,7 @@ export default {
     footer_note: "Source: Not yet added",
     background_color: "#fff1e5",
   },
-  gridKey: false,
+  gridKey: true,
   facets: {},
   lineStyle: "solid",
   lineWidth: 0.6,

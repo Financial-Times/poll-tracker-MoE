@@ -8,7 +8,7 @@
  */
 import * as d3 from "d3";
 import initialisePopup from "@flourish/info-popup";
-import { timeFormat } from "d3-time-format";
+import {timeParse, timeFormat } from "d3-time-format";
 import {
   extentMulti,
   getDots,
@@ -63,8 +63,27 @@ console.log('state.gridKey', state.gridKey)
 const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
 .filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
 : [""]
-
 console.log('facetNames', facetNames)
+const { displayData } = this.data;
+console.log('displayData', displayData)
+
+const { dateFormat } = state;
+console.log('dateFormat', dateFormat)
+const parseDate = d3.timeParse(dateFormat);
+
+const formattedLnes = data.Lines
+    .map((d) => {
+      return {
+        date: parseDate(d.date),
+        party: d.party,
+        lower: Number(d.lower),
+        upper: Number(d.upper),
+        value: Number(d.value)
+      }
+    })
+    .sort((a, b) => a.date - b.date);
+
+console.log('formattedLnes', formattedLnes)
 
  //const facetData = state.gridKey ? getFacetData() : state.layout.subtitle
 const facetData = facetNames.map((facetName) => {
@@ -93,6 +112,7 @@ facets
       console.log('facet.data', facet.data)
 			// Here we update each facet
 		});
+
 // Hides the facet title on single charts
 facets.hideTitle(facetNames[0])
 

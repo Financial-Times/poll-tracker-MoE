@@ -128,24 +128,24 @@ data:
     columns: "Polls::J-O"
   - key: party
     name: party
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::A'
+    column: 'displayData::A'
   - key: colour
     name: colour
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::B'
+    column: 'displayData::B'
   - key: displayNameDesktop
     name: Displayname desktop
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::C'
+    column: 'displayData::C'
   - key: displayNameMobile
     name: Displayname mobile
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::D'
+    column: 'displayData::D'
   - name: Date
     description: date
     key: date
@@ -191,14 +191,14 @@ data:
     name: Values
     dataset: Lines
     type: column
-    column: "Lines::C"
+    column: "Lines::D"
   - key: lower
     name: Lower
     dataset: Lines
     type: column
-    column: "Lines::D"
-  - key: uppeer
+    column: "Lines::E"
+  - key: upper
     name: Upper
     dataset: Lines
     type: column
-    column: "Lines::E"
+    column: "Lines::F"

@@ -99,9 +99,16 @@ const linesData = data.Lines
     .sort((a, b) => a.date - b.date);
 
 console.log('linesData', linesData)
+console.log('state', state.x)
 
 // Used to define the range of the y axis when the axis values are the same accross all facets
-const valueExtent = extentMulti(pollData, columnNames);
+let valueExtent = extentMulti(pollData, columnNames);
+valueExtent[0] = state.x.linear_min
+? state.x.linear_min
+: extentMulti(pollData, columnNames)[0];
+valueExtent[1] = state.x.linear_max
+? state.x.linear_max
+: extentMulti(pollData, columnNames)[1];
 console.log('valueExtent', valueExtent)
 
 //Create a global date extent array
@@ -168,7 +175,7 @@ facets
 			.width(facet.width)
 			.height(facet.height)
 			//.xData([0,50])
-			.yData([0, 50])
+			.yData(valueExtent)
 			.update()
 			// Here we update each facet
 

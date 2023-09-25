@@ -56,21 +56,15 @@ export default function update() {
 
 ///////////// DATA
 
-console.log('data', data)
-
 // Conditionally maps the facet names depending on if a grod of charts or a single plot is requires
 const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
 .filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
 : [""]
-console.log('facetNames', facetNames)
 const columnNames = data.polls.column_names.value;
-console.log('columnNames', columnNames)
 
 const { displayData } = this.data;
-console.log('displayData', displayData)
 
 const { dateFormat } = state;
-console.log('dateFormat', dateFormat)
 const parseDate = d3.timeParse(dateFormat);
 
 // Format the polling data so that it can be used to create global values and plot points
@@ -83,7 +77,6 @@ const pollData = data.polls
     return row;
   })
   .sort((a, b) => a.date - b.date);
-  console.log('pollData', pollData)
 
 
 const linesData = data.Lines
@@ -97,23 +90,11 @@ const linesData = data.Lines
       }
     })
     .sort((a, b) => a.date - b.date);
+    console.log(linesData)
 
-console.log('linesData', linesData)
-console.log('state', state.x)
 
 // Used to define the range of the y axis when the axis values are the same accross all facets
-let pollExtent = extentMulti(pollData, columnNames);
-let lineExtent = extentMulti(linesData, ['lower', 'upper']);
-console.log('pollExtent', pollExtent)
-console.log('lineExtent', lineExtent)
-let valueExtent = [Math.min(pollExtent,lineExtent), Math.max(pollExtent,lineExtent)]
-valueExtent[0] = state.x.linear_min
-? state.x.linear_min
-: extentMulti(pollData, columnNames)[0];
-valueExtent[1] = state.x.linear_max
-? state.x.linear_max
-: extentMulti(pollData, columnNames)[1];
-console.log('valueExtent', valueExtent)
+
 
 //Create a global date extent array
 const dateExtent = d3.extent(linesData, (d) => d.date);
@@ -124,8 +105,6 @@ const dateExtent = d3.extent(linesData, (d) => d.date);
   dateExtent[1] = state.x.datetime_max
     ? new Date(state.x.datetime_max)
     : d3.extent(linesData, (d) => d.date)[1];
-
-console.log('dateExtent', dateExtent)
 
  //const facetData = state.gridKey ? getFacetData() : state.layout.subtitle
 const facetData = facetNames.map((facetName) => {
@@ -140,14 +119,13 @@ const facetData = facetNames.map((facetName) => {
 
 // Build the plot object containing data to be rendered for each facet
 const plotData = parties.map((party) => {
+
   const viewData = displayData.find(({ party: p }) => party === p);
-  console.log('viewData', viewData);
   // Filter the lines data so tha just those with the parties for this facet are plotted
   const plotLines = linesData
   .filter(function (lineRow) {
     return lineRow.party === party;
   })
-  console.log('plotLines', plotLines)
 
   return {
     party,
@@ -162,15 +140,13 @@ const plotData = parties.map((party) => {
 
   return {
     name: facetName,
+    parties: parties,
     plotData: plotData,
   }
 })
 
-console.log('facets', state.facets)
 
-const sameX = state.facets.sameY
-console.log('sameX', sameX)
-
+const sameY = state.facets.sameY
 
 
 ////// RENDER
@@ -181,6 +157,34 @@ facets
 		.height(layout.getPrimaryHeight())
 		.data(facetData, d => d.name)
 		.update(function(facet) {
+      console.log('facet parties',facet.data.parties)
+    
+    let pollExtent; 
+    let lineExtent;
+
+      if (sameY) {
+        pollExtent = extentMulti(pollData, columnNames);
+        lineExtent = extentMulti(linesData, ['lower', 'upper']);
+        console.log('pollExtent', pollExtent)
+        console.log('lineExtent', lineExtent)
+      }
+      else {
+        pollExtent = extentMulti(pollData, facet.data.parties);
+        lineExtent = extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
+        console.log('different pollExtent', pollExtent)
+        console.log('different lineExtent', lineExtent)
+      }
+      console.log('Y MIN', state.y.linear_min)
+
+      const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
+      valueExtent[0] = state.y.linear_min
+      ? state.y.linear_min
+      : valueExtent[0];
+      valueExtent[1] = state.y.linear_max
+      ? state.y.linear_max
+      : valueExtent[1];
+      console.log('valueExtent', valueExtent)
+
 
 
       if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);

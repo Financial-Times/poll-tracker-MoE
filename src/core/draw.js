@@ -27,7 +27,7 @@ export default function draw() {
   this.colors = createColors(state.color);
 
   this.facets = initFacets(state.facets);
-  this.facets.appendTo(grid.node()).debug(true);
+  this.facets.appendTo(grid.node()).debug(false);
 
   // update the main layout (not chart_layout) with holding svg etc
   this.props = {

@@ -25,8 +25,8 @@ settings:
   - property: facets
     import: "@flourish/facets"
   - property: facets.sameY
-    description: Ensure the y scale is the same accross the grid
-    name: Same accross grid
+    description: Ensure the y scale is the same across the grid
+    name: Same across grid
     type: boolean
     new_section: 'Y AXIS'
   - Colours

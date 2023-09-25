@@ -93,11 +93,8 @@ const linesData = data.Lines
     console.log(linesData)
 
 
-// Used to define the range of the y axis when the axis values are the same accross all facets
-
-
 //Create a global date extent array
-const dateExtent = d3.extent(linesData, (d) => d.date);
+const dateExtent = d3.extent(pollData, (d) => d.date);
   // Check for user overideas to the dateextent array
   dateExtent[0] = state.x.datetime_min
     ? new Date(state.x.datetime_min)
@@ -140,6 +137,7 @@ const plotData = parties.map((party) => {
 
   return {
     name: facetName,
+    displayName: 'not yet added',
     parties: parties,
     plotData: plotData,
   }
@@ -159,6 +157,7 @@ facets
 		.update(function(facet) {
       console.log('facet parties',facet.data.parties)
     
+    //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
     let pollExtent; 
     let lineExtent;
 
@@ -174,8 +173,7 @@ facets
         console.log('different pollExtent', pollExtent)
         console.log('different lineExtent', lineExtent)
       }
-      console.log('Y MIN', state.y.linear_min)
-
+      // Allow user overide of global min and max values
       const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
       valueExtent[0] = state.y.linear_min
       ? state.y.linear_min
@@ -183,7 +181,8 @@ facets
       valueExtent[1] = state.y.linear_max
       ? state.y.linear_max
       : valueExtent[1];
-      console.log('valueExtent', valueExtent)
+
+      const tickFotmat = state.tickFormat;
 
 
 
@@ -191,7 +190,8 @@ facets
       facet.node.__chart_layout
       .width(facet.width)
       .height(facet.height)
-			//.xData([0,50])
+			.xData(dateExtent)
+      .xFormat(timeFormat(tickFotmat))
 			.yData(valueExtent)
 			.update()
 

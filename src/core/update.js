@@ -8,6 +8,7 @@
  */
 import * as d3 from "d3";
 import initialisePopup from "@flourish/info-popup";
+import createChartLayout from "@flourish/chart-layout";
 import {timeParse, timeFormat } from "d3-time-format";
 import {
   extentMulti,
@@ -51,7 +52,7 @@ const positionLabels = (labels, spacing, alpha) => {
 };
 
 export default function update() {
-  const { colors, layout, chart, chartLayout, data, state, facets } = this;
+  const { colors, layout, chart, chartLayout, data, state, facets, props, } = this;
 
 ///////////// DATA
 
@@ -103,6 +104,7 @@ console.log('linesData', linesData)
 const valueExtent = extentMulti(pollData, columnNames);
 console.log('valueExtent', valueExtent)
 
+//Create a global date extent array
 const dateExtent = d3.extent(linesData, (d) => d.date);
   // Check for user overideas to the dateextent array
   dateExtent[0] = state.x.datetime_min
@@ -125,7 +127,7 @@ const facetData = facetNames.map((facetName) => {
 
   console.log('parties', parties)
 
-// Build the plot object containing data to be rendered
+// Build the plot object containing data to be rendered for each facet
 const plotData = parties.map((party) => {
   const viewData = displayData.find(({ party: p }) => party === p);
   console.log('viewData', viewData);
@@ -135,7 +137,6 @@ const plotData = parties.map((party) => {
     return lineRow.party === party;
   })
   console.log('plotLines', plotLines)
-
 
   return {
     party,
@@ -162,7 +163,17 @@ facets
 		.data(facetData, d => d.name)
 		.update(function(facet) {
       console.log('facet.data', facet.data)
+      if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
+		facet.node.__chart_layout
+			.width(facet.width)
+			.height(facet.height)
+			//.xData([0,50])
+			.yData([0, 50])
+			.update()
 			// Here we update each facet
+
+
+
 		});
 
 // Hides the facet title on single charts

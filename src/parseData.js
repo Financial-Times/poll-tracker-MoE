@@ -75,7 +75,6 @@ export function getlines(d, displayNameDesk) {
   // console.log('d and group',d,group)
   const lineData = [];
   d.forEach((el) => {
-    console.log(el)
     const column = {};
     column.displayName = displayNameDesk;
     column.name = el.party;

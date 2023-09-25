@@ -93,7 +93,7 @@ const linesData = data.Lines
     console.log(linesData)
 
 
-//Create a global date extent array
+//Create a global date extent array as this remains constant across all facets
 const dateExtent = d3.extent(pollData, (d) => d.date);
   // Check for user overideas to the dateextent array
   dateExtent[0] = state.x.datetime_min
@@ -112,28 +112,25 @@ const facetData = facetNames.map((facetName) => {
   .map( d => d.party)
   .filter((item, pos, parties) => parties.indexOf(item) === pos);
 
-  console.log('parties', parties)
+  // Build the plot object containing data to be rendered for each facet
+  const plotData = parties.map((party) => {
 
-// Build the plot object containing data to be rendered for each facet
-const plotData = parties.map((party) => {
+    const viewData = displayData.find(({ party: p }) => party === p);
+    // Filter the lines data so tha just those with the parties for this facet are plotted
+    const plotLines = linesData
+    .filter((lineRow) => {
+      return lineRow.party === party;
+    })
+    return {
+      party,
+      displayNameMob: viewData.displayNameMobile,
+      displayNameDesk: viewData.displayNameDesktop,
+      textColor: viewData.altTextColor,
+      dots: getDots(pollData, party),
+      lines: getlines(plotLines, viewData.displayNameDesktop),
+    };
 
-  const viewData = displayData.find(({ party: p }) => party === p);
-  // Filter the lines data so tha just those with the parties for this facet are plotted
-  const plotLines = linesData
-  .filter(function (lineRow) {
-    return lineRow.party === party;
   })
-
-  return {
-    party,
-    displayNameMob: viewData.displayNameMobile,
-    displayNameDesk: viewData.displayNameDesktop,
-    textColor: viewData.altTextColor,
-    dots: getDots(pollData, party),
-    lines: getlines(plotLines, viewData.displayNameDesktop),
-  };
-
-})
 
   return {
     name: facetName,
@@ -144,36 +141,26 @@ const plotData = parties.map((party) => {
 })
 
 
+// //// RENDER
+
+//Generate condition to be used to test if differing scales are needed on the y scale
 const sameY = state.facets.sameY
-
-
-////// RENDER
-
 
 facets
 		.width(layout.getPrimaryWidth())
 		.height(layout.getPrimaryHeight())
 		.data(facetData, d => d.name)
-		.update(function(facet) {
+		.update((facet) => {
+      
       console.log('facet parties',facet.data.parties)
     
-    //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
-    let pollExtent; 
-    let lineExtent;
+      //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
+      const pollExtent = sameY ? extentMulti(pollData, columnNames)
+      : extentMulti(pollData, facet.data.parties);
 
-      if (sameY) {
-        pollExtent = extentMulti(pollData, columnNames);
-        lineExtent = extentMulti(linesData, ['lower', 'upper']);
-        console.log('pollExtent', pollExtent)
-        console.log('lineExtent', lineExtent)
-      }
-      else {
-        pollExtent = extentMulti(pollData, facet.data.parties);
-        lineExtent = extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
-        console.log('different pollExtent', pollExtent)
-        console.log('different lineExtent', lineExtent)
-      }
-      // Allow user overide of global min and max values
+      const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper'])
+      : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
+
       const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
       valueExtent[0] = state.y.linear_min
       ? state.y.linear_min
@@ -184,8 +171,6 @@ facets
 
       const tickFotmat = state.tickFormat;
 
-
-
       if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
       facet.node.__chart_layout
       .width(facet.width)
@@ -194,8 +179,6 @@ facets
       .xFormat(timeFormat(tickFotmat))
 			.yData(valueExtent)
 			.update()
-
-
 
 
 		});

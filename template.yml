@@ -24,6 +24,11 @@ settings:
       - [ Grid of charts, true] # The first item is the display value of dropdown, second argument is the value that will be stored
   - property: facets
     import: "@flourish/facets"
+  - property: facets.sameY
+    description: Ensure the y scale is the same accross the grid
+    name: Same accross grid
+    type: boolean
+    new_section: 'Y AXIS'
   - Colours
   - property: color
     import: "@flourish/colors"

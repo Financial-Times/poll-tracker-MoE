@@ -16,7 +16,7 @@ export default {
     background_color: "#fff1e5",
   },
   gridKey: true,
-  facets: {},
+  facets: {sameY: true,},
   lineStyle: "solid",
   lineWidth: 0.6,
   lineColor: "#66605C",

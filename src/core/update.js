@@ -102,7 +102,11 @@ console.log('linesData', linesData)
 console.log('state', state.x)
 
 // Used to define the range of the y axis when the axis values are the same accross all facets
-let valueExtent = extentMulti(pollData, columnNames);
+let pollExtent = extentMulti(pollData, columnNames);
+let lineExtent = extentMulti(linesData, ['lower', 'upper']);
+console.log('pollExtent', pollExtent)
+console.log('lineExtent', lineExtent)
+let valueExtent = [Math.min(pollExtent,lineExtent), Math.max(pollExtent,lineExtent)]
 valueExtent[0] = state.x.linear_min
 ? state.x.linear_min
 : extentMulti(pollData, columnNames)[0];
@@ -162,22 +166,31 @@ const plotData = parties.map((party) => {
   }
 })
 
-console.log('facetData', facetData)
+console.log('facets', state.facets)
+
+const sameX = state.facets.sameY
+console.log('sameX', sameX)
+
+
+
+////// RENDER
+
 
 facets
 		.width(layout.getPrimaryWidth())
 		.height(layout.getPrimaryHeight())
 		.data(facetData, d => d.name)
 		.update(function(facet) {
-      console.log('facet.data', facet.data)
+
+
       if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
-		facet.node.__chart_layout
-			.width(facet.width)
-			.height(facet.height)
+      facet.node.__chart_layout
+      .width(facet.width)
+      .height(facet.height)
 			//.xData([0,50])
 			.yData(valueExtent)
 			.update()
-			// Here we update each facet
+
 
 
 

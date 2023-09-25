@@ -36,7 +36,6 @@ export default function draw() {
     y2: state.y2,
     background: state.chart_bg,
   };
-  this.chartLayout = createChartLayout(this.chart, this.props);
   this.layout.update();
 
   // Call the update function

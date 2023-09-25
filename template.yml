@@ -26,7 +26,7 @@ settings:
     import: "@flourish/facets"
   - property: facets.sameY
     description: Ensure the y scale is the same across the grid
-    name: Same across grid
+    name: Same accross grid
     type: boolean
     new_section: 'Y AXIS'
   - Colours
@@ -34,6 +34,37 @@ settings:
     import: "@flourish/colors"
   - property: layout
     import: '@flourish/layout'
+  - Chart proportions
+  - property: aspectRatio
+    name: Aspect ratio
+    type: string
+    style: buttons
+    choices:
+      - [Standard, "standard"] # The first item is the display value of dropdown, second argument is the value that will be stored
+      - [Aspect ratio, "ratio"]
+  - property: aspect.small
+    name: Small
+    type: number
+    width: quarter
+    show_if:
+      aspectRatio: ratio
+  - property: aspect.desk
+    name: Desktop
+    type: number
+    width: quarter
+    show_if:
+      aspectRatio: ratio
+  - property: aspect.breakpoint
+    name: Breakpoint
+    type: number
+    width: quarter
+    show_if:
+      aspectRatio: ratio
+  - property: tuneLabel
+    name: Tune label width
+    description: Fine tunes the width allowed for the candidate/party labels on the end of the lines +/- .
+    type: number
+    width: quarter
   - Y axis
   - property: y
     import: "@flourish/chart-layout/y"

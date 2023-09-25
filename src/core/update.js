@@ -54,7 +54,7 @@ const positionLabels = (labels, spacing, alpha) => {
 export default function update() {
   const { colors, layout, chart, chartLayout, data, state, facets, props, } = this;
 
-///////////// DATA
+// /////////// DATA
 
 // Conditionally maps the facet names depending on if a grod of charts or a single plot is requires
 const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
@@ -79,21 +79,18 @@ const pollData = data.polls
   .sort((a, b) => a.date - b.date);
 
 
-const linesData = data.Lines
-    .map((d) => {
-      return {
-        date: parseDate(d.date),
-        party: d.party,
-        lower: Number(d.lower),
-        upper: Number(d.upper),
-        value: Number(d.value)
-      }
-    })
-    .sort((a, b) => a.date - b.date);
-    console.log(linesData)
+const linesData = data.Lines.map((d) => {
+  return {
+    date: parseDate(d.date),
+    party: d.party,
+    lower: Number(d.lower),
+    upper: Number(d.upper),
+    value: Number(d.value)
+  }
+})
+.sort((a, b) => a.date - b.date);
 
-
-//Create a global date extent array as this remains constant across all facets
+// Create a global date extent array as this remains constant across all facets
 const dateExtent = d3.extent(pollData, (d) => d.date);
   // Check for user overideas to the dateextent array
   dateExtent[0] = state.x.datetime_min
@@ -103,7 +100,6 @@ const dateExtent = d3.extent(pollData, (d) => d.date);
     ? new Date(state.x.datetime_max)
     : d3.extent(linesData, (d) => d.date)[1];
 
- //const facetData = state.gridKey ? getFacetData() : state.layout.subtitle
 const facetData = facetNames.map((facetName) => {
 
   // Create a unique list of parties that are only plotted in this particular facet
@@ -143,45 +139,68 @@ const facetData = facetNames.map((facetName) => {
 
 // //// RENDER
 
-//Generate condition to be used to test if differing scales are needed on the y scale
+// Generate condition to be used to test if differing scales are needed on the y scale
 const sameY = state.facets.sameY
 
+// calculate and apply fixed height on breakpoint before rem calculation
+// or text on bars will jump when cross the tablet breakpoint
+const breakpoint = state.layout.breakpoint_tablet;
+// update the proportions of the containing svg
+let width;
+let height;
+// Use the layout setHeight functionality to control the aspect ration when .ration selected
+if (this.state.aspectRatio === "ratio") {
+  width = layout.getPrimaryWidth();
+  // Use the 'small' breakpoint to determne which aspect ratio calculation is used
+  height =
+    width <= breakpoint
+      ? width / state.aspect.small
+      : width / state.aspect.desk;
+  this.layout.setHeight(height);
+} else {
+  width = layout.getPrimaryWidth();
+  height = layout.getPrimaryHeight();
+  layout.setHeight(null);
+  layout.update();
+}
+
+
 facets
-		.width(layout.getPrimaryWidth())
-		.height(layout.getPrimaryHeight())
-		.data(facetData, d => d.name)
-		.update((facet) => {
-      
-      console.log('facet parties',facet.data.parties)
+  .width(width)
+  .height(height)
+  .data(facetData, d => d.name)
+  .update((facet) => {
     
-      //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
-      const pollExtent = sameY ? extentMulti(pollData, columnNames)
-      : extentMulti(pollData, facet.data.parties);
+    console.log('facet parties',facet.data.parties)
 
-      const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper'])
-      : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
+    //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
+    const pollExtent = sameY ? extentMulti(pollData, columnNames)
+    : extentMulti(pollData, facet.data.parties);
 
-      const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
-      valueExtent[0] = state.y.linear_min
-      ? state.y.linear_min
-      : valueExtent[0];
-      valueExtent[1] = state.y.linear_max
-      ? state.y.linear_max
-      : valueExtent[1];
+    const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper'])
+    : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
 
-      const tickFotmat = state.tickFormat;
+    const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
+    valueExtent[0] = state.y.linear_min
+    ? state.y.linear_min
+    : valueExtent[0];
+    valueExtent[1] = state.y.linear_max
+    ? state.y.linear_max
+    : valueExtent[1];
 
-      if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
-      facet.node.__chart_layout
-      .width(facet.width)
-      .height(facet.height)
-			.xData(dateExtent)
-      .xFormat(timeFormat(tickFotmat))
-			.yData(valueExtent)
-			.update()
+    const tickFotmat = state.tickFormat;
+
+    if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
+    facet.node.__chart_layout
+    .width(facet.width)
+    .height(height)
+    .xData(dateExtent)
+    .xFormat(timeFormat(tickFotmat))
+    .yData(valueExtent)
+    .update()
 
 
-		});
+  });
 
 // Hides the facet title on single charts
 facets.hideTitle(facetNames[0])

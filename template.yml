@@ -29,11 +29,6 @@ settings:
     name: Same accross grid
     type: boolean
     new_section: 'Y AXIS'
-  - Colours
-  - property: color
-    import: "@flourish/colors"
-  - property: layout
-    import: '@flourish/layout'
   - Chart proportions
   - property: aspectRatio
     name: Aspect ratio
@@ -65,6 +60,11 @@ settings:
     description: Fine tunes the width allowed for the candidate/party labels on the end of the lines +/- .
     type: number
     width: quarter
+  - Colours
+  - property: color
+    import: "@flourish/colors"
+  - property: layout
+    import: '@flourish/layout'
   - Y axis
   - property: y
     import: "@flourish/chart-layout/y"

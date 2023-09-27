@@ -52,7 +52,7 @@ const positionLabels = (labels, spacing, alpha) => {
 };
 
 export default function update() {
-  const { colors, layout, chart, chartLayout, data, state, facets, props, } = this;
+  const { colors, layout, chart, grid, data, state, facets, props, } = this;
 
 // /////////// DATA
 
@@ -151,7 +151,7 @@ let height;
 // Use the layout setHeight functionality to control the aspect ration when .ration selected
 if (this.state.aspectRatio === "ratio") {
   width = layout.getPrimaryWidth();
-  // Use the 'small' breakpoint to determne which aspect ratio calculation is used
+  // Use the breakpoint to determne which aspect ratio calculation is used
   height =
     width <= breakpoint
       ? width / state.aspect.small
@@ -161,8 +161,11 @@ if (this.state.aspectRatio === "ratio") {
   width = layout.getPrimaryWidth();
   height = layout.getPrimaryHeight();
   layout.setHeight(null);
-  layout.update();
 }
+chart
+  .attr('width', width)
+  .attr('height', height)
+layout.update();
 
 
 facets
@@ -193,7 +196,7 @@ facets
     if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
     facet.node.__chart_layout
     .width(facet.width)
-    .height(height)
+    .height(facet.height)
     .xData(dateExtent)
     .xFormat(timeFormat(tickFotmat))
     .yData(valueExtent)

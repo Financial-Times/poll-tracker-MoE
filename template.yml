@@ -139,9 +139,39 @@ settings:
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"
-  # - Legend
-  # - property: legend_container
-  #   import: "@flourish/legend/container"
+  - Dot sizing and opacity
+  - property: dots.sizeSmall
+    name: Dot size
+    description: size of the dots in px
+    type: number
+    width: quarter
+    new_section: "Mobile"
+  - property: dots.opacitySmall
+    name: Dot opacity
+    description: opacity of the dots 0 - 1
+    type: number
+    width: quarter
+  - property: dots.decayOpacitySmall
+    name: Decay opacity
+    description: opacity of the dots 0 - 1
+    type: number
+    width: quarter
+  - property: dots.sizeDesk
+    name: Dot size
+    description: size of the dots in px
+    type: number
+    width: quarter
+    new_section: "Desktop"
+  - property: dots.opacityDesk
+    name: Dot opacity
+    description: opacity of the dots 0 - 1
+    type: number
+    width: quarter
+  - property: dots.decayOpacityDesk
+    name: Decay opacity
+    description: opacity of the dots 0 - 1
+    type: number
+    width: quarter
 
 
 data:

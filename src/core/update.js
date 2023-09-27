@@ -100,6 +100,31 @@ const dateExtent = d3.extent(pollData, (d) => d.date);
     ? new Date(state.x.datetime_max)
     : d3.extent(linesData, (d) => d.date)[1];
 
+// calculate and apply fixed height on breakpoint before rem calculation
+// or text on bars will jump when cross the tablet breakpoint. This is also used to determine the correct Formatdisplayname
+const breakpoint = state.layout.breakpoint_tablet;
+// update the proportions of the containing svg
+let width;
+let height;
+// Use the layout setHeight functionality to control the aspect ration when .ration selected
+if (this.state.aspectRatio === "ratio") {
+  width = layout.getPrimaryWidth();
+  // Use the breakpoint to determne which aspect ratio calculation is used
+  height =
+    width <= breakpoint
+      ? width / state.aspect.small
+      : width / state.aspect.desk;
+  this.layout.setHeight(height);
+} else {
+  width = layout.getPrimaryWidth();
+  height = layout.getPrimaryHeight();
+  layout.setHeight(null);
+}
+chart
+  .attr('width', width)
+  .attr('height', height)
+layout.update();
+
 const facetData = facetNames.map((facetName) => {
 
   // Create a unique list of parties that are only plotted in this particular facet
@@ -141,32 +166,6 @@ const facetData = facetNames.map((facetName) => {
 
 // Generate condition to be used to test if differing scales are needed on the y scale
 const sameY = state.facets.sameY
-
-// calculate and apply fixed height on breakpoint before rem calculation
-// or text on bars will jump when cross the tablet breakpoint
-const breakpoint = state.layout.breakpoint_tablet;
-// update the proportions of the containing svg
-let width;
-let height;
-// Use the layout setHeight functionality to control the aspect ration when .ration selected
-if (this.state.aspectRatio === "ratio") {
-  width = layout.getPrimaryWidth();
-  // Use the breakpoint to determne which aspect ratio calculation is used
-  height =
-    width <= breakpoint
-      ? width / state.aspect.small
-      : width / state.aspect.desk;
-  this.layout.setHeight(height);
-} else {
-  width = layout.getPrimaryWidth();
-  height = layout.getPrimaryHeight();
-  layout.setHeight(null);
-}
-chart
-  .attr('width', width)
-  .attr('height', height)
-layout.update();
-
 
 facets
   .width(width)

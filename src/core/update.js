@@ -80,7 +80,6 @@ const pollData = data.polls
   })
   .sort((a, b) => a.date - b.date);
 
-
 const linesData = data.Lines.map((d) => {
   return {
     date: parseDate(d.date),
@@ -130,11 +129,13 @@ layout.update();
 const facetData = facetNames.map((facetName) => {
 
   // Create a unique list of parties that are only plotted in this particular facet
-  const parties = data.Lines
-  .filter((row) =>  row.facet === facetName)
-  .map( d => d.party)
-  .filter((item, pos, parties) => parties.indexOf(item) === pos);
-
+  const parties =state.gridKey
+  ? data.Lines
+    .filter((row) =>  row.facet === facetName)
+    .map( d => d.party)
+    .filter((item, pos, parties) => parties.indexOf(item) === pos)
+  : columnNames
+  
   // Build the plot object containing data to be rendered for each facet
   const plotData = parties.map((party) => {
 

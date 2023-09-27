@@ -61,6 +61,8 @@ const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
 .filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
 : [""]
 const columnNames = data.polls.column_names.value;
+colors.updateColorScale(columnNames);
+
 
 const { displayData } = this.data;
 
@@ -191,16 +193,83 @@ facets
     : valueExtent[1];
 
     const tickFotmat = state.tickFormat;
+    const facetPlotData = facet.data.plotData
+    console.log('facetPlotData', facetPlotData)
 
-    if (!facet.node.__chart_layout) facet.node.__chart_layout = createChartLayout(facet.node, props);
-    facet.node.__chart_layout
+
+    if (!facet.node.chartLayout) facet.node.chartLayout = createChartLayout(facet.node, props);
+    facet.node.chartLayout
     .width(facet.width)
     .height(facet.height)
     .xData(dateExtent)
     .xFormat(timeFormat(tickFotmat))
     .yData(valueExtent)
-    .update()
+    .update(
+      //Blank update is called so that the scales are initiated.
+    )
 
+    const yScale = facet.node.chartLayout.yScale();
+    const xScale = facet.node.chartLayout.xScale();
+
+    facet.node.chartLayout.update (
+      renderFacets()
+    )
+
+    function renderFacets() {
+      const facetPlotData = facet.data.plotData
+      const plot = d3.select(facet.node);
+      const dotOpacity =
+        width < breakpoint
+          ? state.dots.opacitySmall
+          : state.dots.opacityDesk;
+      const dotSize =
+        width < breakpoint ? state.dots.sizeSmall : state.dots.sizeDesk;
+  
+        //const yScale = facet.node.chartLayout.yScale();
+        //const xScale = facet.node.chartLayout.xScale();
+       
+
+      // Add a group for each series of dots
+      plot
+      .selectAll(".dotHolder")
+      .data(facetPlotData)
+      .enter()
+      .append("g")
+      .attr("class", "dotHolder");
+
+      // Add the polling circles
+      plot
+      .selectAll(".dotHolder")
+      .selectAll("circle")
+      .data((d) => d.dots)
+      .join(
+        (enter) =>
+          enter
+            .append("circle")
+            //.attr("id", (d, i) => d.rowID + d.pollster)
+            .attr("cx", d => xScale(d.date))
+            .attr("cy", d => yScale(d.value)),
+        (update) =>
+          update
+            .attr("cx", (d) => xScale(d.date))
+            .attr("cy", (d) => yScale(d.value)),
+        (exit) =>
+          exit
+            .transition()
+            .duration(500)
+            .attr("r", 0)
+            .on("end", function circlesExitOnEnd() {
+              d3.select(this).remove();
+            })
+      )
+      .attr("r", dotSize)
+      .attr("fill", (d) => colors.getColor(d.party))
+      .attr("opacity", dotOpacity)
+
+
+
+  
+    }
 
   });
 

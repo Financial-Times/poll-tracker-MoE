@@ -218,6 +218,7 @@ facets
       const facetPlotData = facet.data.plotData
       console.log('facetData', facetData )
       const plot = d3.select(facet.node);
+      // Assign the various rendering options for the lines, dots and areas
       const dotOpacity =
         width < breakpoint
           ? state.polls.opacitySmall
@@ -226,14 +227,21 @@ facets
         width < breakpoint ? state.polls.sizeSmall : state.polls.sizeDesk;
       const areaOpacity = width < breakpoint ? state.moe.opacityMob
       : state.moe.opacityDesk
+       const lineWidth =
+        width < breakpoint
+          ? state.averages.smallStrokeWidth
+          : state.averages.largeStrokeWidth;
+      const lineOpacity =
+        width < breakpoint
+          ? state.averages.smallOpacity
+          : state.averages.largeOpacity;
 
-      // set up line interpolation and area drawing function
+      // set up area interpolation and area drawing function
       const areaData = d3
         .area()
         .x(d => xScale(d.date))
         .y1(d => yScale(d.upper))
         .y0(d => yScale(d.lower));
-      
       
       // Add Margin of error shaded areas
       plot
@@ -257,7 +265,42 @@ facets
         .attr("class", "areas")
         .attr("fill", (d) => colors.getColor(d.party))
         .attr("id", (d) => d.party)
-        .attr("opacity", areaOpacity); 
+        .attr("opacity", areaOpacity);
+      
+      // set up line interpolation and line drawing function
+      const interpolation = d3.curveLinear;
+      const lineData = d3
+        .line()
+        .defined((d) => d)
+        .curve(interpolation)
+        .x((d) => xScale(d.date))
+        .y((d) => yScale(d.value));
+      
+      plot
+    .selectAll(".lines")
+    .data(facetPlotData)
+    .join(
+      (enter) =>
+      enter.append("path").attr("d", (d) => lineData(d.areas)),
+      (updateSel) => updateSel.attr("d", (d) => lineData(d.areas)),
+      (exit) =>
+        exit
+          .transition()
+          .duration(100)
+          .attr("d", (d) => lineData(d.areas))
+          .on("end", function linesOnEnd() {
+            d3.select(this).remove();
+          })
+    )
+    .attr("class", "lines")
+    .attr("fill", "none")
+    .attr("stroke-width", lineWidth)
+    .attr("stroke", (d) => colors.getColor(d.party))
+    .attr("id", (d) => d.party)
+    .attr("opacity", lineOpacity);
+      
+      
+        
 
 
       // Add a group for each series of dots

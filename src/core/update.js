@@ -150,7 +150,7 @@ const facetData = facetNames.map((facetName) => {
       displayNameDesk: viewData.displayNameDesktop,
       textColor: viewData.altTextColor,
       dots: state.polls.render ? getDots(pollData, party): {},
-      areas: getMoE(plotLines, party),
+      areas: state.moe.render ? getMoE(plotLines, party): {},
     };
 
   })

@@ -139,39 +139,50 @@ settings:
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"
-  - Dot sizing and opacity
+  - Poll dots
+  - property: dots.render
+    name: Dot render
+    description: Toggles the display of the dots on and off
+    type: boolean
+    width: quarter
   - property: dots.sizeSmall
     name: Dot size
     description: size of the dots in px
     type: number
     width: quarter
     new_section: "Mobile"
+    show_if: dots.render
   - property: dots.opacitySmall
     name: Dot opacity
     description: opacity of the dots 0 - 1
     type: number
     width: quarter
+    show_if: dots.render
   - property: dots.decayOpacitySmall
     name: Decay opacity
     description: opacity of the dots 0 - 1
     type: number
     width: quarter
+    show_if: dots.render
   - property: dots.sizeDesk
     name: Dot size
     description: size of the dots in px
     type: number
     width: quarter
     new_section: "Desktop"
+    show_if: dots.render
   - property: dots.opacityDesk
     name: Dot opacity
     description: opacity of the dots 0 - 1
     type: number
     width: quarter
+    show_if: dots.render
   - property: dots.decayOpacityDesk
     name: Decay opacity
     description: opacity of the dots 0 - 1
     type: number
     width: quarter
+    show_if: dots.render
 
 
 data:

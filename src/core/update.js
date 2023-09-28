@@ -135,7 +135,6 @@ const facetData = facetNames.map((facetName) => {
     .map( d => d.party)
     .filter((item, pos, parties) => parties.indexOf(item) === pos)
   : columnNames
-  
   // Build the plot object containing data to be rendered for each facet
   const plotData = parties.map((party) => {
 
@@ -150,7 +149,7 @@ const facetData = facetNames.map((facetName) => {
       displayNameMob: viewData.displayNameMobile,
       displayNameDesk: viewData.displayNameDesktop,
       textColor: viewData.altTextColor,
-      dots: getDots(pollData, party),
+      dots: state.dots.render ? getDots(pollData, party): {},
       lines: getlines(plotLines, viewData.displayNameDesktop),
     };
 

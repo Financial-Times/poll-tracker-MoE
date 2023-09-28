@@ -42,6 +42,7 @@ export default {
 	aspect: { small: .8, desk: 1.6, breakpoint: 500 },
 	tuneLabel: 0,
 	dots: {
+		render: true,
 		sizeSmall: 2.5,
 		opacitySmall: 0.2,
 		decayOpacitySmall: 0.5,

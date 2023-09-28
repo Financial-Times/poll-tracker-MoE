@@ -41,7 +41,7 @@ export default {
 	aspectRatio: "ratio",
 	aspect: { small: .8, desk: 1.6, breakpoint: 500 },
 	tuneLabel: 0,
-	dots: {
+	polls: {
 		render: true,
 		sizeSmall: 2.5,
 		opacitySmall: 0.2,
@@ -56,9 +56,10 @@ export default {
 	dateFormat: '%Y-%m-%d',
 	tickFormat: "%Y",
 	dotOpacity: 0.2,
-	polls:{smallSize: 1.1, largeSize: 1.25, smallOpacity: 1, largeOpacity: 1},
 	averages:{smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
-	moe:{opacityMob: 0.3, opacityDesk: 0.3},
+	moe:{render: true,
+		opacityMob: 0.3,
+		opacityDesk: 0.3},
 	legend_container: {},
 	legend_categorical: {swatch_width: 1.2, swatch_height: .3},
 	displayValues: {},

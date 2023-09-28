@@ -149,7 +149,7 @@ const facetData = facetNames.map((facetName) => {
       displayNameMob: viewData.displayNameMobile,
       displayNameDesk: viewData.displayNameDesktop,
       textColor: viewData.altTextColor,
-      dots: state.dots.render ? getDots(pollData, party): {},
+      dots: state.polls.render ? getDots(pollData, party): {},
       areas: getMoE(plotLines, party),
     };
 
@@ -220,10 +220,12 @@ facets
       const plot = d3.select(facet.node);
       const dotOpacity =
         width < breakpoint
-          ? state.dots.opacitySmall
-          : state.dots.opacityDesk;
+          ? state.polls.opacitySmall
+          : state.polls.opacityDesk;
       const dotSize =
-        width < breakpoint ? state.dots.sizeSmall : state.dots.sizeDesk;
+        width < breakpoint ? state.polls.sizeSmall : state.polls.sizeDesk;
+      const areaOpacity = width < breakpoint ? state.moe.opacityMob
+      : state.moe.opacityDesk
 
       // set up line interpolation and area drawing function
       const areaData = d3
@@ -255,7 +257,7 @@ facets
         .attr("class", "areas")
         .attr("fill", (d) => colors.getColor(d.party))
         .attr("id", (d) => d.party)
-        .attr("opacity", 1); 
+        .attr("opacity", areaOpacity); 
 
 
       // Add a group for each series of dots

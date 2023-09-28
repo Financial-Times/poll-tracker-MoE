@@ -83,27 +83,36 @@ settings:
     type: string # Setting type
     width: half
   - Chart render options
-  - property: polls.smallSize
-    name: Dot size (small)
+  - property: polls.render
+    name: Toggle polls
+    description: Toggles the polling dots on and off
+    type: boolean
+    width: full
+    new_section: 'Polls'
+  - property: polls.sizeSmall
+    name: Dot size (mobile)
     description: Size of the small dots in px
     type: number
     width: quarter
-    new_section: 'Polls'
-  - property: polls.smallOpacity
-    name: Dot opacity (small)
+    show_if: polls.render
+  - property: polls.opacitySmall
+    name: Dot opacity (mobile)
     description: Opacity of the dots 0 - 1
     type: number
     width: quarter
-  - property: polls.largeSize
-    name: Dot size (large)
+    show_if: polls.render
+  - property: polls.sizeDesk
+    name: Dot size (desktop)
     description: Size of the large dots in px
     type: number
     width: quarter
-  - property: polls.largeOpacity
-    name: Dot opacity (large)
+    show_if: polls.render
+  - property: polls.opacityDesk
+    name: Dot opacity (desktop)
     description: Opacity of the dots 0 - 1
     type: number
     width: quarter
+    show_if: polls.render
   - property: averages.smallStrokeWidth
     name: Stroke width (small)
     description: Width of the line stroke in px
@@ -125,12 +134,17 @@ settings:
     description: Opacity of the line 0 - 1
     type: number
     width: quarter
+  - property: moe.render
+    name: Toggle areas
+    description: Toggles the margin mof error areas on and off
+    type: boolean
+    width: full
+    new_section: 'Margin of error shading'
   - property: moe.opacityMob
     name: Opacity (mobile)
     description: Opacity of the shading 0 - 1
     type: number
     width: quarter
-    new_section: 'MoE shading'
   - property: moe.opacityDesk
     name: Opacity (desktop)
     description: Opacity of the shading 0 - 1
@@ -139,50 +153,6 @@ settings:
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"
-  - Poll dots
-  - property: dots.render
-    name: Show dots
-    description: Toggles the display of the dots on and off
-    type: boolean
-    width: quarter
-  - property: dots.sizeSmall
-    name: Dot size
-    description: size of the dots in px
-    type: number
-    width: quarter
-    new_section: "Mobile"
-    show_if: dots.render
-  - property: dots.opacitySmall
-    name: Dot opacity
-    description: opacity of the dots 0 - 1
-    type: number
-    width: quarter
-    show_if: dots.render
-  - property: dots.decayOpacitySmall
-    name: Decay opacity
-    description: opacity of the dots 0 - 1
-    type: number
-    width: quarter
-    show_if: dots.render
-  - property: dots.sizeDesk
-    name: Dot size
-    description: size of the dots in px
-    type: number
-    width: quarter
-    new_section: "Desktop"
-    show_if: dots.render
-  - property: dots.opacityDesk
-    name: Dot opacity
-    description: opacity of the dots 0 - 1
-    type: number
-    width: quarter
-    show_if: dots.render
-  - property: dots.decayOpacityDesk
-    name: Decay opacity
-    description: opacity of the dots 0 - 1
-    type: number
-    width: quarter
-    show_if: dots.render
 
 
 data:

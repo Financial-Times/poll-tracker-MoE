@@ -94,7 +94,7 @@ export function getlines(d, displayNameDesk) {
   return lineData;
 }
 
-export function getMoE(d, group, joinPoints) {
+export function getMoE(d, group,) {
   // console.log('d and group',d,group)
   const areaData = [];
   d.forEach((el) => {
@@ -112,9 +112,10 @@ export function getMoE(d, group, joinPoints) {
     // if(el[group] == false) {
     //     lineData.push(null)
     // }
-    if (el[group] === false && joinPoints === false) {
+    if (el[group] === false) {
       areaData.push(null);
     }
   });
+  console.log(areaData)
   return areaData;
 }

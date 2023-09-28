@@ -150,7 +150,7 @@ const facetData = facetNames.map((facetName) => {
       displayNameDesk: viewData.displayNameDesktop,
       textColor: viewData.altTextColor,
       dots: state.dots.render ? getDots(pollData, party): {},
-      lines: getlines(plotLines, viewData.displayNameDesktop),
+      areas: getMoE(plotLines, party),
     };
 
   })
@@ -193,9 +193,6 @@ facets
     : valueExtent[1];
 
     const tickFotmat = state.tickFormat;
-    const facetPlotData = facet.data.plotData
-    console.log('facetPlotData', facetPlotData)
-
 
     if (!facet.node.chartLayout) facet.node.chartLayout = createChartLayout(facet.node, props);
     facet.node.chartLayout
@@ -214,9 +211,12 @@ facets
     facet.node.chartLayout.update (
       renderFacets()
     )
-
+    
+    // Function that draws the each chart in the grid
     function renderFacets() {
+
       const facetPlotData = facet.data.plotData
+      console.log('facetData', facetData )
       const plot = d3.select(facet.node);
       const dotOpacity =
         width < breakpoint
@@ -224,10 +224,47 @@ facets
           : state.dots.opacityDesk;
       const dotSize =
         width < breakpoint ? state.dots.sizeSmall : state.dots.sizeDesk;
-  
-        //const yScale = facet.node.chartLayout.yScale();
-        //const xScale = facet.node.chartLayout.xScale();
-       
+
+      // set up line interpolation and area drawing function
+      const areaData = d3
+        .area()
+        .x((d) => xScale(d.date))
+        .y1((d) => yScale(d.upper))
+        .y0((d) => yScale(d.lower));
+      
+      // Add a group for each series of dots
+      plot
+      .selectAll(".areaHolder")
+      .data(facetPlotData)
+      .enter()
+      .append("g")
+      .attr("class", "areaHolder");
+      
+      // Add Margin of error shaded areas
+      // plot
+      //   .selectAll(".areaHolder")
+      //   .selectAll("paths")
+      //   .data((d) => d.dots)
+      //   .join(
+      //     (enter) =>
+      //     enter.append("path")
+      //       .attr("d", (d) => areaData(d.areas)),
+      //     (updateSel) =>
+      //     updateSel
+      //     .attr("d", (d) => areaData(d.areas)),
+      //     (exit) =>
+      //       exit
+      //         .transition()
+      //         .duration(100)
+      //         .on("end", function areasOnExit() {
+      //           d3.select(this).remove();
+      //         })
+      //   )
+      //   .attr("class", "areas")
+      //   .attr("fill", (d) => colors.getColor(d.party))
+      //   .attr("id", (d) => d.party)
+      //   .attr("opacity", 1); 
+
 
       // Add a group for each series of dots
       plot
@@ -264,13 +301,8 @@ facets
       )
       .attr("r", dotSize)
       .attr("fill", (d) => colors.getColor(d.party))
-      .attr("opacity", dotOpacity)
-
-
-
-  
+      .attr("opacity", dotOpacity)  
     }
-
   });
 
 // Hides the facet title on single charts

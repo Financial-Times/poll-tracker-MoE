@@ -141,7 +141,7 @@ settings:
     import: "@flourish/info-popup"
   - Poll dots
   - property: dots.render
-    name: Dot render
+    name: Show dots
     description: Toggles the display of the dots on and off
     type: boolean
     width: quarter

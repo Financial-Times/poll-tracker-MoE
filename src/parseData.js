@@ -95,27 +95,20 @@ export function getlines(d, displayNameDesk) {
 }
 
 export function getMoE(d, group,) {
-  // console.log('d and group',d,group)
   const areaData = [];
   d.forEach((el) => {
-    // console.log(el,i)
+    //console.log(el)
     const column = {};
-    column.name = group;
-    column.x = el.date;
-    column.y1 = el.upper;
-    column.y0 = el.lower;
-    column.value = el.value
-    if (el[group]) {
+    column.party = group;
+    column.date = el.date;
+    column.upper = el.upper;
+    column.lower = el.lower;
+    column.value = el.value;
+
+    if (el.party) {
       areaData.push(column);
     }
 
-    // if(el[group] == false) {
-    //     lineData.push(null)
-    // }
-    if (el[group] === false) {
-      areaData.push(null);
-    }
   });
-  console.log(areaData)
   return areaData;
 }

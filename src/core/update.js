@@ -228,42 +228,34 @@ facets
       // set up line interpolation and area drawing function
       const areaData = d3
         .area()
-        .x((d) => xScale(d.date))
-        .y1((d) => yScale(d.upper))
-        .y0((d) => yScale(d.lower));
+        .x(d => xScale(d.date))
+        .y1(d => yScale(d.upper))
+        .y0(d => yScale(d.lower));
       
-      // Add a group for each series of dots
-      plot
-      .selectAll(".areaHolder")
-      .data(facetPlotData)
-      .enter()
-      .append("g")
-      .attr("class", "areaHolder");
       
       // Add Margin of error shaded areas
-      // plot
-      //   .selectAll(".areaHolder")
-      //   .selectAll("paths")
-      //   .data((d) => d.dots)
-      //   .join(
-      //     (enter) =>
-      //     enter.append("path")
-      //       .attr("d", (d) => areaData(d.areas)),
-      //     (updateSel) =>
-      //     updateSel
-      //     .attr("d", (d) => areaData(d.areas)),
-      //     (exit) =>
-      //       exit
-      //         .transition()
-      //         .duration(100)
-      //         .on("end", function areasOnExit() {
-      //           d3.select(this).remove();
-      //         })
-      //   )
-      //   .attr("class", "areas")
-      //   .attr("fill", (d) => colors.getColor(d.party))
-      //   .attr("id", (d) => d.party)
-      //   .attr("opacity", 1); 
+      plot
+        .selectAll(".areas")
+        .data(facetPlotData)
+        .join(
+          (enter) =>
+          enter.append("path")
+            .attr("d", (d) => areaData(d.areas)),
+          (update) =>
+          update
+          .attr("d", (d) => areaData(d.areas)),
+          (exit) =>
+            exit
+              .transition()
+              .duration(100)
+              .on("end", function areasOnExit() {
+                d3.select(this).remove();
+              })
+        )
+        .attr("class", "areas")
+        .attr("fill", (d) => colors.getColor(d.party))
+        .attr("id", (d) => d.party)
+        .attr("opacity", 1); 
 
 
       // Add a group for each series of dots

@@ -7,6 +7,7 @@
  * interface controls such as buttons and sliders update the state and then call update.
  */
 import * as d3 from "d3";
+import { getTextWidth } from "@flourish/pocket-knife";
 import initialisePopup from "@flourish/info-popup";
 import createChartLayout from "@flourish/chart-layout";
 import {timeParse, timeFormat } from "d3-time-format";
@@ -62,7 +63,6 @@ const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
 : [""]
 const columnNames = data.polls.column_names.value;
 colors.updateColorScale(columnNames);
-
 
 const { displayData } = this.data;
 
@@ -126,6 +126,17 @@ chart
   .attr('height', height)
 layout.update();
 
+ // define an array to contain the line labels
+ const labels = []
+ // Conditionally fill the labels array with correct line label depending of chart width
+ columnNames.forEach (party => {
+   const viewLabel = displayData.find(({ party: p }) => party === p);
+   if(width < breakpoint) {
+     labels.push(viewLabel.displayNameMobile)
+   }
+   labels.push(viewLabel.displayNameDesktop)
+ })
+
 const facetData = facetNames.map((facetName) => {
 
   // Create a unique list of parties that are only plotted in this particular facet
@@ -135,6 +146,7 @@ const facetData = facetNames.map((facetName) => {
     .map( d => d.party)
     .filter((item, pos, parties) => parties.indexOf(item) === pos)
   : columnNames
+
   // Build the plot object containing data to be rendered for each facet
   const plotData = parties.map((party) => {
 
@@ -157,12 +169,10 @@ const facetData = facetNames.map((facetName) => {
 
   return {
     name: facetName,
-    displayName: 'not yet added',
-    parties: parties,
+    parties: parties, //list of the parties to be displayed in that particular facet
     plotData: plotData,
   }
 })
-
 
 // //// RENDER
 
@@ -175,12 +185,10 @@ facets
   .data(facetData, d => d.name)
   .update((facet) => {
     
-    console.log('facet parties',facet.data.parties)
 
     //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
     const pollExtent = sameY ? extentMulti(pollData, columnNames)
     : extentMulti(pollData, facet.data.parties);
-
     const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper'])
     : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
 
@@ -193,6 +201,16 @@ facets
     : valueExtent[1];
 
     const tickFotmat = state.tickFormat;
+     // Calculates the rem size to be the same as the x axis tick label
+     const rem = (layout.remToPx(100) / 100) * state.x.tick_label_size;
+     const labelTuine = state.tuneLabel;
+     const numberWidth = getTextWidth(" WW.W", `${rem}px MetricWeb`); // Additional value that allows for the max width of figures on the end of the label
+     
+     // Calculate the new right hand margin toallow for the labels, this is kept common accross all facets so that y axis align in the grid
+     const rightLabelWidth =
+     getMaxTextWidth(labels, `${rem}px MetricWeb`) +
+     numberWidth +
+     labelTuine;
 
     if (!facet.node.chartLayout) facet.node.chartLayout = createChartLayout(facet.node, props);
     facet.node.chartLayout
@@ -201,19 +219,23 @@ facets
     .xData(dateExtent)
     .xFormat(timeFormat(tickFotmat))
     .yData(valueExtent)
-    .update(
-      //Blank update is called so that the scales are initiated.
+    .update( {margins: { right: rightLabelWidth }},
+      // Blank update is called so that the scales are initiated.
+      // Also margin values have to be passed EVERY time chartLayout update is called
     )
-
+   //Get the scales from the updated chartLayout
     const yScale = facet.node.chartLayout.yScale();
     const xScale = facet.node.chartLayout.xScale();
 
+    
+    // Render the facet
     facet.node.chartLayout.update (
+      {margins: { right: rightLabelWidth }},
       renderFacets()
     )
     
     // Function that draws the each chart in the grid
-    function renderFacets() {
+    function renderFacets() { 
 
       const facetPlotData = facet.data.plotData
       console.log('facetData', facetData )
@@ -513,103 +535,6 @@ facets.hideTitle(facetNames[0])
   // // const that is the g element where the chart content is rendered to
   // const plot = chartLayout.data_foreground;
 
-  // // Add a g element specifically for holding the annotations in the front
-  // plot.append("g");
-
-  // // Const for holding the chartLayout scales
-  // const yScale = chartLayout.yScale();
-  // const xScale = chartLayout.xScale();
-
-  // // set up line interpolation and line drawing function
-  // const areaData = d3
-  //   .area()
-  //   .x((d) => xScale(d.x))
-  //   .y1((d) => yScale(d.y1))
-  //   .y0((d) => yScale(d.y0));
-
-
-  // // Add Margin of error shaded areas
-  // plot
-  //   .selectAll(".areas")
-  //   .data(filteredData)
-  //   .join(
-  //     (enter) => enter.append("path").attr("d", (d) => areaData(d.areas)),
-  //     (updateSel) => updateSel.attr("d", (d) => areaData(d.areas)),
-  //     (exit) =>
-  //       exit
-  //         .transition()
-  //         .duration(100)
-  //         .on("end", function areasOnExit() {
-  //           d3.select(this).remove();
-  //         })
-  //   )
-  //   .attr("class", "areas")
-  //   .attr("fill", (d) => colors.getColor(d.party))
-  //   .attr("id", (d) => d.party)
-  //   .attr("opacity", moeOpacity);
-
-  // // Add a group for each series of dots
-  // plot
-  //   .selectAll(".dotHolder")
-  //   .data(filteredData)
-  //   .enter()
-  //   .append("g")
-  //   .attr("class", "dotHolder");
-
-  // // Add the polling circles
-  // plot
-  //   .selectAll(".dotHolder")
-  //   .selectAll("circle")
-  //   .data((d) => d.dots)
-  //   .join(
-  //     (enter) =>
-  //       enter
-  //         .append("circle")
-  //         .attr("cx", (d) => xScale(d.date))
-  //         .attr("cy", (d) => yScale(d.value)),
-  //     (updateSel) =>
-  //       updateSel
-  //         .attr("cx", (d) => xScale(d.date))
-  //         .attr("cy", (d) => yScale(d.value)),
-  //     (exit) =>
-  //       exit.transition().on("end", function dotHolderCircleOnExit() {
-  //         d3.select(this).remove();
-  //       })
-  //   )
-  //   .attr("r", dotSize)
-  //   .attr("fill", (d) => colors.getColor(d.name))
-  //   .attr("opacity", dotOpacity);
-
-  // // set up line interpolation and line drawing function
-  // const interpolation = d3.curveLinear;
-  // const lineData = d3
-  //   .line()
-  //   .defined((d) => d)
-  //   .curve(interpolation)
-  //   .x((d) => xScale(d.date))
-  //   .y((d) => yScale(d.value));
-
-  // plot
-  //   .selectAll(".lines")
-  //   .data(filteredData)
-  //   .join(
-  //     (enter) => enter.append("path").attr("d", (d) => lineData(d.lines)),
-  //     (updateSel) => updateSel.attr("d", (d) => lineData(d.lines)),
-  //     (exit) =>
-  //       exit
-  //         .transition()
-  //         .duration(100)
-  //         .attr("d", (d) => lineData(d.lines))
-  //         .on("end", function linesOnEnd() {
-  //           d3.select(this).remove();
-  //         })
-  //   )
-  //   .attr("class", "lines")
-  //   .attr("fill", "none")
-  //   .attr("stroke-width", lineWidth)
-  //   .attr("stroke", (d) => colors.getColor(d.party))
-  //   .attr("id", (d) => d.party)
-  //   .attr("opacity", lineOpacity);
 
   // // Add a group for each series of popup circles
   // plot

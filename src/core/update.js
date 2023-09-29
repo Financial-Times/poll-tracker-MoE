@@ -245,135 +245,158 @@ facets
   else {newMargin = rightLabelWidth}
 
   // Render the facet
-    facet.node.chartLayout.update (
-      {margins: { right: newMargin }},
-      renderFacets()
-    )
+  facet.node.chartLayout.update (
+    {margins: { right: newMargin }},
+    renderFacets()
+  )
     
-    // Function that draws the each chart in the grid
-    function renderFacets() { 
+  // Function that draws the each chart in the grid
+  function renderFacets() { 
 
-      const facetPlotData = facet.data.plotData
-      console.log('facetData', facetData )
-      const plot = d3.select(facet.node);
-      // Assign the various rendering options for the lines, dots and areas
-      const dotOpacity =
-        width < breakpoint
-          ? state.polls.opacitySmall
-          : state.polls.opacityDesk;
-      const dotSize =
-        width < breakpoint ? state.polls.sizeSmall : state.polls.sizeDesk;
-      const areaOpacity = width < breakpoint ? state.moe.opacityMob
-      : state.moe.opacityDesk
-       const lineWidth =
-        width < breakpoint
-          ? state.averages.smallStrokeWidth
-          : state.averages.largeStrokeWidth;
-      const lineOpacity =
-        width < breakpoint
-          ? state.averages.smallOpacity
-          : state.averages.largeOpacity;
+    const facetPlotData = facet.data.plotData
+    
+    console.log('facetData', facetData )
+    const plot = d3.select(facet.node);
+    // Assign the various rendering options for the lines, dots and areas
+    const dotOpacity =
+      width < breakpoint
+        ? state.polls.opacitySmall
+        : state.polls.opacityDesk;
+    const dotSize =
+      width < breakpoint ? state.polls.sizeSmall : state.polls.sizeDesk;
+    const areaOpacity = width < breakpoint ? state.moe.opacityMob
+    : state.moe.opacityDesk
+      const lineWidth =
+      width < breakpoint
+        ? state.averages.smallStrokeWidth
+        : state.averages.largeStrokeWidth;
+    const lineOpacity =
+      width < breakpoint
+        ? state.averages.smallOpacity
+        : state.averages.largeOpacity;
 
-      // set up area interpolation and area drawing function
-      const areaData = d3
-        .area()
-        .x(d => xScale(d.date))
-        .y1(d => yScale(d.upper))
-        .y0(d => yScale(d.lower));
-      
-      // Add Margin of error shaded areas
-      plot
-        .selectAll(".areas")
-        .data(facetPlotData)
-        .join(
-          (enter) =>
-          enter.append("path")
-            .attr("d", (d) => areaData(d.areas)),
-          (update) =>
-          update
+    // set up area interpolation and area drawing function
+    const areaData = d3
+      .area()
+      .x(d => xScale(d.date))
+      .y1(d => yScale(d.upper))
+      .y0(d => yScale(d.lower));
+    
+    // Add Margin of error shaded areas
+    plot
+      .selectAll(".areas")
+      .data(facetPlotData)
+      .join(
+        (enter) =>
+        enter.append("path")
           .attr("d", (d) => areaData(d.areas)),
-          (exit) =>
-            exit
-              .transition()
-              .duration(100)
-              .on("end", function areasOnExit() {
-                d3.select(this).remove();
-              })
-        )
-        .attr("class", "areas")
-        .attr("fill", (d) => colors.getColor(d.party))
-        .attr("id", (d) => d.party)
-        .attr("opacity", state.moe.render ? areaOpacity : 0) ;
-      
-      // set up line interpolation and line drawing function
-      const interpolation = d3.curveLinear;
-      const lineData = d3
-        .line()
-        .defined((d) => d)
-        .curve(interpolation)
-        .x((d) => xScale(d.date))
-        .y((d) => yScale(d.value));
-      
-      plot
-        .selectAll(".lines")
-        .data(facetPlotData)
-        .join(
-          (enter) =>
-          enter.append("path").attr("d", (d) => lineData(d.areas)),
-          (updateLines) => updateLines.attr("d", (d) => lineData(d.areas)),
-          (exit) =>
-            exit
-              .transition()
-              .duration(100)
-              .attr("d", (d) => lineData(d.areas))
-              .on("end", function linesOnEnd() {
-                d3.select(this).remove();
-              })
-        )
-        .attr("class", "lines")
-        .attr("fill", "none")
-        .attr("stroke-width", lineWidth)
-        .attr("stroke", (d) => colors.getColor(d.party))
-        .attr("id", (d) => d.party)
-        .attr("opacity", state.averages.render ? lineOpacity : 0);
-      
-      // Add a group for each series of dots
-      plot
-        .selectAll(".dotHolder")
-        .data(facetPlotData)
-        .enter()
-        .append("g")
-        .attr("class", "dotHolder");
+        (update) =>
+        update
+        .attr("d", (d) => areaData(d.areas)),
+        (exit) =>
+          exit
+            .transition()
+            .duration(100)
+            .on("end", function areasOnExit() {
+              d3.select(this).remove();
+            })
+      )
+      .attr("class", "areas")
+      .attr("fill", (d) => colors.getColor(d.party))
+      .attr("id", (d) => d.party)
+      .attr("opacity", state.moe.render ? areaOpacity : 0) ;
+    
+    // set up line interpolation and line drawing function
+    const interpolation = d3.curveLinear;
+    const lineData = d3
+      .line()
+      .defined((d) => d)
+      .curve(interpolation)
+      .x((d) => xScale(d.date))
+      .y((d) => yScale(d.value));
+    
+    plot
+      .selectAll(".lines")
+      .data(facetPlotData)
+      .join(
+        (enter) =>
+        enter.append("path").attr("d", (d) => lineData(d.areas)),
+        (updateLines) => updateLines.attr("d", (d) => lineData(d.areas)),
+        (exit) =>
+          exit
+            .transition()
+            .duration(100)
+            .attr("d", (d) => lineData(d.areas))
+            .on("end", function linesOnEnd() {
+              d3.select(this).remove();
+            })
+      )
+      .attr("class", "lines")
+      .attr("fill", "none")
+      .attr("stroke-width", lineWidth)
+      .attr("stroke", (d) => colors.getColor(d.party))
+      .attr("id", (d) => d.party)
+      .attr("opacity", state.averages.render ? lineOpacity : 0);
+    
+    // Add a group for each series of dots
+    plot
+      .selectAll(".dotHolder")
+      .data(facetPlotData)
+      .enter()
+      .append("g")
+      .attr("class", "dotHolder");
 
-      // Add the polling circles
-      plot
-        .selectAll(".dotHolder")
-        .selectAll("circle")
-        .data((d) => d.dots)
-        .join(
-          (enter) =>
-            enter
-              .append("circle")
-              //.attr("id", (d, i) => d.rowID + d.pollster)
-              .attr("cx", d => xScale(d.date))
-              .attr("cy", d => yScale(d.value)),
-          (updateDots) =>
-            updateDots
-              .attr("cx", (d) => xScale(d.date))
-              .attr("cy", (d) => yScale(d.value)),
-          (exit) =>
-            exit
-              .transition()
-              .duration(500)
-              .attr("r", 0)
-              .on("end", function circlesExitOnEnd() {
-                d3.select(this).remove();
-              })
-        )
-        .attr("r", dotSize)
-        .attr("fill", (d) => colors.getColor(d.party))
-        .attr("opacity", state.polls.render ? dotOpacity : 0)  
-    }
+    // Add the polling circles
+    plot
+      .selectAll(".dotHolder")
+      .selectAll("circle")
+      .data((d) => d.dots)
+      .join(
+        (enter) =>
+          enter
+            .append("circle")
+            //.attr("id", (d, i) => d.rowID + d.pollster)
+            .attr("cx", d => xScale(d.date))
+            .attr("cy", d => yScale(d.value)),
+        (updateDots) =>
+          updateDots
+            .attr("cx", (d) => xScale(d.date))
+            .attr("cy", (d) => yScale(d.value)),
+        (exit) =>
+          exit
+            .transition()
+            .duration(500)
+            .attr("r", 0)
+            .on("end", function circlesExitOnEnd() {
+              d3.select(this).remove();
+            })
+      )
+      .attr("r", dotSize)
+      .attr("fill", (d) => colors.getColor(d.party))
+      .attr("opacity", state.polls.render ? dotOpacity : 0)  
+    
+      console.log('facetPlotData',facetPlotData)
+
+    // Set up label data
+    const labelData = facetPlotData
+      .map(({ areas, party, displayNameDesk, displayNameMob, textColor }) => {
+        const average = areas[areas.length - 1].value;
+        return {
+          party,
+          textColor,
+          displayNameDesk,
+          displayNameMob,
+          average,
+          // Set initial positions for each label
+          position: yScale(average),
+        };
+      })
+      .sort((a, b) => b.average - a.average);
+    console.log('labelData', labelData)
+
+  }
+
+
   });
 
 // Hides the facet title on single charts

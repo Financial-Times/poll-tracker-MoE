@@ -113,27 +113,36 @@ settings:
     type: number
     width: quarter
     show_if: polls.render
+  - property: averages.render
+    name: Toggle lines
+    description: Toggles the average lines on and off
+    type: boolean
+    width: full
+    new_section: 'Average lines'
   - property: averages.smallStrokeWidth
     name: Stroke width (small)
     description: Width of the line stroke in px
     type: number
     width: quarter
-    new_section: 'Average lines'
+    show_if: averages.render
   - property: averages.smallOpacity
     name: Line opacity (small)
     description: Opacity of the line 0 - 1
     type: number
     width: quarter
+    show_if: averages.render
   - property: averages.largeStrokeWidth
     name: Stroke width (large)
     description: Width of the large line in px
     type: number
     width: quarter
+    show_if: averages.render
   - property: averages.largeOpacity
     name: Line opacity (large)
     description: Opacity of the line 0 - 1
     type: number
     width: quarter
+    show_if: averages.render
   - property: moe.render
     name: Toggle areas
     description: Toggles the margin mof error areas on and off
@@ -145,11 +154,13 @@ settings:
     description: Opacity of the shading 0 - 1
     type: number
     width: quarter
+    show_if: moe.render
   - property: moe.opacityDesk
     name: Opacity (desktop)
     description: Opacity of the shading 0 - 1
     type: number
     width: quarter
+    show_if: moe.render
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"

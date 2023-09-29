@@ -56,7 +56,7 @@ export default {
 	dateFormat: '%Y-%m-%d',
 	tickFormat: "%Y",
 	dotOpacity: 0.2,
-	averages:{smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
+	averages:{render: true, smallStrokeWidth: 2, largeStrokeWidth: 3, smallOpacity: 1, largeOpacity: 1},
 	moe:{render: true,
 		opacityMob: 0.3,
 		opacityDesk: 0.3},

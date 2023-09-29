@@ -149,8 +149,8 @@ const facetData = facetNames.map((facetName) => {
       displayNameMob: viewData.displayNameMobile,
       displayNameDesk: viewData.displayNameDesktop,
       textColor: viewData.altTextColor,
-      dots: state.polls.render ? getDots(pollData, party): {},
-      areas: state.moe.render ? getMoE(plotLines, party): {},
+      dots: getDots(pollData, party),
+      areas: getMoE(plotLines, party),
     };
 
   })
@@ -265,7 +265,7 @@ facets
         .attr("class", "areas")
         .attr("fill", (d) => colors.getColor(d.party))
         .attr("id", (d) => d.party)
-        .attr("opacity", areaOpacity);
+        .attr("opacity", state.moe.render ? areaOpacity : 0) ;
       
       // set up line interpolation and line drawing function
       const interpolation = d3.curveLinear;
@@ -277,68 +277,64 @@ facets
         .y((d) => yScale(d.value));
       
       plot
-    .selectAll(".lines")
-    .data(facetPlotData)
-    .join(
-      (enter) =>
-      enter.append("path").attr("d", (d) => lineData(d.areas)),
-      (updateSel) => updateSel.attr("d", (d) => lineData(d.areas)),
-      (exit) =>
-        exit
-          .transition()
-          .duration(100)
-          .attr("d", (d) => lineData(d.areas))
-          .on("end", function linesOnEnd() {
-            d3.select(this).remove();
-          })
-    )
-    .attr("class", "lines")
-    .attr("fill", "none")
-    .attr("stroke-width", lineWidth)
-    .attr("stroke", (d) => colors.getColor(d.party))
-    .attr("id", (d) => d.party)
-    .attr("opacity", lineOpacity);
+        .selectAll(".lines")
+        .data(facetPlotData)
+        .join(
+          (enter) =>
+          enter.append("path").attr("d", (d) => lineData(d.areas)),
+          (updateSel) => updateSel.attr("d", (d) => lineData(d.areas)),
+          (exit) =>
+            exit
+              .transition()
+              .duration(100)
+              .attr("d", (d) => lineData(d.areas))
+              .on("end", function linesOnEnd() {
+                d3.select(this).remove();
+              })
+        )
+        .attr("class", "lines")
+        .attr("fill", "none")
+        .attr("stroke-width", lineWidth)
+        .attr("stroke", (d) => colors.getColor(d.party))
+        .attr("id", (d) => d.party)
+        .attr("opacity", state.averages.render ? lineOpacity : 0);
       
-      
-        
-
-
       // Add a group for each series of dots
       plot
-      .selectAll(".dotHolder")
-      .data(facetPlotData)
-      .enter()
-      .append("g")
-      .attr("class", "dotHolder");
+        .selectAll(".dotHolder")
+        .data(facetPlotData)
+        .enter()
+        .append("g")
+        .attr("class", "dotHolder");
 
       // Add the polling circles
       plot
-      .selectAll(".dotHolder")
-      .selectAll("circle")
-      .data((d) => d.dots)
-      .join(
-        (enter) =>
-          enter
-            .append("circle")
-            //.attr("id", (d, i) => d.rowID + d.pollster)
-            .attr("cx", d => xScale(d.date))
-            .attr("cy", d => yScale(d.value)),
-        (update) =>
-          update
-            .attr("cx", (d) => xScale(d.date))
-            .attr("cy", (d) => yScale(d.value)),
-        (exit) =>
-          exit
-            .transition()
-            .duration(500)
-            .attr("r", 0)
-            .on("end", function circlesExitOnEnd() {
-              d3.select(this).remove();
-            })
-      )
-      .attr("r", dotSize)
-      .attr("fill", (d) => colors.getColor(d.party))
-      .attr("opacity", dotOpacity)  
+        .selectAll(".dotHolder")
+        .selectAll("circle")
+        .data((d) => d.dots)
+        .join(
+          (enter) =>
+            enter
+              .append("circle")
+              //.attr("id", (d, i) => d.rowID + d.pollster)
+              .attr("cx", d => xScale(d.date))
+              .attr("cy", d => yScale(d.value)),
+          (update) =>
+            update
+              .attr("cx", (d) => xScale(d.date))
+              .attr("cy", (d) => yScale(d.value)),
+          (exit) =>
+            exit
+              .transition()
+              .duration(500)
+              .attr("r", 0)
+              .on("end", function circlesExitOnEnd() {
+                d3.select(this).remove();
+              })
+        )
+        .attr("r", dotSize)
+        .attr("fill", (d) => colors.getColor(d.party))
+        .attr("opacity", state.polls.render ? dotOpacity : 0)  
     }
   });
 

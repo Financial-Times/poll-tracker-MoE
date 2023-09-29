@@ -227,10 +227,26 @@ facets
     const yScale = facet.node.chartLayout.yScale();
     const xScale = facet.node.chartLayout.xScale();
 
+    // Rewturns the lastt plotted date
+    const lastDate =
+    new Date(state.x.datetime_max) <
+    new Date(d3.extent(pollData, (d) => d.date)[1])
+      ? new Date(state.x.datetime_max)
+      : d3.extent(pollData, (d) => d.date)[1];
     
-    // Render the facet
+  // function to check if the last plotted date falls before the end of the x axis date range to adjust the right margin labelwidth accordingly
+  let newMargin;
+  const maxXDate = facet.node.chartLayout.xData().max;
+  if (lastDate.getTime() < maxXDate.getTime()) {
+    const labelOffset =
+      xScale(maxXDate) - xScale(lastDate);
+    newMargin = rightLabelWidth - labelOffset
+  }
+  else {newMargin = rightLabelWidth}
+
+  // Render the facet
     facet.node.chartLayout.update (
-      {margins: { right: rightLabelWidth }},
+      {margins: { right: newMargin }},
       renderFacets()
     )
     
@@ -304,7 +320,7 @@ facets
         .join(
           (enter) =>
           enter.append("path").attr("d", (d) => lineData(d.areas)),
-          (updateSel) => updateSel.attr("d", (d) => lineData(d.areas)),
+          (updateLines) => updateLines.attr("d", (d) => lineData(d.areas)),
           (exit) =>
             exit
               .transition()
@@ -341,8 +357,8 @@ facets
               //.attr("id", (d, i) => d.rowID + d.pollster)
               .attr("cx", d => xScale(d.date))
               .attr("cy", d => yScale(d.value)),
-          (update) =>
-            update
+          (updateDots) =>
+            updateDots
               .attr("cx", (d) => xScale(d.date))
               .attr("cy", (d) => yScale(d.value)),
           (exit) =>

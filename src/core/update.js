@@ -279,6 +279,8 @@ facets
       width < breakpoint
         ? state.averages.smallOpacity
         : state.averages.largeOpacity;
+    // Formatting for the label number
+    const formatLabel = d3.format(".1f");
 
     // set up area interpolation and area drawing function
     const areaData = d3
@@ -415,34 +417,72 @@ facets
     
     // Add the label
     plot
-    .selectAll(".labelHolder")
-    .selectAll("rect")
-    .data((d) => [d])
-    .join(
-      (enter) =>
-        enter
-          .append("rect")
-          .attr("height", rem)
-          .attr("y", (d) => {
-            console.log(rem)
-            return d.position - rem * 0.5})
-          .attr("x", () => xScale(lastDate) + rem * 0.3),
-      (updateRect) =>
-      updateRect
-          .attr("y", (d) => d.position - rem * 0.5)
-          .attr("x", () => xScale(lastDate) + rem * 0.3)
-          .attr("width", rem * 0.5),
-      (exit) =>
-        exit
-          .transition()
-          .attr("width", 0)
-          .on("end", function labelHolderRectExitOnEnd() {
-            d3.select(this).remove();
-          })
-    )
-    .attr("fill", (d) => colors.getColor(d.party))
-    .attr("height", rem)
-    .attr("width", rem * 0.5);
+      .selectAll(".labelHolder")
+      .selectAll("rect")
+      .data((d) => [d])
+      .join(
+        (enter) =>
+          enter
+            .append("rect")
+            .attr("height", rem)
+            .attr("y", (d) => {
+              console.log(rem)
+              return d.position - rem * 0.5})
+            .attr("x", () => xScale(lastDate) + rem * 0.3),
+        (updateRect) =>
+        updateRect
+            .attr("y", (d) => d.position - rem * 0.5)
+            .attr("x", () => xScale(lastDate) + rem * 0.3)
+            .attr("width", rem * 0.5),
+        (exit) =>
+          exit
+            .transition()
+            .attr("width", 0)
+            .on("end", function labelHolderRectExitOnEnd() {
+              d3.select(this).remove();
+            })
+      )
+      .attr("fill", (d) => colors.getColor(d.party))
+      .attr("height", rem)
+      .attr("width", rem * 0.5);
+  
+    // add the total labels
+    plot
+      .selectAll(".labelHolder")
+      .selectAll("text")
+      .data((d) => [d])
+      .join(
+        (enter) =>
+          enter
+            .append("text")
+            .attr("y", (d) => d.position + rem * 0.3)
+            .attr("x", () => xScale(lastDate) + rem),
+        (updateText) =>
+        updateText
+            .attr("y", (d) => d.position + rem * 0.3)
+            .attr("x", () => xScale(lastDate) + rem),
+        (exit) =>
+          exit
+            .transition()
+            .attr("opacity", 0)
+            .on("end", function labelHolderTextExitOnEnd() {
+              d3.select(this).remove();
+            })
+      )
+      .attr("font-weight", 600)
+      .attr("font-size", rem)
+      .style("fill", (d) => {
+        if (d.textColor) {
+          return d.textColor;
+        }
+        return colors.getColor(d.party);
+      })
+      .text((d) => {
+        if (width <= breakpoint) {
+          return `${d.displayNameMob} ${formatLabel(d.average)}`;
+        }
+        return `${d.displayNameDesk} ${formatLabel(d.average)}`;
+      });
 
   }
 

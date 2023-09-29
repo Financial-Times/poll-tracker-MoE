@@ -71,16 +71,19 @@ export default function update() {
 
   // Format the polling data so that it can be used to create global values and plot points
   const pollData = data.polls
-    .map((d, i) => {
-      const row = { date: parseDate(d.date), pollster: d.pollster, rowID: i, };
+    .sort((a, b) => parseDate(a.date) - parseDate(b.date))
+    .map((d, index) => {
+      const row = { date: parseDate(d.date), pollster: d.pollster, rowID: index, };
       columnNames.forEach((el, i) => {
         row[columnNames[i]] = Number.isNaN(d.value[i]) ? "" : Number(d.value[i]);
       });
       return row;
     })
-    .sort((a, b) => a.date - b.date);
 
-  const linesData = data.Lines.map((d) => {
+
+  const linesData = data.Lines
+  .sort((a, b) => parseDate(a.date) - parseDate(b.date))
+  .map((d) => {
     return {
       date: parseDate(d.date),
       party: d.party,
@@ -89,7 +92,7 @@ export default function update() {
       value: Number(d.value)
     }
   })
-  .sort((a, b) => a.date - b.date);
+
 
   // Create a global date extent array as this remains constant across all facets
   const dateExtent = d3.extent(pollData, (d) => d.date);
@@ -179,6 +182,7 @@ export default function update() {
   // Generate condition to be used to test if differing scales are needed on the y scale
   const sameY = state.facets.sameY
 
+  // Set up the fcates object
   facets
     .width(width)
     .height(height)
@@ -215,6 +219,8 @@ export default function update() {
   numberWidth +
   labelTuine;
 
+
+  // Intialise the axis and update the chart layout margin
   facet.node.chartLayout
     .width(facet.width)
     .height(facet.height)
@@ -278,6 +284,7 @@ export default function update() {
       width < breakpoint
         ? state.averages.smallOpacity
         : state.averages.largeOpacity;
+    
     // Formatting for the label number
     const formatLabel = d3.format(".1f");
 

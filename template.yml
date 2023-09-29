@@ -204,32 +204,6 @@ data:
     dataset: displayData
     type: column
     column: 'displayData::D'
-  - name: Date
-    description: date
-    key: date
-    dataset: averages
-    type: column
-    column: 'Averages::A'
-  - key: code # Property name in the dataset
-    name: code # Name to be displayed in the editor
-    dataset: averages # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Averages::B'
-  - key: geo # Property name in the dataset
-    name: Geo # Name to be displayed in the editor
-    dataset: averages # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Averages::C'
-  - key: race # Property name in the dataset
-    name: Race # Name to be displayed in the editor
-    dataset: averages # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Averages::C'
-  - key: value
-    name: Values
-    dataset: averages
-    type: columns
-    columns: "Averages::E-V"
   - key: date
     name: Date
     dataset: Lines

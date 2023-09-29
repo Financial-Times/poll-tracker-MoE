@@ -21,10 +21,12 @@ export default function draw() {
     .append("svg")
     .attr("width", width)
     .attr("height", height);
-  const grid = this.chart.append('g')
+  
+    const grid = this.chart.append('g')
 
   // Create the default Flourish colour pallettes
   this.colors = createColors(state.color);
+  this.colors.categorical_custom_palette = '<br /><hr />Party 1: red<br />Party 2: #4455AA<br />Party 3: rgb(30,168,26)'
 
   this.facets = initFacets(state.facets);
   this.facets.appendTo(grid.node()).debug(false);

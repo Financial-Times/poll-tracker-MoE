@@ -483,6 +483,8 @@ facets
         }
         return `${d.displayNameDesk} ${formatLabel(d.average)}`;
       });
+      console.log(colors)
+      console.log(colors.categorical_custom_palette)
 
   }
 

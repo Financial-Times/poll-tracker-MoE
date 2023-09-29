@@ -37,7 +37,11 @@ export default {
 		gridlines_visible: true,
 		gridline_color: '#ccc1b7'},
 	y2: {},
-	color: {domain: ['US', 'UK'], range: ['#f3d4c2','e3c1a5'],},
+	color: {
+		domain: ['con', 'lab'],
+		range: ['#149ADB','CF4D3C'],
+		categorical_custom_palette: 'con: #149ADB\nlab: #CF4D3C\nlib: #F09000\ngreen: #8DEB9D\nukip: #7200AB',
+	},
 	aspectRatio: "ratio",
 	aspect: { small: .8, desk: 1.6, breakpoint: 500 },
 	tuneLabel: 0,

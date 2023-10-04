@@ -75,7 +75,7 @@ export default function update() {
     .map((d, index) => {
       const row = { date: parseDate(d.date), pollster: d.pollster, rowID: index, };
       columnNames.forEach((el, i) => {
-        row[columnNames[i]] = Number.isNaN(d.value[i]) ? "" : Number(d.value[i]);
+        row[columnNames[i]] = isNaN(d.value[i]) ? "" : Number(d.value[i]);
       });
       return row;
     })
@@ -460,7 +460,7 @@ export default function update() {
             };
           })
           .sort((a, b) => b.value - a.value)
-          .filter((el) => el.value !== 0);
+          .filter((el) => el.value !== 0 || el.value === '');
 
         // Define other popup column firlds. Note that the element name (code) and not displayName defines the category this is so that
         // the party name can be coloured using the Flourish getColour. But the displayName appears in the rendered popup

@@ -55,6 +55,7 @@ export default {
 		decayOpacityDesk: 0.5,
 	  },
 	chart_bg: {},
+	axes_highlights: {}, // Add any properties to this object to override the default settings
     fixedHeight: false,
 	height: 550,
 	dateFormat: '%Y-%m-%d',

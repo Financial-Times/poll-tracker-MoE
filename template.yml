@@ -71,6 +71,9 @@ settings:
   - X axis
   - property: x
     import: "@flourish/chart-layout/x"
+  - Annotations
+  - property: axes_highlights
+    import: "@flourish/axes-highlights"
   - Date and tick formatting
   - property: dateFormat # property for storing the setting's value in the template's state
     name: Date format in dataset # Name appears above setting

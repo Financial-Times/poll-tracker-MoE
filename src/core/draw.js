@@ -7,6 +7,8 @@ import * as d3 from "d3";
 import createChartLayout from "@flourish/chart-layout";
 import createColors from "@flourish/colors";
 import initFacets from "@flourish/facets";
+import initAxesHighlights from "@flourish/axes-highlights";
+
 
 export default function draw() {
   const { layout, state } = this;
@@ -22,12 +24,13 @@ export default function draw() {
     .attr("width", width)
     .attr("height", height);
   
+    this.axesHighlights = initAxesHighlights(state.axes_highlights);
+
+  
     const grid = this.chart.append('g')
 
   // Create the default Flourish colour pallettes
   this.colors = createColors(state.color);
-  this.colors.categorical_custom_palette = '<br /><hr />Party 1: red<br />Party 2: #4455AA<br />Party 3: rgb(30,168,26)'
-
   this.facets = initFacets(state.facets);
   this.facets.appendTo(grid.node()).debug(false);
 

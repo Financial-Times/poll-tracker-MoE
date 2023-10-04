@@ -53,7 +53,7 @@ const positionLabels = (labels, spacing, alpha) => {
 };
 
 export default function update() {
-  const { colors, layout, chart, data, state, facets, props, } = this;
+  const { colors, layout, chart, data, state, facets, props, axesHighlights } = this;
 
   // /////////// DATA
 
@@ -259,13 +259,20 @@ export default function update() {
   )
       
   // Function that draws the each chart in the grid
-  function renderFacets() { 
+  function renderFacets() {
 
     //Return the plotData for this facet
     const facetPlotData = facet.data.plotData
     
     // Return the  scg plot object
+    
     const plot = d3.select(facet.node);
+
+    // Update the annotations
+    axesHighlights
+    .appendTo(plot)
+    .chartLayout(facet.node.chartLayout)
+    .update();
 
     // Assign the various rendering options for the lines, dots and areas
     const dotOpacity =

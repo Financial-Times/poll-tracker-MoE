@@ -482,30 +482,31 @@ export default function update() {
           });
           popup.popupDirections(["left", "right"]);
           popup.mouseover(dot, popData, popupCallback);
-          const selector = d.rowID;
+          const selector = Number(dot.id);
 
-    //   const dots = plot
-    //     .selectAll(".dotHolder")
-    //     .selectAll("circle")
-    //     .filter((item) => item.rowID === selector);
-    //   dots
-    //     .attr("r", dotSize * 2)
-    //     .attr("stroke", "#000000")
-    //     .attr("opacity", 1)
-    //     .attr("stroke-width", 1);
-    // })
-    // .on("mouseout", (ev, d) => {
-    //   popup.mouseout();
-    //   const selector = d.rowID;
-    //   const dots = plot
-    //     .selectAll(".dotHolder")
-    //     .selectAll("circle")
-    //     .filter((item) => item.rowID === selector);
-    //   dots
-    //     .attr("r", dotSize)
-    //     .attr("stroke", "none")
-    //     .attr("stroke-width", 0)
-    //     .attr("opacity", dotOpacity);
+          // Select all the dots from this particular poll via the row id
+          const dots = plot
+            .selectAll(".dotHolder")
+            .selectAll("circle")
+            .filter((item) => item.rowID === selector);
+          dots
+            .attr("r", dotSize * 2)
+            .attr("stroke", "#000000")
+            .attr("opacity", 1)
+            .attr("stroke-width", 1);
+      })
+        .on("mouseout", (ev, d) => {
+          console.log('d', d)
+          popup.mouseout();
+          const dots = plot
+            .selectAll(".dotHolder")
+            .selectAll("circle")
+            .filter((item) => item.rowID === d);
+          dots
+            .attr("r", dotSize)
+            .attr("stroke", "none")
+            .attr("stroke-width", 0)
+            .attr("opacity", dotOpacity);
     }); 
     
     // Create a group for each label

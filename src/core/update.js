@@ -53,7 +53,7 @@ const positionLabels = (labels, spacing, alpha) => {
 };
 
 export default function update() {
-  const { colors, layout, chart, data, state, facets, props, axesHighlights } = this;
+  const { colors, layout, chart, data, state, facets, props, axesHighlights, popup } = this;
 
   // /////////// DATA
 
@@ -79,6 +79,7 @@ export default function update() {
       });
       return row;
     })
+    console.log('pollData', pollData)
 
 
   const linesData = data.Lines
@@ -263,6 +264,7 @@ export default function update() {
 
     //Return the plotData for this facet
     const facetPlotData = facet.data.plotData
+    console.log('facetPlotData', facetPlotData)
     
     // Return the  scg plot object
     
@@ -358,6 +360,48 @@ export default function update() {
       .attr("id", (d) => d.party)
       .attr("opacity", state.averages.render ? lineOpacity : 0);
     
+    // date format for the popus
+    const popFormat = "%b %e %Y";
+    const popDate = timeFormat(popFormat);
+
+    // function for adding colour to the popup iyems category names
+    const popupCallback = (node) => {
+      if (!node) return;
+      // console.log(node.id);
+      const items = d3.select(`#${node.id}`).selectAll(".data-heading").nodes();
+      // eslint-disable-next-line
+      for (let i = 0; i < items.length; i++) {
+        const mobileName = d3.select(items[i]).text();
+        // console.log("mobileName", mobileName);
+        const partyData = displayData.filter(
+          (d) => d.displayNameMobile === mobileName
+        );
+        console.log(partyData)
+        // use alternative text colour if specified
+        const newTextColour = colors.getColor(partyData[0].party);
+          // partyData[0].altTextColor !== ""
+          //   ? partyData[0].altTextColor
+          //   : colors.getColor(partyData[0].party);
+        d3.select(items[i]).style("color", newTextColour);
+      }
+    };
+
+    // Set up label data, This is done before the circles are rendered so that the label data can be used in creating the popups
+    const labelData = facetPlotData
+      .map(({ areas, party, displayNameDesk, displayNameMob, textColor }) => {
+        const average = areas[areas.length - 1].value;
+        return {
+          party,
+          textColor,
+          displayNameDesk,
+          displayNameMob,
+          average,
+          // Set initial positions for each label
+          position: yScale(average),
+        };
+      })
+      .sort((a, b) => b.average - a.average);
+    
     // Add a group for each series of dots
     plot
       .selectAll(".dotHolder")
@@ -392,24 +436,77 @@ export default function update() {
             })
       )
       .attr("r", dotSize)
+      .attr('id', d =>  Number(d.rowID))
       .attr("fill", (d) => colors.getColor(d.party))
-      .attr("opacity", state.polls.render ? dotOpacity : 0)  
-    
-    // Set up label data
-    const labelData = facetPlotData
-      .map(({ areas, party, displayNameDesk, displayNameMob, textColor }) => {
-        const average = areas[areas.length - 1].value;
-        return {
-          party,
-          textColor,
-          displayNameDesk,
-          displayNameMob,
-          average,
-          // Set initial positions for each label
-          position: yScale(average),
+      .attr("opacity", state.polls.render ? dotOpacity : 0) 
+      .on("mouseover", function circlesOnMouseover(ev, d) {
+        const dot = this;
+        // Create the titel field for the popup  
+        const popFields = { name: "name" };
+        
+        // Filter the data with the same row (data from that particular poll)
+        const pollPopData = pollData.filter(
+          (el,) =>  el.rowID ===  Number(dot.id)
+        );
+
+        // build a dataset of party values that can be sorted before defining the popup column fields
+        const popUps = labelData
+          .map((el) => {
+            const partyLookup = displayData.filter((row) => row.party === el.party);
+            return {
+              name: el.party,
+              displayName: partyLookup[0].displayNameMobile,
+              value: pollPopData[0][el.party],
+            };
+          })
+          .sort((a, b) => b.value - a.value)
+          .filter((el) => el.value !== 0);
+
+        // Define other popup column firlds. Note that the element name (code) and not displayName defines the category this is so that
+        // the party name can be coloured using the Flourish getColour. But the displayName appears in the rendered popup
+        popUps.forEach((el) => {
+          popFields[el.name] = el.displayName;
+        });
+
+        // Number formatting for the popups
+        const format = d3.format(".1f");
+
+         // Set the column names using the definitions from the popFields object
+        popup.setColumnNames(popFields).update();
+        // Pass the sorted data to the popup as defined by the unique row ID the mouse is over
+        const popData = {
+          name: `${popDate(pollPopData[0].date)} <br>Pollster: ${pollPopData[0].pollster}`,
         };
-      })
-      .sort((a, b) => b.average - a.average);
+          popUps.forEach((el) => {
+            popData[el.name] = format(el.value);
+          });
+          popup.popupDirections(["left", "right"]);
+          popup.mouseover(dot, popData, popupCallback);
+          const selector = d.rowID;
+
+    //   const dots = plot
+    //     .selectAll(".dotHolder")
+    //     .selectAll("circle")
+    //     .filter((item) => item.rowID === selector);
+    //   dots
+    //     .attr("r", dotSize * 2)
+    //     .attr("stroke", "#000000")
+    //     .attr("opacity", 1)
+    //     .attr("stroke-width", 1);
+    // })
+    // .on("mouseout", (ev, d) => {
+    //   popup.mouseout();
+    //   const selector = d.rowID;
+    //   const dots = plot
+    //     .selectAll(".dotHolder")
+    //     .selectAll("circle")
+    //     .filter((item) => item.rowID === selector);
+    //   dots
+    //     .attr("r", dotSize)
+    //     .attr("stroke", "none")
+    //     .attr("stroke-width", 0)
+    //     .attr("opacity", dotOpacity);
+    }); 
     
     // Create a group for each label
     plot

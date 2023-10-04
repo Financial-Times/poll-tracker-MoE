@@ -8,6 +8,7 @@ import createChartLayout from "@flourish/chart-layout";
 import createColors from "@flourish/colors";
 import initFacets from "@flourish/facets";
 import initAxesHighlights from "@flourish/axes-highlights";
+import initialisePopup from "@flourish/info-popup";
 
 
 export default function draw() {
@@ -25,7 +26,6 @@ export default function draw() {
     .attr("height", height);
   
     this.axesHighlights = initAxesHighlights(state.axes_highlights);
-
   
     const grid = this.chart.append('g')
 
@@ -33,6 +33,7 @@ export default function draw() {
   this.colors = createColors(state.color);
   this.facets = initFacets(state.facets);
   this.facets.appendTo(grid.node()).debug(false);
+  this.popup = initialisePopup(this.state.popup);
 
   // update the main layout (not chart_layout) with holding svg etc
   this.props = {

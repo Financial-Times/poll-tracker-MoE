@@ -61,7 +61,7 @@ export function getDots(d, group) {
     const column = {};
     column.party = group;
     column.date = el.date;
-    column.rowID = el.rowID
+    column.rowID = Number(el.rowID)
     column.value = Number(el[group]);
     column.pollster = el.pollster;
     if (el[group]) {

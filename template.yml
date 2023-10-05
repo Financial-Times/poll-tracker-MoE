@@ -167,6 +167,12 @@ settings:
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"
+  - Footnote controls
+  - property: footnoteSwitch
+    name: Footnote switch
+    description: Generates an autmotic footnote giving tha latest poll in the dataset
+    type: boolean
+    width: quarter
 
 
 data:

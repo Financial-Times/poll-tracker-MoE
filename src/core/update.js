@@ -122,6 +122,21 @@ export default function update() {
     height = layout.getPrimaryHeight();
     layout.setHeight(null);
   }
+  
+  // Format for footnote date
+  const updateFormat = timeFormat("%b %e");
+  // Toggle that controls the automatic update of the footnote to include last polling date
+  if(state.footnoteSwitch) {
+    // chart_layout.xFormat(getDateFormat('years', chart_layout.xTicks()))
+    state.layout.footer_note = `Latest poll ${updateFormat(
+      pollData[pollData.length - 1].date
+    )}`;
+  }
+  else if (this.state.layout.footer_note === `Latest poll ${updateFormat(
+    pollData[pollData.length - 1].date
+  )}`)
+  {state.layout.footer_note = '';}
+
   chart
     .attr('width', width)
     .attr('height', height)
@@ -539,12 +554,7 @@ export default function update() {
               d3.select(this).remove();
             })
       )
-      .attr("fill", (d) => {
-        if (d.altTextColor) {
-          return d.altTextColor;
-        }
-        return colors.getColor(d.party);
-      })
+      .attr("fill", (d) => colors.getColor(d.party))
       .attr("height", rem)
       .attr("width", rem * 0.5);
   
@@ -591,4 +601,6 @@ export default function update() {
   });
   // Hides the facet title on single charts
   facets.hideTitle(facetNames[0])
+  
+
 }

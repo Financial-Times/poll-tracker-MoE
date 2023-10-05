@@ -68,6 +68,7 @@ export default {
 	legend_container: {},
 	legend_categorical: {swatch_width: 1.2, swatch_height: .3},
 	displayValues: {},
-	popup: {} // Add any properties to this object to override the default settings
+	popup: {},
+	footnoteSwitch: true,// Add any properties to this object to override the default settings
 
 };

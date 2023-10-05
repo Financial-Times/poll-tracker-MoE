@@ -79,8 +79,6 @@ export default function update() {
       });
       return row;
     })
-    console.log('pollData', pollData)
-
 
   const linesData = data.Lines
   .sort((a, b) => parseDate(a.date) - parseDate(b.date))
@@ -93,7 +91,6 @@ export default function update() {
       value: Number(d.value)
     }
   })
-
 
   // Create a global date extent array as this remains constant across all facets
   const dateExtent = d3.extent(pollData, (d) => d.date);
@@ -155,6 +152,7 @@ export default function update() {
     const plotData = parties.map((party) => {
       // Returns an object containing the party disply labels and text colours
       const viewData = displayData.find(({ party: p }) => party === p);
+      console.log('viewData', viewData)
       
       // Filter the lines data so tha just those with the parties for this facet are plotted
       const plotLines = linesData
@@ -165,11 +163,12 @@ export default function update() {
         party,
         displayNameMob: viewData.displayNameMobile,
         displayNameDesk: viewData.displayNameDesktop,
-        textColor: viewData.altTextColor,
+        altTextColor: viewData.altTextColor,
         dots: getDots(pollData, party),
         areas: getMoE(plotLines, party),
       };
     })
+    console.log('plotData', plotData)
 
     return {
       name: facetName,
@@ -264,7 +263,6 @@ export default function update() {
 
     //Return the plotData for this facet
     const facetPlotData = facet.data.plotData
-    console.log('facetPlotData', facetPlotData)
     
     // Return the  scg plot object
     
@@ -367,16 +365,14 @@ export default function update() {
     // function for adding colour to the popup iyems category names
     const popupCallback = (node) => {
       if (!node) return;
-      // console.log(node.id);
       const items = d3.select(`#${node.id}`).selectAll(".data-heading").nodes();
       // eslint-disable-next-line
       for (let i = 0; i < items.length; i++) {
+        console.log('displayData', displayData)
         const mobileName = d3.select(items[i]).text();
-        // console.log("mobileName", mobileName);
         const partyData = displayData.filter(
           (d) => d.displayNameMobile === mobileName
         );
-        console.log(partyData)
         // use alternative text colour if specified
         const newTextColour = colors.getColor(partyData[0].party);
           // partyData[0].altTextColor !== ""
@@ -388,11 +384,11 @@ export default function update() {
 
     // Set up label data, This is done before the circles are rendered so that the label data can be used in creating the popups
     const labelData = facetPlotData
-      .map(({ areas, party, displayNameDesk, displayNameMob, textColor }) => {
+      .map(({ areas, party, displayNameDesk, displayNameMob, altTextColor }) => {
         const average = areas[areas.length - 1].value;
         return {
           party,
-          textColor,
+          altTextColor,
           displayNameDesk,
           displayNameMob,
           average,
@@ -419,7 +415,7 @@ export default function update() {
         (enter) =>
           enter
             .append("circle")
-            //.attr("id", (d, i) => d.rowID + d.pollster)
+            .attr("id", (d, i) => d.rowID)
             .attr("cx", d => xScale(d.date))
             .attr("cy", d => yScale(d.value)),
         (updateDots) =>
@@ -436,7 +432,6 @@ export default function update() {
             })
       )
       .attr("r", dotSize)
-      .attr('id', d =>  Number(d.rowID))
       .attr("fill", (d) => colors.getColor(d.party))
       .attr("opacity", state.polls.render ? dotOpacity : 0) 
       .on("mouseover", function circlesOnMouseover(ev, d) {
@@ -446,7 +441,7 @@ export default function update() {
         
         // Filter the data with the same row (data from that particular poll)
         const pollPopData = pollData.filter(
-          (el,) =>  el.rowID ===  Number(dot.id)
+          (el,) =>  el.rowID === d
         );
 
         // build a dataset of party values that can be sorted before defining the popup column fields
@@ -482,13 +477,12 @@ export default function update() {
           });
           popup.popupDirections(["left", "right"]);
           popup.mouseover(dot, popData, popupCallback);
-          const selector = Number(dot.id);
 
           // Select all the dots from this particular poll via the row id
           const dots = plot
             .selectAll(".dotHolder")
             .selectAll("circle")
-            .filter((item) => item.rowID === selector);
+            .filter((item) => item.rowID === d);
           dots
             .attr("r", dotSize * 2)
             .attr("stroke", "#000000")
@@ -496,7 +490,6 @@ export default function update() {
             .attr("stroke-width", 1);
       })
         .on("mouseout", (ev, d) => {
-          console.log('d', d)
           popup.mouseout();
           const dots = plot
             .selectAll(".dotHolder")
@@ -507,7 +500,8 @@ export default function update() {
             .attr("stroke", "none")
             .attr("stroke-width", 0)
             .attr("opacity", dotOpacity);
-    }); 
+    });
+    console.log('labelData', labelData)
     
     // Create a group for each label
     plot
@@ -549,7 +543,12 @@ export default function update() {
               d3.select(this).remove();
             })
       )
-      .attr("fill", (d) => colors.getColor(d.party))
+      .attr("fill", (d) => {
+        if (d.altTextColor) {
+          return d.altTextColor;
+        }
+        return colors.getColor(d.party);
+      })
       .attr("height", rem)
       .attr("width", rem * 0.5);
   
@@ -579,8 +578,8 @@ export default function update() {
       .attr("font-weight", 600)
       .attr("font-size", rem)
       .style("fill", (d) => {
-        if (d.textColor) {
-          return d.textColor;
+        if (d.altTextColor) {
+          return d.altTextColor;
         }
         return colors.getColor(d.party);
       })

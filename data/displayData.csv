@@ -1,28 +1,28 @@
-party,colour,displaynameDeskTop,displaynameMobile
-con,#149ADB,Conservative,Con
-lab,#CF4D3C,Labour,Lab
-lib,#F09000,Lib Dems,LD
-ukip,#7200AB,Ukip,Ukip
-grn,#8DEB9D,Greens,Green
-snp,#FFDF00,SNP,SNP
-ref,#80CFD6,Reform,Ref
-pc,#5BA373,Plaid Cymru,PC
-ssp,#990900,SSP,SSP
-alba,#305EB8,Alba,Alba
-afu,#F6011E,All for Unity,AfU
-oth,#E0D9D5,Others,Others
-TRUE,#3DA4AA,TRUE,TRUE
-FALSE,#F25E2A,FALSE,FALSE
-dk,#E0D9D5,Don’t know,Don’t know
-yxdk,#3DA4AA,TRUE,TRUE
-nxdk,#F25E2A,FALSE,FALSE
-refuse,#E0D9D5,Refused,Refused
-wnv,#E0D9D5,Wouldn't Vote,WNV
-awap,#990900,Abolish,Abolish
-cducsu,#000000,CDU/CSU,CDU/CSU
-green,#36AA5B,Greens,Greens
-spd,#B80D00,SPD,SPD
-afd,#52C0FF,AfD,AfD
-fdp,#F5BB00,FDP,FDP
-left,#73008A,Left,Left
-cdu_csu,#000000,CDU/CSU,CDU/CSU
+party,altTextColor,displaynameDeskTop,displaynameMobile
+con,,Conservative,Con
+lab,#000000,Labour,Lab
+lib,,Lib Dems,LD
+ukip,,Ukip,Ukip
+grn,,Greens,Green
+snp,,SNP,SNP
+ref,,Reform,Ref
+pc,,Plaid Cymru,PC
+ssp,,SSP,SSP
+alba,,Alba,Alba
+afu,,All for Unity,AfU
+oth,,Others,Others
+TRUE,,TRUE,TRUE
+FALSE,,FALSE,FALSE
+dk,,Don’t know,Don’t know
+yxdk,,TRUE,TRUE
+nxdk,,FALSE,FALSE
+refuse,,Refused,Refused
+wnv,,Wouldn't Vote,WNV
+awap,,Abolish,Abolish
+cducsu,,CDU/CSU,CDU/CSU
+green,,Greens,Greens
+spd,,SPD,SPD
+afd,,AfD,AfD
+fdp,,FDP,FDP
+left,,Left,Left
+cdu_csu,,CDU/CSU,CDU/CSU

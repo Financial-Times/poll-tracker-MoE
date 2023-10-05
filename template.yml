@@ -192,8 +192,8 @@ data:
     dataset: displayData
     type: column
     column: 'displayData::A'
-  - key: colour
-    name: colour
+  - key: altTextColor
+    name: Alt text color
     dataset: displayData
     type: column
     column: 'displayData::B'

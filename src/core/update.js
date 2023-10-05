@@ -374,10 +374,10 @@ export default function update() {
           (d) => d.displayNameMobile === mobileName
         );
         // use alternative text colour if specified
-        const newTextColour = colors.getColor(partyData[0].party);
-          // partyData[0].altTextColor !== ""
-          //   ? partyData[0].altTextColor
-          //   : colors.getColor(partyData[0].party);
+        const newTextColour = 
+          partyData[0].altTextColor !== ""
+            ? partyData[0].altTextColor
+            : colors.getColor(partyData[0].party);
         d3.select(items[i]).style("color", newTextColour);
       }
     };

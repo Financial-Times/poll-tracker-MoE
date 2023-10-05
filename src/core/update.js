@@ -208,6 +208,7 @@ export default function update() {
   const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper'])
   : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
 
+  //Returns the range of numbers for the y axis
   const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
   valueExtent[0] = state.y.linear_min
   ? state.y.linear_min
@@ -231,7 +232,6 @@ export default function update() {
   getMaxTextWidth(labels, `${rem}px MetricWeb`) +
   numberWidth +
   labelTuine;
-
 
   // Intialise the axis and update the chart layout margin
   facet.node.chartLayout
@@ -348,6 +348,7 @@ export default function update() {
       .x((d) => xScale(d.date))
       .y((d) => yScale(d.value));
     
+    // Add the lines to the chart
     plot
       .selectAll(".lines")
       .data(facetPlotData)
@@ -469,7 +470,7 @@ export default function update() {
           .sort((a, b) => b.value - a.value)
           .filter((el) => el.value !== 0 || el.value === '');
 
-        // Define other popup column firlds. Note that the element name (code) and not displayName defines the category this is so that
+        // Define other popup fields. Note that the element name (code) and not displayName defines the category this is so that
         // the party name can be coloured using the Flourish getColour. But the displayName appears in the rendered popup
         popUps.forEach((el) => {
           popFields[el.name] = el.displayName;
@@ -478,8 +479,9 @@ export default function update() {
         // Number formatting for the popups
         const format = d3.format(".1f");
 
-         // Set the column names using the definitions from the popFields object
+         // Set the column fields using the definitions from the popFields object
         popup.setColumnNames(popFields).update();
+
         // Pass the sorted data to the popup as defined by the unique row ID the mouse is over
         const popData = {
           name: `${popDate(pollPopData[0].date)} <br>Pollster: ${pollPopData[0].pollster}`,
@@ -503,6 +505,7 @@ export default function update() {
       })
         .on("mouseout", (ev, d) => {
           popup.mouseout();
+          // Select all the dots from this particular poll via the row id
           const dots = plot
             .selectAll(".dotHolder")
             .selectAll("circle")
@@ -558,7 +561,7 @@ export default function update() {
       .attr("height", rem)
       .attr("width", rem * 0.5);
   
-    // add the total labels
+    // add the party name labels
     plot
       .selectAll(".labelHolder")
       .selectAll("text")
@@ -584,6 +587,7 @@ export default function update() {
       .attr("font-weight", 600)
       .attr("font-size", rem)
       .style("fill", (d) => {
+        // Conditionally set the color of the text depending on if an alternative colour is defined
         if (d.altTextColor) {
           return d.altTextColor;
         }
@@ -601,6 +605,5 @@ export default function update() {
   });
   // Hides the facet title on single charts
   facets.hideTitle(facetNames[0])
-  
 
 }

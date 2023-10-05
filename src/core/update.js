@@ -13,7 +13,6 @@ import { timeFormat } from "d3-time-format";
 import {
   extentMulti,
   getDots,
-  getlines,
   getMoE,
   getMaxTextWidth,
 } from "../parseData";

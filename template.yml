@@ -170,7 +170,7 @@ settings:
   - Footnote controls
   - property: footnoteSwitch
     name: Footnote switch
-    description: Generates an autmotic footnote giving tha latest poll in the dataset
+    description: Generates an automatic footnote giving the latest poll in the dataset
     type: boolean
     width: quarter
 

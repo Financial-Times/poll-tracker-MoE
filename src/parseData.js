@@ -53,13 +53,15 @@ export function extentMulti(data, columns) {
   }, {});
   return [ext.min, ext.max];
 }
+
 // A function that returns an array of poll data for a given party
 export function getDots(d, group) {
   const dotsData = [];
   d.forEach((el) => {
     const column = {};
-    column.name = group;
+    column.party = group;
     column.date = el.date;
+    column.rowID = Number(el.rowID)
     column.value = Number(el[group]);
     column.pollster = el.pollster;
     if (el[group]) {
@@ -69,50 +71,44 @@ export function getDots(d, group) {
   return dotsData;
 }
 
-export function getlines(d, group, displayNameDesk, joinPoints) {
+export function getlines(d, displayNameDesk) {
   // console.log('d and group',d,group)
   const lineData = [];
   d.forEach((el) => {
-    // console.log(el,i)
     const column = {};
     column.displayName = displayNameDesk;
-    column.name = group;
+    column.name = el.party;
     column.date = el.date;
-    column.value = +el[group];
-    if (el[group]) {
+    column.value = el.value;
+    if (el.value) {
       lineData.push(column);
     }
 
     // if(el[group] == false) {
     //     lineData.push(null)
     // }
-    if (el[group] === false && joinPoints === false) {
+    if (el.value === false) {
       lineData.push(null);
     }
   });
   return lineData;
 }
 
-export function getMoE(d, group, joinPoints) {
-  // console.log('d and group',d,group)
+export function getMoE(d, group,) {
   const areaData = [];
   d.forEach((el) => {
-    // console.log(el,i)
+    //console.log(el)
     const column = {};
-    column.name = group;
-    column.x = el.date;
-    column.y1 = +el[`${group}_upper`];
-    column.y0 = +el[`${group}_lower`];
-    if (el[group]) {
+    column.party = group;
+    column.date = el.date;
+    column.upper = el.upper;
+    column.lower = el.lower;
+    column.value = el.value;
+
+    if (el.party) {
       areaData.push(column);
     }
 
-    // if(el[group] == false) {
-    //     lineData.push(null)
-    // }
-    if (el[group] === false && joinPoints === false) {
-      areaData.push(null);
-    }
   });
   return areaData;
 }

@@ -25,6 +25,7 @@
     "@flourish/axes-highlights": "^3.1.6",
     "@flourish/chart-layout": "^9.3.1",
     "@flourish/colors": "^6.1.5",
+    "@flourish/facets": "^3.0.1",
     "@flourish/info-popup": "^5.0.0",
     "@flourish/layout": "^4.1.2",
     "@flourish/legend": "^6.5.3",

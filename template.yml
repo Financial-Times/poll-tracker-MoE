@@ -14,6 +14,52 @@ build:
     script: npm run sass
     directory: sass
 settings:
+  - Grid of charts
+  - property: gridKey
+    name: Grid key
+    type: boolean
+    style: buttons
+    choices:
+      - [ Single, false]
+      - [ Grid of charts, true] # The first item is the display value of dropdown, second argument is the value that will be stored
+  - property: facets
+    import: "@flourish/facets"
+  - property: facets.sameY
+    description: Ensure the y scale is the same across the grid
+    name: Same accross grid
+    type: boolean
+    new_section: 'Y AXIS'
+  - Chart proportions
+  - property: aspectRatio
+    name: Aspect ratio
+    type: string
+    style: buttons
+    choices:
+      - [Standard, "standard"] # The first item is the display value of dropdown, second argument is the value that will be stored
+      - [Aspect ratio, "ratio"]
+  - property: aspect.small
+    name: Small
+    type: number
+    width: quarter
+    show_if:
+      aspectRatio: ratio
+  - property: aspect.desk
+    name: Desktop
+    type: number
+    width: quarter
+    show_if:
+      aspectRatio: ratio
+  - property: aspect.breakpoint
+    name: Breakpoint
+    type: number
+    width: quarter
+    show_if:
+      aspectRatio: ratio
+  - property: tuneLabel
+    name: Tune label width
+    description: Fine tunes the width allowed for the candidate/party labels on the end of the lines +/- .
+    type: number
+    width: quarter
   - Colours
   - property: color
     import: "@flourish/colors"
@@ -25,6 +71,9 @@ settings:
   - X axis
   - property: x
     import: "@flourish/chart-layout/x"
+  - Annotations
+  - property: axes_highlights
+    import: "@flourish/axes-highlights"
   - Date and tick formatting
   - property: dateFormat # property for storing the setting's value in the template's state
     name: Date format in dataset # Name appears above setting
@@ -37,139 +86,160 @@ settings:
     type: string # Setting type
     width: half
   - Chart render options
-  - property: polls.smallSize
-    name: Dot size (small)
+  - property: polls.render
+    name: Toggle polls
+    description: Toggles the polling dots on and off
+    type: boolean
+    width: full
+    new_section: 'Polls'
+  - property: polls.sizeSmall
+    name: Dot size (mobile)
     description: Size of the small dots in px
     type: number
     width: quarter
-    new_section: 'Polls'
-  - property: polls.smallOpacity
-    name: Dot opacity (small)
+    show_if: polls.render
+  - property: polls.opacitySmall
+    name: Dot opacity (mobile)
     description: Opacity of the dots 0 - 1
     type: number
     width: quarter
-  - property: polls.largeSize
-    name: Dot size (large)
+    show_if: polls.render
+  - property: polls.sizeDesk
+    name: Dot size (desktop)
     description: Size of the large dots in px
     type: number
     width: quarter
-  - property: polls.largeOpacity
-    name: Dot opacity (large)
+    show_if: polls.render
+  - property: polls.opacityDesk
+    name: Dot opacity (desktop)
     description: Opacity of the dots 0 - 1
     type: number
     width: quarter
+    show_if: polls.render
+  - property: averages.render
+    name: Toggle lines
+    description: Toggles the average lines on and off
+    type: boolean
+    width: full
+    new_section: 'Average lines'
   - property: averages.smallStrokeWidth
     name: Stroke width (small)
     description: Width of the line stroke in px
     type: number
     width: quarter
-    new_section: 'Average lines'
+    show_if: averages.render
   - property: averages.smallOpacity
     name: Line opacity (small)
     description: Opacity of the line 0 - 1
     type: number
     width: quarter
+    show_if: averages.render
   - property: averages.largeStrokeWidth
     name: Stroke width (large)
     description: Width of the large line in px
     type: number
     width: quarter
+    show_if: averages.render
   - property: averages.largeOpacity
     name: Line opacity (large)
     description: Opacity of the line 0 - 1
     type: number
     width: quarter
+    show_if: averages.render
+  - property: moe.render
+    name: Toggle areas
+    description: Toggles the margin mof error areas on and off
+    type: boolean
+    width: full
+    new_section: 'Margin of error shading'
   - property: moe.opacityMob
     name: Opacity (mobile)
     description: Opacity of the shading 0 - 1
     type: number
     width: quarter
-    new_section: 'MoE shading'
+    show_if: moe.render
   - property: moe.opacityDesk
     name: Opacity (desktop)
     description: Opacity of the shading 0 - 1
     type: number
     width: quarter
+    show_if: moe.render
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"
-  # - Legend
-  # - property: legend_container
-  #   import: "@flourish/legend/container"
+  - Footnote controls
+  - property: footnoteSwitch
+    name: Footnote switch
+    description: Generates an automatic footnote giving the latest poll in the dataset
+    type: boolean
+    width: quarter
 
 
 data:
   - Binding description
+  - key: pollster # Property name in the dataset
+    name: Pollster # Name to be displayed in the editor
+    dataset: polls # Name of dataset
+    type: column # Are we selecting a single or multiple columns
+    column: "Polls::A" # Which column should be selected
   - name: Date
     description: name
     key: date
     dataset: polls
     type: column
-    column: 'Polls::G'
-  - key: house # Property name in the dataset
-    name: pollstar # Name to be displayed in the editor
-    dataset: polls # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: "Polls::H" # Which column should be selected
+    column: 'Polls::B'
   - key: value
     name: Values
     dataset: polls
     type: columns
-    columns: "Polls::J-O"
+    columns: "Polls::D-H"
   - key: party
     name: party
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::A'
-  - key: colour
-    name: colour
-    dataset: parties
+    column: 'displayData::A'
+  - key: altTextColor
+    name: Alt text color
+    dataset: displayData
     type: column
-    column: 'parties::B'
+    column: 'displayData::B'
   - key: displayNameDesktop
     name: Displayname desktop
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::C'
+    column: 'displayData::C'
   - key: displayNameMobile
     name: Displayname mobile
-    dataset: parties
+    dataset: displayData
     type: column
-    column: 'parties::D'
-  - name: Date
-    description: date
-    key: date
-    dataset: averages
+    column: 'displayData::D'
+  - key: date
+    name: Date
+    dataset: Lines
     type: column
-    column: 'Averages::A'
-  - key: code # Property name in the dataset
-    name: code # Name to be displayed in the editor
-    dataset: averages # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Averages::B'
-  - key: geo # Property name in the dataset
-    name: Geo # Name to be displayed in the editor
-    dataset: averages # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Averages::C'
-  - key: race # Property name in the dataset
-    name: Race # Name to be displayed in the editor
-    dataset: averages # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Averages::C'
+    column: 'Lines::A'
+  - key: facet
+    name: Facet
+    dataset: Lines
+    type: column
+    column: 'Lines::B'
+  - key: party
+    name: party
+    dataset: Lines
+    type: column
+    column: 'Lines::C'
   - key: value
     name: Values
-    dataset: averages
-    type: columns
-    columns: "Averages::E-V"
-  - name: Date
-    description: date
-    key: date
-    dataset: annotations
+    dataset: Lines
     type: column
-    column: 'Annotations::A'
-  - key: annotation # Property name in the dataset
-    name: Annotation # Name to be displayed in the editor
-    dataset: annotations # Name of dataset
-    type: column # Are we selecting a single or multiple columns
-    column: 'Annotations::B'
+    column: "Lines::D"
+  - key: lower
+    name: Lower
+    dataset: Lines
+    type: column
+    column: "Lines::E"
+  - key: upper
+    name: Upper
+    dataset: Lines
+    type: column
+    column: "Lines::F"

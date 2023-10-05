@@ -8,9 +8,8 @@
  */
 import * as d3 from "d3";
 import { getTextWidth } from "@flourish/pocket-knife";
-import initialisePopup from "@flourish/info-popup";
 import createChartLayout from "@flourish/chart-layout";
-import {timeParse, timeFormat } from "d3-time-format";
+import { timeFormat } from "d3-time-format";
 import {
   extentMulti,
   getDots,

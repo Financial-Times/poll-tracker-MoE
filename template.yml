@@ -1,8 +1,7 @@
 id: ftPollTrakerMarginOfError
-version: 0.1.4
 name: FT Poll Tracker (Margin of Error)
 description: FT custom template. Pool tracker that loads pre calculated weighted averages and margin of error lines
-author: 'Bob Haslett, ændra'
+author: "Bob Haslett, ændra"
 sdk_version: 3
 build:
   src:
@@ -20,15 +19,15 @@ settings:
     type: boolean
     style: buttons
     choices:
-      - [ Single, false]
-      - [ Grid of charts, true] # The first item is the display value of dropdown, second argument is the value that will be stored
+      - [Single, false]
+      - [Grid of charts, true] # The first item is the display value of dropdown, second argument is the value that will be stored
   - property: facets
     import: "@flourish/facets"
   - property: facets.sameY
     description: Ensure the y scale is the same across the grid
     name: Same accross grid
     type: boolean
-    new_section: 'Y AXIS'
+    new_section: "Y AXIS"
   - Chart proportions
   - property: aspectRatio
     name: Aspect ratio
@@ -64,7 +63,7 @@ settings:
   - property: color
     import: "@flourish/colors"
   - property: layout
-    import: '@flourish/layout'
+    import: "@flourish/layout"
   - Y axis
   - property: y
     import: "@flourish/chart-layout/y"
@@ -91,7 +90,7 @@ settings:
     description: Toggles the polling dots on and off
     type: boolean
     width: full
-    new_section: 'Polls'
+    new_section: "Polls"
   - property: polls.sizeSmall
     name: Dot size (mobile)
     description: Size of the small dots in px
@@ -121,7 +120,7 @@ settings:
     description: Toggles the average lines on and off
     type: boolean
     width: full
-    new_section: 'Average lines'
+    new_section: "Average lines"
   - property: averages.smallStrokeWidth
     name: Stroke width (small)
     description: Width of the line stroke in px
@@ -151,7 +150,7 @@ settings:
     description: Toggles the margin mof error areas on and off
     type: boolean
     width: full
-    new_section: 'Margin of error shading'
+    new_section: "Margin of error shading"
   - property: moe.opacityMob
     name: Opacity (mobile)
     description: Opacity of the shading 0 - 1
@@ -174,7 +173,6 @@ settings:
     type: boolean
     width: quarter
 
-
 data:
   - Binding description
   - key: pollster # Property name in the dataset
@@ -187,7 +185,7 @@ data:
     key: date
     dataset: polls
     type: column
-    column: 'Polls::B'
+    column: "Polls::B"
   - key: value
     name: Values
     dataset: polls
@@ -197,37 +195,37 @@ data:
     name: party
     dataset: displayData
     type: column
-    column: 'displayData::A'
+    column: "displayData::A"
   - key: altTextColor
     name: Alt text color
     dataset: displayData
     type: column
-    column: 'displayData::B'
+    column: "displayData::B"
   - key: displayNameDesktop
     name: Displayname desktop
     dataset: displayData
     type: column
-    column: 'displayData::C'
+    column: "displayData::C"
   - key: displayNameMobile
     name: Displayname mobile
     dataset: displayData
     type: column
-    column: 'displayData::D'
+    column: "displayData::D"
   - key: date
     name: Date
     dataset: Lines
     type: column
-    column: 'Lines::A'
+    column: "Lines::A"
   - key: facet
     name: Facet
     dataset: Lines
     type: column
-    column: 'Lines::B'
+    column: "Lines::B"
   - key: party
     name: party
     dataset: Lines
     type: column
-    column: 'Lines::C'
+    column: "Lines::C"
   - key: value
     name: Values
     dataset: Lines

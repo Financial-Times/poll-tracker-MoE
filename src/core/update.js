@@ -106,7 +106,7 @@ export default function update() {
   // update the proportions of the containing svg
   let width;
   let height;
-  // Use the layout setHeight functionality to control the aspect ration when .ration selected
+  // Use the layout setHeight functionality to control the aspect ration when 'ratio' selected
   if (this.state.aspectRatio === "ratio") {
     width = layout.getPrimaryWidth();
     // Use the breakpoint to determne which aspect ratio calculation is used
@@ -154,7 +154,7 @@ export default function update() {
   const facetData = facetNames.map((facetName) => {
 
     // Create a unique list of parties that are only plotted in this particular facet
-    const parties =state.gridKey
+    const parties = state.gridKey
     ? data.Lines
       .filter((row) =>  row.facet === facetName)
       .map( d => d.party)
@@ -215,7 +215,7 @@ export default function update() {
   ? state.y.linear_max
   : valueExtent[1];
 
-  //Chart layout created and updated if none exists. Nees to be updated before anything else so that te REM val;ue can be returned
+  //Chart layout created and updated if none exists. Needs to be updated before anything else so that a REM value can be returned
   if (!facet.node.chartLayout)  {
     facet.node.chartLayout = createChartLayout(facet.node, props).update();
   }
@@ -239,7 +239,7 @@ export default function update() {
     .xFormat(timeFormat(tickFotmat))
     .yData(valueExtent)
     .update( {margins: { right: rightLabelWidth }},
-      // Blank update is called so that the scales are initiated.
+      // Blank update is called so that the scales are initiated otherwise no scale are generated.
       // Also margin values have to be passed EVERY time chartLayout update is called
     )
   //Get the scales from the updated chartLayout

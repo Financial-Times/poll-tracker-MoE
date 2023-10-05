@@ -152,7 +152,6 @@ export default function update() {
     const plotData = parties.map((party) => {
       // Returns an object containing the party disply labels and text colours
       const viewData = displayData.find(({ party: p }) => party === p);
-      console.log('viewData', viewData)
       
       // Filter the lines data so tha just those with the parties for this facet are plotted
       const plotLines = linesData
@@ -168,7 +167,6 @@ export default function update() {
         areas: getMoE(plotLines, party),
       };
     })
-    console.log('plotData', plotData)
 
     return {
       name: facetName,
@@ -368,7 +366,6 @@ export default function update() {
       const items = d3.select(`#${node.id}`).selectAll(".data-heading").nodes();
       // eslint-disable-next-line
       for (let i = 0; i < items.length; i++) {
-        console.log('displayData', displayData)
         const mobileName = d3.select(items[i]).text();
         const partyData = displayData.filter(
           (d) => d.displayNameMobile === mobileName
@@ -501,7 +498,6 @@ export default function update() {
             .attr("stroke-width", 0)
             .attr("opacity", dotOpacity);
     });
-    console.log('labelData', labelData)
     
     // Create a group for each label
     plot

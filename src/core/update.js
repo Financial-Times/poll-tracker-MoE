@@ -475,7 +475,7 @@ export default function update() {
         });
 
         // Number formatting for the popups
-        const format = d3.format(".1f");
+        const format = d3.format(".0f");
 
          // Set the column fields using the definitions from the popFields object
         popup.setColumnNames(popFields).update();

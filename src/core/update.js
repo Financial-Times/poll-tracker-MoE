@@ -140,16 +140,15 @@ export default function update() {
     .attr('height', height)
   layout.update();
 
-  // define an array to contain the line labels
-  const labels = []
-  // Conditionally fill the labels array with correct line label depending of chart width
-  columnNames.forEach (party => {
-    const viewLabel = displayData.find(({ party: p }) => party === p);
-    if(width < breakpoint) {
-      labels.push(viewLabel.displayNameMobile)
-    }
-    labels.push(viewLabel.displayNameDesktop)
-  })
+  // create an array of the correct display labeles to measure overall label width
+  const labels =
+    width < breakpoint
+      ? displayData
+          .filter((el) => columnNames.includes(el.party))
+          .map((d) => d.displayNameMobile)
+      : displayData
+          .filter((el) => columnNames.includes(el.party))
+          .map((d) => d.displayNameDesktop);
 
   const facetData = facetNames.map((facetName) => {
 

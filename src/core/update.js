@@ -445,15 +445,15 @@ export default function update() {
       .attr("fill", (d) => colors.getColor(d.party))
       .attr("opacity", state.polls.render ? dotOpacity : 0) 
       .on("mouseover", function circlesOnMouseover(ev, d) {
+        const lookUp = ev.rowID
         const dot = this;
         // Create the titel field for the popup  
         const popFields = { name: "name" };
         
         // Filter the data with the same row (data from that particular poll)
         const pollPopData = pollData.filter(
-          (el,) =>  el.rowID === d
+          (el,) =>  el.rowID === lookUp
         );
-
         // build a dataset of party values that can be sorted before defining the popup column fields
         const popUps = labelData
           .map((el) => {
@@ -493,7 +493,7 @@ export default function update() {
           const dots = plot
             .selectAll(".dotHolder")
             .selectAll("circle")
-            .filter((item) => item.rowID === d);
+            .filter((item) => item.rowID === ev.rowID);
           dots
             .attr("r", dotSize * 2)
             .attr("stroke", "#000000")
@@ -506,7 +506,7 @@ export default function update() {
           const dots = plot
             .selectAll(".dotHolder")
             .selectAll("circle")
-            .filter((item) => item.rowID === d);
+            .filter((item) => item.rowID === ev.rowID);
           dots
             .attr("r", dotSize)
             .attr("stroke", "none")

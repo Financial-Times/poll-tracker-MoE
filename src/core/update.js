@@ -95,10 +95,13 @@ export default function update() {
     // Check for user overideas to the dateextent array
     dateExtent[0] = state.x.datetime_min
       ? new Date(state.x.datetime_min)
-      : d3.extent(linesData, (d) => d.date)[0];
+      : d3.extent(pollData, (d) => d.date)[0];
     dateExtent[1] = state.x.datetime_max
       ? new Date(state.x.datetime_max)
-      : d3.extent(linesData, (d) => d.date)[1];
+      : d3.extent(pollData, (d) => d.date)[1];
+  
+  //Fliter the data according to the dateExtent to avoid plotting lines etc outside theaxis margins
+
 
   // calculate and apply fixed height on breakpoint before rem calculation
   // or text on bars will jump when cross the tablet breakpoint. This is also used to determine the correct Formatdisplayname
@@ -175,8 +178,10 @@ export default function update() {
         displayNameMob: viewData.displayNameMobile,
         displayNameDesk: viewData.displayNameDesktop,
         altTextColor: viewData.altTextColor,
-        dots: getDots(pollData, party),
-        areas: getMoE(plotLines, party),
+        dots: getDots(pollData, party).filter((el) => el.date > dateExtent[0] && el.date,
+        dateExtent[1]),
+        areas: getMoE(plotLines, party).filter((el) => el.date > dateExtent[0] && el.date,
+        dateExtent[1]),
       };
     })
 
@@ -264,7 +269,7 @@ export default function update() {
 
   // Render the facet
   facet.node.chartLayout.update (
-    {margins: { right: newMargin }},
+    {margins: {right: newMargin }},
     renderFacets()
   )
       
@@ -276,7 +281,7 @@ export default function update() {
     
     // Return the  scg plot object
     
-    const plot = d3.select(facet.node);
+    const plot = d3.select(facet.node)
 
     // Update the annotations
     axesHighlights

@@ -349,6 +349,32 @@ export default function update() {
       .curve(interpolation)
       .x((d) => xScale(d.date))
       .y((d) => yScale(d.value));
+
+    const highlightStrokeWidth = width < breakpoint ? lineWidth + 6 : lineWidth + 4;
+    
+    // Add the stroke highlightlines to the chart
+     plot
+     .selectAll(".strokeLines")
+     .data(facetPlotData)
+     .join(
+       (enter) =>
+       enter.append("path").attr("d", (d) => lineData(d.areas)),
+       (updateLines) => updateLines.attr("d", (d) => lineData(d.areas)),
+       (exit) =>
+         exit
+           .transition()
+           .duration(100)
+           .attr("d", (d) => lineData(d.areas))
+           .on("end", function linesOnEnd() {
+             d3.select(this).remove();
+           })
+     )
+     .attr("class", "strokeLines")
+     .attr("fill", "none")
+     .attr("stroke-width", highlightStrokeWidth)
+     .attr("stroke", "#FFF1E5")
+     .attr("id", (d) => d.party)
+     .attr("opacity", 1)
     
     // Add the lines to the chart
     plot

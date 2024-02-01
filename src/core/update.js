@@ -282,7 +282,7 @@ export default function update() {
     
     const plot = d3.select(facet.node)
     let legendData = []
-    if (isMobile){
+    if (isMobile && state.show_legend_on_mobile){
       legendData = facetPlotData.map(d=> (
         {
           label: d.displayNameDesk, 

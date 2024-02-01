@@ -432,14 +432,12 @@ export default function update() {
     plot
       .selectAll(".dotHolder")
       .selectAll("circle")
-      .data((d) => d.dots)
+      .data((d) => state.polls.render ? d.dots : [])
       .join(
         (enter) =>
           enter
             .append("circle")
-            .attr("id", (d, i) => d.rowID)
-            .attr("cx", d => xScale(d.date))
-            .attr("cy", d => yScale(d.value)),
+            .attr("id", (d, i) => d.rowID),
         (updateDots) =>
           updateDots
             .attr("cx", (d) => xScale(d.date))
@@ -455,7 +453,7 @@ export default function update() {
       )
       .attr("r", dotSize)
       .attr("fill", (d) => colors.getColor(d.party))
-      .attr("opacity", state.polls.render ? dotOpacity : 0) 
+      .attr("opacity", dotOpacity ) 
       .on("mouseover", function circlesOnMouseover(ev, d) {
         const lookUp = ev.rowID
         const dot = this;

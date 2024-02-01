@@ -275,7 +275,7 @@ export default function update() {
     
     // Return the  scg plot object
     let legendData = []
-    if (isMobile){
+    if (isMobile && state.show_legend_on_mobile){
       legendData = facetPlotData.map(d=> (
         {
           label: d.displayNameDesk, 

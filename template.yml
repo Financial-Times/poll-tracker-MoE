@@ -1,7 +1,9 @@
+---
+
 id: ftPollTrakerMarginOfError
 name: FT Poll Tracker (Margin of Error)
 description: FT custom template. Pool tracker that loads pre calculated weighted averages and margin of error lines
-author: "Bob Haslett, ændra"
+author:  "Bob Haslett, ændra"
 sdk_version: 3
 build:
   src:
@@ -210,7 +212,8 @@ data:
     name: Displayname mobile
     dataset: displayData
     type: column
-    column: "displayData::D"
+    optional: true
+    column: "displayData::"
   - key: date
     name: Date
     dataset: Lines

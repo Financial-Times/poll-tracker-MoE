@@ -104,19 +104,18 @@ export default function update() {
   // or text on bars will jump when cross the tablet breakpoint. This is also used to determine the correct Formatdisplayname
   const breakpoint = state.layout.breakpoint_tablet;
   // update the proportions of the containing svg
-  let width;
+  let width = layout.getPrimaryWidth();
   let height;
+  const isMobile = width <= breakpoint
   // Use the layout setHeight functionality to control the aspect ration when 'ratio' selected
   if (this.state.aspectRatio === "ratio") {
-    width = layout.getPrimaryWidth();
     // Use the breakpoint to determne which aspect ratio calculation is used
     height =
-      width <= breakpoint
+    isMobile
         ? width / state.aspect.small
         : width / state.aspect.desk;
     this.layout.setHeight(height);
   } else {
-    width = layout.getPrimaryWidth();
     height = layout.getPrimaryHeight();
     layout.setHeight(null);
   }
@@ -142,7 +141,7 @@ export default function update() {
 
   // create an array of the correct display labeles to measure overall label width
   const labels =
-    width < breakpoint
+    isMobile
       ? displayData
           .filter((el) => columnNames.includes(el.party))
           .map((d) => d.displayNameMobile)
@@ -222,14 +221,14 @@ export default function update() {
   const rem = (layout.remToPx(100) / 100) * state.x.tick_label_size;
   const tickFotmat = state.tickFormat; // user defined x axis date format
   const labelTuine = state.tuneLabel; // Fine tunes the lable spacing on the lines
-  const numberWidth = getTextWidth(" WW.W", `${rem}px MetricWeb`); // Additional value that allows for the max width of figures on the end of the label
+  const numberWidth = getTextWidth("W.W", `${rem}px MetricWeb`); // Additional value that allows for the max width of figures on the end of the label
   
   // Updates the right hand margin based on the width of the longest label, this is kept common accross all facets so that y axis align in the grid
-  const rightLabelWidth =
-  getMaxTextWidth(labels, `${rem}px MetricWeb`) +
+  const mobileRightLabelWidth = numberWidth
+  const desktopRightLabelWidth = getMaxTextWidth(labels, `${rem}px MetricWeb`) +
   numberWidth +
   labelTuine;
-
+  const rightLabelWidth = isMobile ? mobileRightLabelWidth: desktopRightLabelWidth
   // Intialise the axis and update the chart layout margin
   facet.node.chartLayout
     .width(facet.width)
@@ -286,19 +285,19 @@ export default function update() {
 
     // Assign the various rendering options for the lines, dots and areas
     const dotOpacity =
-      width < breakpoint
+      isMobile
         ? state.polls.opacitySmall
         : state.polls.opacityDesk;
     const dotSize =
-      width < breakpoint ? state.polls.sizeSmall : state.polls.sizeDesk;
-    const areaOpacity = width < breakpoint ? state.moe.opacityMob
+      isMobile ? state.polls.sizeSmall : state.polls.sizeDesk;
+    const areaOpacity = isMobile ? state.moe.opacityMob
     : state.moe.opacityDesk
       const lineWidth =
-      width < breakpoint
+      isMobile
         ? state.averages.smallStrokeWidth
         : state.averages.largeStrokeWidth;
     const lineOpacity =
-      width < breakpoint
+      isMobile
         ? state.averages.smallOpacity
         : state.averages.largeOpacity;
     
@@ -407,7 +406,7 @@ export default function update() {
         };
       })
       .sort((a, b) => b.average - a.average);
-    
+
     // Add a group for each series of dots
     plot
       .selectAll(".dotHolder")
@@ -528,37 +527,38 @@ export default function update() {
       rem, // Minimum spacing between labels (increase for more space)
       0.5 // Amount to change label positon by each iteration
     );
-    
     // Add the label rects
-    plot
-      .selectAll(".labelHolder")
-      .selectAll("rect")
-      .data((d) => [d])
-      .join(
-        (enter) =>
-          enter
-            .append("rect")
-            .attr("height", rem)
-            .attr("y", d => d.position - rem * 0.5)
-            .attr("x", () => xScale(lastDate) + rem * 0.3),
-        (updateRect) =>
-        updateRect
-            .attr("y", (d) => d.position - rem * 0.5)
-            .attr("x", () => xScale(lastDate) + rem * 0.3)
-            .attr("width", rem * 0.5),
-        (exit) =>
-          exit
-            .transition()
-            .attr("width", 0)
-            .on("end", function labelHolderRectExitOnEnd() {
-              d3.select(this).remove();
-            })
-      )
-      .attr("fill", (d) => colors.getColor(d.party))
-      .attr("height", rem)
-      .attr("width", rem * 0.5);
-  
+    const thirdRem = rem * 0.3
+    if (!isMobile){
+      plot
+        .selectAll(".labelHolder")
+        .selectAll("rect")
+        .data((d) => [d])
+        .join(
+          (enter) =>
+            enter
+              .append("rect")
+              .attr("height", rem),
+          (updateRect) =>
+          updateRect
+              .attr("y", (d) => d.position - rem * 0.5)
+              .attr("x", () => xScale(lastDate) + thirdRem)
+              .attr("width", rem * 0.5),
+          (exit) =>
+            exit
+              .transition()
+              .attr("width", 0)
+              .on("end", function labelHolderRectExitOnEnd() {
+                d3.select(this).remove();
+              })
+        )
+        .attr("fill", (d) => colors.getColor(d.party))
+        .attr("height", rem)
+        .attr("width", rem * 0.5);
+    }
     // add the party name labels
+
+    const label_offset = width >= breakpoint ? rem : thirdRem
     plot
       .selectAll(".labelHolder")
       .selectAll("text")
@@ -566,13 +566,11 @@ export default function update() {
       .join(
         (enter) =>
           enter
-            .append("text")
-            .attr("y", (d) => d.position + rem * 0.3)
-            .attr("x", () => xScale(lastDate) + rem),
+            .append("text"),
         (updateText) =>
         updateText
-            .attr("y", (d) => d.position + rem * 0.3)
-            .attr("x", () => xScale(lastDate) + rem),
+            .attr("y", (d) => d.position + thirdRem)
+            .attr("x", () => xScale(lastDate) + label_offset),
         (exit) =>
           exit
             .transition()
@@ -591,8 +589,9 @@ export default function update() {
         return colors.getColor(d.party);
       })
       .text((d) => {
-        if (width <= breakpoint) {
-          return `${d.displayNameMob} ${formatLabel(d.average)}`;
+        if (isMobile) {
+          const text = d.displayNameMob || ""
+          return `${text} ${formatLabel(d.average)}`;
         }
         return `${d.displayNameDesk} ${formatLabel(d.average)}`;
       });

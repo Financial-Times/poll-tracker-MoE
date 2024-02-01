@@ -29,6 +29,7 @@ export const appFactory = (drawFunc, updateFunc) => {
   app.legendContainer = createLegendContainer(state.legend_container);
 
   const legendCategorical = createDiscreteColorLegend(state.legend_categorical);
+  app.legendCategorical = legendCategorical
   app.legendContainer
     .appendTo(app.layout.getSection("legend"))
     .add([legendCategorical]);

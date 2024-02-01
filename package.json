@@ -28,7 +28,7 @@
     "@flourish/facets": "^3.0.1",
     "@flourish/info-popup": "^5.0.0",
     "@flourish/layout": "^4.1.2",
-    "@flourish/legend": "^6.5.3",
+    "@flourish/legend": "^6.6.1",
     "@flourish/pocket-knife": "^0.8.0",
     "d3": "^5.16.0",
     "d3-shape": "^3.2.0",

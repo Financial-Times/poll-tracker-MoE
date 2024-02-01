@@ -51,7 +51,7 @@ const positionLabels = (labels, spacing, alpha) => {
 };
 
 export default function update() {
-  const { colors, layout, chart, data, state, facets, props, axesHighlights, popup } = this;
+  const { colors, layout, chart, data, state, facets, props, axesHighlights, popup, legendCategorical, legendContainer} = this;
 
   // /////////// DATA
 
@@ -274,7 +274,20 @@ export default function update() {
     const facetPlotData = facet.data.plotData
     
     // Return the  scg plot object
-    
+    let legendData = []
+    if (isMobile){
+      legendData = facetPlotData.map(d=> (
+        {
+          label: d.displayNameDesk, 
+          color: colors.getColor(d.party)
+        }
+      ))
+    }
+
+    legendCategorical.data(legendData);
+    legendContainer.update()
+
+
     const plot = d3.select(facet.node);
 
     // Update the annotations
@@ -557,7 +570,6 @@ export default function update() {
         .attr("width", rem * 0.5);
     }
     // add the party name labels
-
     const label_offset = width >= breakpoint ? rem : thirdRem
     plot
       .selectAll(".labelHolder")

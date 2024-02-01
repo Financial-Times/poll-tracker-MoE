@@ -4,7 +4,6 @@
  */
 
 import * as d3 from "d3";
-import createChartLayout from "@flourish/chart-layout";
 import createColors from "@flourish/colors";
 import initFacets from "@flourish/facets";
 import initAxesHighlights from "@flourish/axes-highlights";

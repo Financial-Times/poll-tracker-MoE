@@ -223,7 +223,7 @@ data:
     dataset: displayData
     type: column
     optional: true
-    column: "displayData::"
+    column: "displayData::C"
   - key: date
     name: Date
     dataset: Lines

@@ -226,10 +226,11 @@ export default function update() {
   const rem = (layout.remToPx(100) / 100) * state.x.tick_label_size;
   const tickFotmat = state.tickFormat; // user defined x axis date format
   const labelTuine = state.tuneLabel; // Fine tunes the lable spacing on the lines
-  const numberWidth = getTextWidth("W.W", `${rem}px MetricWeb`); // Additional value that allows for the max width of figures on the end of the label
+  const numberWidth = getTextWidth(" WW.W", `${rem}px MetricWeb`); // Additional value that allows for the max width of figures on the end of the label
   
+  const showMobileDisplayNames = displayData.column_names.displayNameMobile && !state.show_legend_on_mobile 
   // Updates the right hand margin based on the width of the longest label, this is kept common accross all facets so that y axis align in the grid
-  const mobileRightLabelWidth = numberWidth
+  const mobileRightLabelWidth = showMobileDisplayNames ? getMaxTextWidth(labels, `${rem}px MetricWeb`) + numberWidth : numberWidth
   const desktopRightLabelWidth = getMaxTextWidth(labels, `${rem}px MetricWeb`) +
   numberWidth +
   labelTuine;
@@ -632,7 +633,8 @@ export default function update() {
       })
       .text((d) => {
         if (isMobile) {
-          const text = d.displayNameMob || ""
+          const mobileDisplayName = d.displayNameMob || ""
+          const text = state.show_legend_on_mobile ?  "" : mobileDisplayName
           return `${text} ${formatLabel(d.average)}`;
         }
         return `${d.displayNameDesk} ${formatLabel(d.average)}`;

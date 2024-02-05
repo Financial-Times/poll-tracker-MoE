@@ -13,10 +13,25 @@ import {updateAreas} from './areas'
 import { updateLegend } from "./legend";
 import { getLabelData } from "./getLabelData";
 import {getValueExtent} from "./getValueExtent"
-import { updateFacets } from "./updateFacets";
 
 
-export const updateFacets = (facet) => {
+export const updateFacets = ({
+    facet, 
+    colors, 
+    layout, 
+    width,
+    pollData,
+    linesData,
+    state,
+    props,
+    columnNames,
+    dateExtent,
+    displayData,
+    axesHighlights,
+    popup,
+    legendCategorical,
+    legendContainer
+  }) => {
 
     const isMobile = width <= state.layout.breakpoint_tablet;
   //Returns the range of numbers for the y axis
@@ -31,8 +46,6 @@ export const updateFacets = (facet) => {
   const tickFotmat = state.tickFormat; // user defined x axis date format
   const labelTuine = state.tuneLabel; // Fine tunes the lable spacing on the lines
   const numberWidth = getTextWidth(" WW.W", `${rem}px MetricWeb`); // Additional value that allows for the max width of figures on the end of the label
-  
-
 
   // create an array of the correct display labeles to measure overall label width
   const labels =

@@ -46,14 +46,17 @@ export default function update() {
     .update((facet) => updateFacets({
         facet, 
         colors, 
+        width,
         layout, 
-        chart,
-        data,
         state,
-        facets,
+        pollData,
+        linesData,
         props,
         axesHighlights,
+        columnNames,
+        dateExtent,
         popup,
+        displayData,
         legendCategorical,
         legendContainer
       }))

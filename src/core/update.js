@@ -22,6 +22,7 @@ import {updateDots} from './dots'
 import { updateAxesHighlights } from "./axesHighlights";
 import {updateAreas} from './areas'
 import { updateLegend } from "./legend";
+import { getFacetData } from "./getFacetData";
 
 
 
@@ -127,44 +128,9 @@ export default function update() {
           .filter((el) => columnNames.includes(el.party))
           .map((d) => d.displayNameDesktop);
 
-  const facetData = facetNames.map((facetName) => {
 
-    // Create a unique list of parties that are only plotted in this particular facet
-    const parties = state.gridKey
-    ? data.Lines
-      .filter((row) =>  row.facet === facetName)
-      .map( d => d.party)
-      .filter((item, pos, parties) => parties.indexOf(item) === pos)
-    : columnNames
+  const facetData = getFacetData({facetNames, state, data, displayData, linesData, pollData, dateExtent})
 
-    // Build the plot object containing data to be rendered for each facet
-    const plotData = parties.map((party) => {
-      // Returns an object containing the party disply labels and text colours
-      const viewData = displayData.find(({ party: p }) => party === p);
-      
-      // Filter the lines data so tha just those with the parties for this facet are plotted
-      const plotLines = linesData
-      .filter((lineRow) => {
-        return lineRow.party === party;
-      })
-      return {
-        party,
-        displayNameMob: viewData.displayNameMobile,
-        displayNameDesk: viewData.displayNameDesktop,
-        altTextColor: viewData.altTextColor,
-        dots: getDots(pollData, party).filter((el) => el.date > dateExtent[0] && el.date,
-        dateExtent[1]),
-        areas: getMoE(plotLines, party).filter((el) => el.date > dateExtent[0] && el.date,
-        dateExtent[1]),
-      };
-    })
-
-    return {
-      name: facetName,
-      parties: parties, //list of the parties to be displayed in that particular facet
-      plotData: plotData,
-    }
-  })
 
   // //// RENDER
 
@@ -232,15 +198,14 @@ export default function update() {
     ? new Date(state.x.datetime_max)
     : d3.extent(pollData, (d) => d.date)[1];
       
-  // function to check if the last plotted date falls before the end of the x axis date range to adjust the right margin labelwidth accordingly
-  let newMargin;
-  const maxXDate = facet.node.chartLayout.xData().max;
-  if (lastDate.getTime() < maxXDate.getTime()) {
-    const labelOffset =
-      xScale(maxXDate) - xScale(lastDate);
-    newMargin = rightLabelWidth - labelOffset
-  }
-  else {newMargin = rightLabelWidth}
+    let newMargin;
+    const maxXDate = facet.node.chartLayout.xData().max;
+    if (lastDate.getTime() < maxXDate.getTime()) {
+      const labelOffset =
+        xScale(maxXDate) - xScale(lastDate);
+      newMargin = rightLabelWidth - labelOffset
+    }
+    else {newMargin = rightLabelWidth}
 
   // Render the facet
   facet.node.chartLayout.update (

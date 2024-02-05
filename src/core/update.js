@@ -25,6 +25,7 @@ import { getLinesData } from "./getLinesData";
 import { getPollData } from "./getPollData";
 import {updateHeight} from './height'
 import { getDateExtent } from "./getDateExtent";
+import { getLabelData } from "./getLabelData";
 
 
 
@@ -39,7 +40,7 @@ export default function update() {
   : [""]
 
   const columnNames = data.polls.column_names.value;
-  
+
   colors.updateColorScale(columnNames);
 
   const { displayData } = this.data;
@@ -168,7 +169,6 @@ export default function update() {
       
   // Function that draws the each chart in the grid
   function renderFacets() {
-
     const props = {
       isMobile, 
       state, 
@@ -177,33 +177,16 @@ export default function update() {
       xScale, 
       yScale
     }
+
     updateLegend({...props, legendCategorical, legendContainer})
     updateAxesHighlights({...props, axesHighlights})
     updateAreas({ ...props})
 
-    //Return the plotData for this facet
-    const facetPlotData = facet.data.plotData
     // Set up label data, This is done before the circles are rendered so that the label data can be used in creating the popups
-    const labelData = facetPlotData
-      .map(({ areas, party, displayNameDesk, displayNameMob, altTextColor }) => {
-        const average = areas[areas.length - 1].value;
-        return {
-          party,
-          altTextColor,
-          displayNameDesk,
-          displayNameMob,
-          average,
-          // Set initial positions for each label
-          position: yScale(average),
-        };
-      })
-      .sort((a, b) => b.average - a.average);
-
-
-
+    const labelData = getLabelData(facet, yScale)
     updateDots({...props, popup, labelData, displayData, pollData})
     updateLines({...props})
-    updateLabels({...props, lastDate, showLegendOnMobile:state.showLegendOnMobile, rem, labelData})
+    updateLabels({...props, lastDate, rem, labelData})
     
   }
 

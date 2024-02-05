@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-export function updateLabels({facet, rem, isMobile, labelData, colors, xScale, lastDate, showLegendOnMobile}){
+export function updateLabels({facet, state, rem, isMobile, labelData, colors, xScale, lastDate}){
     // Return the  scg plot object
     const plot = d3.select(facet.node)
     // Create a group for each label
@@ -82,7 +82,7 @@ export function updateLabels({facet, rem, isMobile, labelData, colors, xScale, l
       .text((d) => {
         if (isMobile) {
           const mobileDisplayName = d.displayNameMob || ""
-          const text = showLegendOnMobile ?  "" : mobileDisplayName
+          const text = state.showLegendOnMobile ?  "" : mobileDisplayName
           return `${text} ${formatLabel(d.average)}`;
         }
         return `${d.displayNameDesk} ${formatLabel(d.average)}`;

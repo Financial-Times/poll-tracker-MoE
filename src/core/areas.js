@@ -1,7 +1,10 @@
 import * as d3 from "d3";
 
-export function updateAreas({plot, facetPlotData, state, isMobile, xScale, yScale, colors}){
-
+export function updateAreas({facet, state, isMobile, xScale, yScale, colors}){
+    //Return the plotData for this facet
+    const facetPlotData = facet.data.plotData
+    // Return the  scg plot object
+    const plot = d3.select(facet.node)
 
     const areaOpacity = isMobile ? state.moe.opacityMob
     : state.moe.opacityDesk

@@ -21,6 +21,7 @@ import { updateLines } from "./lines";
 import {updateDots} from './dots'
 import { updateAxesHighlights } from "./axesHighlights";
 import {updateAreas} from './areas'
+import { updateLegend } from "./legend";
 
 
 
@@ -250,32 +251,20 @@ export default function update() {
   // Function that draws the each chart in the grid
   function renderFacets() {
 
+    const props = {
+      isMobile, 
+      state, 
+      colors, 
+      facet, 
+      xScale, 
+      yScale
+    }
+    updateLegend({...props, legendCategorical, legendContainer})
+    updateAxesHighlights({...props, axesHighlights})
+    updateAreas({ ...props})
+
     //Return the plotData for this facet
     const facetPlotData = facet.data.plotData
-    
-    // Return the  scg plot object
-    
-    const plot = d3.select(facet.node)
-    let legendData = []
-    if (isMobile && state.showLegendOnMobile){
-      legendData = facetPlotData.map(d=> (
-        {
-          label: d.displayNameDesk, 
-          color: colors.getColor(d.party)
-        }
-      ))
-    }
-
-    legendCategorical.data(legendData);
-    legendContainer.update()
-
-
-    updateAxesHighlights({axesHighlights, plot, facet})
-    updateAreas({plot, facetPlotData, state, isMobile, xScale, yScale, colors})
-
-    
-
-
     // Set up label data, This is done before the circles are rendered so that the label data can be used in creating the popups
     const labelData = facetPlotData
       .map(({ areas, party, displayNameDesk, displayNameMob, altTextColor }) => {
@@ -294,9 +283,9 @@ export default function update() {
 
 
 
-    updateDots({plot, facetPlotData,state, xScale,yScale, pollData, isMobile, colors, popup, labelData, displayData})
-    updateLines({plot, facetPlotData, colors, isMobile, state, xScale, yScale})
-    updateLabels({plot, rem, isMobile, labelData, colors, xScale, lastDate, showLegendOnMobile:state.showLegendOnMobile})
+    updateDots({...props, popup, labelData, displayData, pollData})
+    updateLines({...props})
+    updateLabels({...props, lastDate, showLegendOnMobile:state.showLegendOnMobile, rem, labelData})
     
   }
 

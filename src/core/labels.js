@@ -1,6 +1,8 @@
 import * as d3 from "d3";
 
-export function updateLabels({plot, rem, isMobile, labelData, colors, xScale, lastDate, showLegendOnMobile}){
+export function updateLabels({facet, rem, isMobile, labelData, colors, xScale, lastDate, showLegendOnMobile}){
+    // Return the  scg plot object
+    const plot = d3.select(facet.node)
     // Create a group for each label
     plot
       .selectAll(".labelHolder")

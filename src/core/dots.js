@@ -1,8 +1,11 @@
 import * as d3 from "d3";
 import { timeFormat } from "d3-time-format";
 
-export function updateDots({plot, facetPlotData,state, xScale,yScale, pollData, isMobile, colors, popup, labelData, displayData}){
-
+export function updateDots({facet, state, xScale,yScale, pollData, isMobile, colors, popup, labelData, displayData}){
+    //Return the plotData for this facet
+    const facetPlotData = facet.data.plotData
+    // Return the  scg plot object
+    const plot = d3.select(facet.node)
     // date format for the popus
     const popFormat = "%b %e %Y";
     const popDate = timeFormat(popFormat);

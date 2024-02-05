@@ -3,7 +3,7 @@ import {
     getMoE,
   } from "../parseData";
 
-export function getFacetData({facetNames, state, data, displayData, linesData, pollData, dateExtent}){
+export function getFacetData({facetNames, state, data, linesData, pollData, dateExtent}){
     //Fliter the data according to the dateExtent to avoid plotting lines etc outside theaxis margins
 
     const columnNames = data.polls.column_names.value;
@@ -20,7 +20,7 @@ export function getFacetData({facetNames, state, data, displayData, linesData, p
         // Build the plot object containing data to be rendered for each facet
         const plotData = parties.map((party) => {
           // Returns an object containing the party disply labels and text colours
-          const viewData = displayData.find(({ party: p }) => party === p);
+          const viewData = data.displayData.find(({ party: p }) => party === p);
           
           // Filter the lines data so tha just those with the parties for this facet are plotted
           const plotLines = linesData

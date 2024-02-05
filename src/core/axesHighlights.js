@@ -1,6 +1,6 @@
 
 
-export function updateAxesHighlights(axesHighlights, plot, facet){
+export function updateAxesHighlights({axesHighlights, plot, facet}){
     // Update the annotations
     axesHighlights
     .appendTo(plot)

@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-export function updateLines(plot, facetPlotData, colors, isMobile, state, xScale, yScale){
+export function updateLines({plot, facetPlotData, colors, isMobile, state, xScale, yScale}){
     const lineWidth =
     isMobile
       ? state.averages.smallStrokeWidth

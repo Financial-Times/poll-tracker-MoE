@@ -4,6 +4,8 @@ import {
   } from "../parseData";
 
 export function getFacetData({facetNames, state, data, displayData, linesData, pollData, dateExtent}){
+    //Fliter the data according to the dateExtent to avoid plotting lines etc outside theaxis margins
+
     const columnNames = data.polls.column_names.value;
     return facetNames.map((facetName) => {
 

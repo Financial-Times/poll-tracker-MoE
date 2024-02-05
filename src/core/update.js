@@ -23,6 +23,8 @@ import { updateLegend } from "./legend";
 import { getFacetData } from "./getFacetData";
 import { getLinesData } from "./getLinesData";
 import { getPollData } from "./getPollData";
+import {updateHeight} from './height'
+import { getDateExtent } from "./getDateExtent";
 
 
 
@@ -35,49 +37,21 @@ export default function update() {
   const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
   .filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
   : [""]
-  
+
   const columnNames = data.polls.column_names.value;
+  
   colors.updateColorScale(columnNames);
 
   const { displayData } = this.data;
 
   // Format the polling data so that it can be used to create global values and plot points
   const pollData = getPollData(data, state)
-
   const linesData = getLinesData(data, state)
 
-  // Create a global date extent array as this remains constant across all facets
-  const dateExtent = d3.extent(pollData, (d) => d.date);
-    // Check for user overideas to the dateextent array
-    dateExtent[0] = state.x.datetime_min
-      ? new Date(state.x.datetime_min)
-      : d3.extent(pollData, (d) => d.date)[0];
-    dateExtent[1] = state.x.datetime_max
-      ? new Date(state.x.datetime_max)
-      : d3.extent(pollData, (d) => d.date)[1];
-  
-  //Fliter the data according to the dateExtent to avoid plotting lines etc outside theaxis margins
+  const dateExtent = getDateExtent(pollData, state)
 
-
-  // calculate and apply fixed height on breakpoint before rem calculation
-  // or text on bars will jump when cross the tablet breakpoint. This is also used to determine the correct Formatdisplayname
-  const breakpoint = state.layout.breakpoint_tablet;
-  // update the proportions of the containing svg
-  let width = layout.getPrimaryWidth();
-  let height;
-  const isMobile = width <= breakpoint
-  // Use the layout setHeight functionality to control the aspect ration when 'ratio' selected
-  if (this.state.aspectRatio === "ratio") {
-    // Use the breakpoint to determne which aspect ratio calculation is used
-    height =
-    isMobile
-        ? width / state.aspect.small
-        : width / state.aspect.desk;
-    this.layout.setHeight(height);
-  } else {
-    height = layout.getPrimaryHeight();
-    layout.setHeight(null);
-  }
+  const {width, height} = updateHeight(state, layout)
+  const isMobile = width <= state.layout.breakpoint_tablet;
   
   // Format for footnote date
   const updateFormat = timeFormat("%b %e");

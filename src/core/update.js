@@ -12,8 +12,6 @@ import createChartLayout from "@flourish/chart-layout";
 import { timeFormat } from "d3-time-format";
 import {
   extentMulti,
-  getDots,
-  getMoE,
   getMaxTextWidth,
 } from "../parseData";
 import {updateLabels} from './labels'
@@ -23,6 +21,8 @@ import { updateAxesHighlights } from "./axesHighlights";
 import {updateAreas} from './areas'
 import { updateLegend } from "./legend";
 import { getFacetData } from "./getFacetData";
+import { getLinesData } from "./getLinesData";
+import { getPollData } from "./getPollData";
 
 
 
@@ -35,36 +35,16 @@ export default function update() {
   const facetNames = state.gridKey ? data.Lines.map( d => d.facet)
   .filter((item, pos, facetNames) => facetNames.indexOf(item) === pos)
   : [""]
+  
   const columnNames = data.polls.column_names.value;
   colors.updateColorScale(columnNames);
 
   const { displayData } = this.data;
 
-  const { dateFormat } = state;
-  const parseDate = d3.timeParse(dateFormat);
-
   // Format the polling data so that it can be used to create global values and plot points
-  const pollData = data.polls
-    .sort((a, b) => parseDate(a.date) - parseDate(b.date))
-    .map((d, index) => {
-      const row = { date: parseDate(d.date), pollster: d.pollster, rowID: index, };
-      columnNames.forEach((el, i) => {
-        row[columnNames[i]] = isNaN(d.value[i]) ? "" : Number(d.value[i]);
-      });
-      return row;
-    })
+  const pollData = getPollData(data, state)
 
-  const linesData = data.Lines
-  .sort((a, b) => parseDate(a.date) - parseDate(b.date))
-  .map((d) => {
-    return {
-      date: parseDate(d.date),
-      party: d.party,
-      lower: Number(d.lower),
-      upper: Number(d.upper),
-      value: Number(d.value)
-    }
-  })
+  const linesData = getLinesData(data, state)
 
   // Create a global date extent array as this remains constant across all facets
   const dateExtent = d3.extent(pollData, (d) => d.date);
@@ -116,6 +96,7 @@ export default function update() {
   chart
     .attr('width', width)
     .attr('height', height)
+
   layout.update();
 
   // create an array of the correct display labeles to measure overall label width
@@ -137,7 +118,7 @@ export default function update() {
   // Generate condition to be used to test if differing scales are needed on the y scale
   const sameY = state.facets.sameY
 
-  // Set up the fcates object
+  // Set up the facets object
   facets
     .width(width)
     .height(height)
@@ -145,10 +126,8 @@ export default function update() {
     .update((facet) => {
 
   //Conditionally generate the range for the x axis depending on if the same values are wanted across each facet
-  const pollExtent = sameY ? extentMulti(pollData, columnNames)
-  : extentMulti(pollData, facet.data.parties);
-  const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper'])
-  : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
+  const pollExtent = sameY ? extentMulti(pollData, columnNames) : extentMulti(pollData, facet.data.parties);
+  const lineExtent = sameY ?  extentMulti(linesData, ['lower', 'upper']) : extentMulti(linesData.filter((row) => {return facet.data.parties.includes(row.party)}), ['lower', 'upper']);
 
   //Returns the range of numbers for the y axis
   const valueExtent = [(Math.min(pollExtent[0],lineExtent[0])), (Math.max(pollExtent[1],lineExtent[1]))]
@@ -193,19 +172,19 @@ export default function update() {
 
   // Rewturns the lastt plotted date
   const lastDate =
-  new Date(state.x.datetime_max) <
-  new Date(d3.extent(pollData, (d) => d.date)[1])
-    ? new Date(state.x.datetime_max)
-    : d3.extent(pollData, (d) => d.date)[1];
+    new Date(state.x.datetime_max) <
+    new Date(d3.extent(pollData, (d) => d.date)[1])
+      ? new Date(state.x.datetime_max)
+      : d3.extent(pollData, (d) => d.date)[1];
       
-    let newMargin;
-    const maxXDate = facet.node.chartLayout.xData().max;
-    if (lastDate.getTime() < maxXDate.getTime()) {
-      const labelOffset =
-        xScale(maxXDate) - xScale(lastDate);
-      newMargin = rightLabelWidth - labelOffset
-    }
-    else {newMargin = rightLabelWidth}
+  let newMargin;
+  const maxXDate = facet.node.chartLayout.xData().max;
+  if (lastDate.getTime() < maxXDate.getTime()) {
+    const labelOffset =
+      xScale(maxXDate) - xScale(lastDate);
+    newMargin = rightLabelWidth - labelOffset
+  }
+  else {newMargin = rightLabelWidth}
 
   // Render the facet
   facet.node.chartLayout.update (

@@ -68,7 +68,7 @@ export default {
 	moe:{render: true,
 		opacityMob: 0.3,
 		opacityDesk: 0.3},
-  show_legend_on_mobile: true,
+  showLegendOnMobile: true,
 	legend_container: {},
 	legend_categorical: {swatch_width: 1.2, swatch_height: .3},
 	displayValues: {},

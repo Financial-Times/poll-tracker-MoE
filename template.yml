@@ -166,15 +166,15 @@ settings:
     width: quarter
     show_if: moe.render
   - Legend
-  - property: show_legend_on_mobile
+  - property: showLegendOnMobile
     name: Show legend on mobile 
     type: boolean
   - property: legend_container
     import: "@flourish/legend/container"
-    show_if: show_legend_on_mobile
+    show_if: showLegendOnMobile
   - property: legend_categorical
     import: "@flourish/legend/discrete-color"
-    show_if: show_legend_on_mobile
+    show_if: showLegendOnMobile
   - Popups & panels
   - property: popup
     import: "@flourish/info-popup"
@@ -219,10 +219,9 @@ data:
     type: column
     column: "displayData::C"
   - key: displayNameMobile
-    name: Displayname mobile
+    name: Displayname for mobile and popups
     dataset: displayData
     type: column
-    optional: true
     column: "displayData::C"
   - key: date
     name: Date

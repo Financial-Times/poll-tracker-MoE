@@ -7,5 +7,6 @@ require("esbuild")
     outfile: "template.js",
     external: ["xmlhttprequest"],
     plugins: [yamlPlugin()],
+    sourcemap: true,
   })
   .catch(() => process.exit(1));

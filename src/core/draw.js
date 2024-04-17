@@ -3,19 +3,35 @@
  * The draw function is called when the template first loads.
  */
 
-import * as d3 from "d3";
-import createColors from "@flourish/colors";
-import initFacets from "@flourish/facets";
-import initAxesHighlights from "@flourish/axes-highlights";
+import initLayout from "@flourish/layout";
+import {
+  createLegendContainer,
+  createDiscreteColorLegend,
+} from "@flourish/legend";
 import initialisePopup from "@flourish/info-popup";
-
+import initAxesHighlights from "@flourish/axes-highlights";
+import createColors from "@flourish/colors";
+import * as d3 from "d3";
+import initFacets from "@flourish/facets";
 
 export default function draw() {
-  const { layout, state } = this;
+  const { state } = this;
+
+  this.layout = initLayout(state.layout);
+
+  this.legendContainer = createLegendContainer(state.legend_container);
+
+  const legendCategorical = createDiscreteColorLegend(state.legend_categorical);
+
+  this.legendCategorical = legendCategorical;
+  this.legendContainer
+    .appendTo(this.layout.getSection("legend"))
+    .add([legendCategorical]);
+  this.legendContainer.update();
 
   // get the dimensions of the layout primary container
-  const width = layout.getPrimaryWidth();
-  const height = layout.getPrimaryHeight();
+  const width = this.layout.getPrimaryWidth();
+  const height = this.layout.getPrimaryHeight();
 
   // Append chart content svg to the primary layout div
   this.chart = d3
@@ -23,16 +39,18 @@ export default function draw() {
     .append("svg")
     .attr("width", width)
     .attr("height", height);
-  
-    this.axesHighlights = initAxesHighlights(state.axes_highlights);
-  
-    const grid = this.chart.append('g')
 
-  // Create the default Flourish colour pallettes
+  const grid = this.chart.append("g");
+
+  // Instantiate the Flourish modules
+  this.popup = initialisePopup(state.popup);
+
   this.colors = createColors(state.color);
+
   this.facets = initFacets(state.facets);
   this.facets.appendTo(grid.node()).debug(false);
-  this.popup = initialisePopup(this.state.popup);
+
+  this.axesHighlights = initAxesHighlights(state.axes_highlights);
 
   // update the main layout (not chart_layout) with holding svg etc
   this.props = {
@@ -41,6 +59,7 @@ export default function draw() {
     y2: state.y2,
     background: state.chart_bg,
   };
+
   this.layout.update();
 
   // Call the update function

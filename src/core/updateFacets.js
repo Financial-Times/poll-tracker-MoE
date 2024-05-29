@@ -76,7 +76,6 @@ export const updateFacets = ({
     facet.node.chartLayout.xScale(),
     rightLabelWidth
   );
-  console.log("newMargin", newMargin, rightLabelWidth);
 
   // Render the facet
   facet.node.chartLayout.update({ margins: { right: newMargin } });

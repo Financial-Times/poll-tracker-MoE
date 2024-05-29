@@ -10,7 +10,6 @@ export function getFacetData({
 }) {
   //Fliter the data according to the dateExtent to avoid plotting lines etc outside theaxis margins
   const columnNames = data.polls.column_names.value;
-  console.log("pollData input in getFacetData", pollData);
   return facetNames.map((facetName) => {
     // Create a unique list of parties that are only plotted in this particular facet
     const parties = state.gridKey
@@ -18,7 +17,6 @@ export function getFacetData({
           .map((d) => d.party)
           .filter((item, pos, parties) => parties.indexOf(item) === pos)
       : columnNames;
-    console.log("dateExtent in getFacetData", dateExtent);
 
     // Build the plot object containing data to be rendered for each facet
     const plotData = parties.map((party) => {
@@ -42,7 +40,6 @@ export function getFacetData({
         ),
       };
     });
-    console.log("plotData in the getFacets function", plotData);
 
     return {
       name: facetName,

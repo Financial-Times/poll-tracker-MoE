@@ -13,7 +13,6 @@ export function getDateExtent(pollData, state) {
   dateExtent[1] = state.x.datetime_max
     ? parseDate(state.x.datetime_max)
     : d3.extent(pollData, (d) => d.date)[1];
-  console.log("dateExtent in getDateExtent", dateExtent);
 
   return dateExtent;
 }

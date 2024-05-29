@@ -67,20 +67,24 @@ export const updateFacets = ({
       // Blank update is called so that the scales are initiated otherwise no scale are generated.
       // Also margin values have to be passed EVERY time chartLayout update is called
     );
-  //Get the scales from the updated chartLayout
-  const yScale = facet.node.chartLayout.yScale();
-  const xScale = facet.node.chartLayout.xScale();
-  console.log(xScale());
 
   // Rewturns the last plotted date
   const lastDate = getLastDate(state, pollData);
-  const newMargin = getAdjustedMargin(facet, lastDate, xScale, rightLabelWidth);
+  const newMargin = getAdjustedMargin(
+    facet,
+    lastDate,
+    facet.node.chartLayout.xScale(),
+    rightLabelWidth
+  );
+  console.log("newMargin", newMargin, rightLabelWidth);
 
   // Render the facet
-  facet.node.chartLayout.update(
-    { margins: { right: newMargin } },
-    renderFacets()
-  );
+  facet.node.chartLayout.update({ margins: { right: newMargin } });
+
+  //Get the scales from the updated chartLayout
+  const yScale = facet.node.chartLayout.yScale();
+  const xScale = facet.node.chartLayout.xScale();
+  renderFacets();
 
   // Function that draws the each chart in the grid
   function renderFacets() {

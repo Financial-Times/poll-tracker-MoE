@@ -53,6 +53,7 @@ export default function update() {
     pollData,
     dateExtent,
   });
+  console.log("facetData direct from getFacteData", facetData);
 
   // RENDER
   facets

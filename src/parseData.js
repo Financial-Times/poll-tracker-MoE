@@ -61,7 +61,7 @@ export function getDots(d, group) {
     const column = {};
     column.party = group;
     column.date = el.date;
-    column.rowID = Number(el.rowID)
+    column.rowID = Number(el.rowID);
     column.value = Number(el[group]);
     column.pollster = el.pollster;
     if (el[group]) {
@@ -94,7 +94,7 @@ export function getlines(d, displayNameDesk) {
   return lineData;
 }
 
-export function getMoE(d, group,) {
+export function getMoE(d, group) {
   const areaData = [];
   d.forEach((el) => {
     //console.log(el)
@@ -108,7 +108,6 @@ export function getMoE(d, group,) {
     if (el.party) {
       areaData.push(column);
     }
-
   });
   return areaData;
 }

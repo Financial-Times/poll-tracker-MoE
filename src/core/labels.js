@@ -36,11 +36,7 @@ export function updateLabels({
       .data((d) => [d])
       .join(
         (enter) => enter.append("rect").attr("height", rem),
-        (updateRect) =>
-          updateRect
-            .attr("y", (d) => d.position - rem * 0.5)
-            .attr("x", () => xScale(lastDate) + thirdRem)
-            .attr("width", rem * 0.5),
+        (updateRect) => updateRect,
         (exit) =>
           exit
             .transition()
@@ -51,7 +47,9 @@ export function updateLabels({
       )
       .attr("fill", (d) => colors.getColor(d.party))
       .attr("height", rem)
-      .attr("width", rem * 0.5);
+      .attr("width", rem * 0.5)
+      .attr("y", (d) => d.position - rem * 0.5)
+      .attr("x", () => xScale(lastDate) + thirdRem);
   }
 
   // Formatting for the label number
@@ -65,10 +63,7 @@ export function updateLabels({
     .data((d) => [d])
     .join(
       (enter) => enter.append("text"),
-      (updateText) =>
-        updateText
-          .attr("y", (d) => d.position + thirdRem)
-          .attr("x", () => xScale(lastDate) + labelOffset),
+      (updateText) => updateText,
       (exit) =>
         exit
           .transition()
@@ -77,6 +72,8 @@ export function updateLabels({
             d3.select(this).remove();
           })
     )
+    .attr("y", (d) => d.position + thirdRem)
+    .attr("x", () => xScale(lastDate) + labelOffset)
     .attr("font-weight", 600)
     .attr("font-size", rem)
     .style("fill", (d) => {
